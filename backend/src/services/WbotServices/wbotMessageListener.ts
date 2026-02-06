@@ -109,34 +109,63 @@ const verifyMediaMessage = async (
       media.filename.split(".").slice(-1);
   }
 
+  const publicDir = join(__dirname, "..", "..", "..", "public");
+  const originalFilePath = join(publicDir, media.filename);
+
   try {
-    await writeFileAsync(
-      join(__dirname, "..", "..", "..", "public", media.filename),
-      media.data,
-      "base64"
-    );
+    await writeFileAsync(originalFilePath, media.data, "base64");
   } catch (err) {
     Sentry.captureException(err);
     logger.error(err);
   }
 
+  // Convert audio files (ptt/ogg) to MP3
+  let finalFilename = media.filename;
+  const isAudio = media.mimetype.startsWith("audio/") || msg.type === "ptt";
+
+  if (isAudio && !media.filename.endsWith(".mp3")) {
+    const mp3Filename = media.filename.replace(/\.[^.]+$/, ".mp3");
+    const mp3FilePath = join(publicDir, mp3Filename);
+
+    try {
+      const { execSync } = require("child_process");
+      execSync(`ffmpeg -i "${originalFilePath}" -acodec libmp3lame -ab 128k -y "${mp3FilePath}" 2>/dev/null`);
+
+      // Remove original file and use MP3
+      const fs = require("fs");
+      if (fs.existsSync(mp3FilePath)) {
+        fs.unlinkSync(originalFilePath);
+        finalFilename = mp3Filename;
+        logger.info(`Audio converted to MP3: ${mp3Filename}`);
+      }
+    } catch (convErr) {
+      logger.error(`Failed to convert audio to MP3: ${convErr}`);
+      // Keep original file if conversion fails
+    }
+  }
+
+  // Generate full URL for the media file
+  const baseUrl = process.env.BACKEND_URL || "http://localhost:8080";
+  const fullMediaUrl = `${baseUrl}/public/${finalFilename}`;
+
   const messageData = {
     id: msg.id.id,
     ticketId: ticket.id,
     contactId: msg.fromMe ? undefined : contact.id,
-    body: msg.body || media.filename,
+    body: msg.body || finalFilename,
     fromMe: msg.fromMe,
     read: msg.fromMe,
-    mediaUrl: media.filename,
+    mediaUrl: fullMediaUrl,
     mediaType: media.mimetype.split("/")[0],
     quotedMsgId: quotedMsg?.id
   };
 
-  await ticket.update({ lastMessage: msg.body || media.filename });
+  await ticket.update({ lastMessage: msg.body || finalFilename });
   const newMessage = await CreateMessageService({ messageData });
 
   return newMessage;
 };
+
 
 const verifyMessage = async (
   msg: WbotMessage,
@@ -336,8 +365,10 @@ const handleMessage = async (
       groupContact
     );
 
+    // Process and save the message, capturing saved message for media URL
+    let savedMessage: Message | undefined;
     if (msg.hasMedia) {
-      await verifyMediaMessage(msg, ticket, contact);
+      savedMessage = await verifyMediaMessage(msg, ticket, contact);
     } else {
       await verifyMessage(msg, ticket, contact);
     }
@@ -349,10 +380,11 @@ const handleMessage = async (
         ticketId: ticket.id,
         contactId: contact.id,
         contactName: contact.name,
-        message: msg.body,
+        message: msg.body || (savedMessage?.mediaUrl ? `[${msg.type}]` : ''),
         messageType: msg.type,
         whatsappId: wbot.id!,
-        isGroup: false
+        isGroup: false,
+        mediaUrl: savedMessage?.mediaUrl
       }).catch(err => {
         // Non-blocking - log error but don't interrupt message flow
         logger.error(`N8n webhook error: ${err.message}`);

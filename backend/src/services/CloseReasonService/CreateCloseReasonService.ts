@@ -8,6 +8,7 @@ interface CreateCloseReasonData {
     order?: number;
     formId?: number;
     tenantId: number;
+    whatsappId: number;
 }
 
 const CreateCloseReasonService = async (data: CreateCloseReasonData): Promise<CloseReason> => {
@@ -19,6 +20,7 @@ const CreateCloseReasonService = async (data: CreateCloseReasonData): Promise<Cl
         order: data.order || 0,
         formId: data.formId,
         tenantId: data.tenantId,
+        whatsappId: data.whatsappId,
         isActive: true
     });
 
@@ -26,3 +28,4 @@ const CreateCloseReasonService = async (data: CreateCloseReasonData): Promise<Cl
 };
 
 export default CreateCloseReasonService;
+

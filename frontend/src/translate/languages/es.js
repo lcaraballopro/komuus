@@ -106,7 +106,7 @@ const messages = {
         },
       },
       connections: {
-        title: "Conexiones",
+        title: "Cuentas",
         toasts: {
           deleted:
             "¡La conexión de WhatsApp ha sido borrada satisfactoriamente!",
@@ -124,6 +124,7 @@ const messages = {
           qrcode: "QR CODE",
           newQr: "Nuevo QR CODE",
           connecting: "Conectando",
+          config: "Configurar",
         },
         toolTips: {
           disconnected: {
@@ -264,7 +265,7 @@ const messages = {
           email: "Correo Electrónico",
           password: "Contraseña",
           profile: "Perfil",
-          whatsapp: "Conexión estándar",
+          whatsapp: "Cuenta predeterminada",
         },
         buttons: {
           okAdd: "Agregar",
@@ -282,7 +283,7 @@ const messages = {
         },
       },
       ticketsQueueSelect: {
-        placeholder: "Linhas",
+        placeholder: "Colas",
       },
       tickets: {
         toasts: {
@@ -339,11 +340,11 @@ const messages = {
       mainDrawer: {
         listItems: {
           dashboard: "Dashboard",
-          connections: "Conexiones",
+          connections: "Cuentas",
           tickets: "Conversaciones",
           contacts: "Contactos",
           quickAnswers: "Respuestas rápidas",
-          queues: "Linhas",
+          queues: "Colas",
           aiAgents: "Agentes IA",
           contactForms: "Formularios",
           webchatChannels: "Webchat",
@@ -363,7 +364,7 @@ const messages = {
         noTickets: "Sin notificaciones.",
       },
       queues: {
-        title: "Linhas",
+        title: "Colas",
         table: {
           name: "Nombre",
           color: "Color",
@@ -380,7 +381,7 @@ const messages = {
         },
       },
       queueSelect: {
-        inputLabel: "Linhas",
+        inputLabel: "Colas",
       },
       quickAnswers: {
         title: "Respuestas rápidas",
@@ -449,7 +450,7 @@ const messages = {
           name: "Nombre",
           email: "Correo Electrónico",
           profile: "Perfil",
-          whatsapp: "Conexión estándar",
+          whatsapp: "Cuenta predeterminada",
           actions: "Acciones",
         },
         buttons: {
@@ -678,7 +679,7 @@ const messages = {
           contacts: "Contactos",
           users: "Usuarios",
           queues: "Colas",
-          connections: "Conexiones",
+          connections: "Cuentas",
           quickAnswers: "Respuestas Rápidas",
           settings: "Configuración",
           reports: "Reportes",
@@ -834,6 +835,23 @@ const messages = {
         fillForm: "Completar formulario",
         cancel: "Cancelar",
         confirm: "Cerrar Conversación",
+      },
+      connectionConfig: {
+        title: "Configuración de Conexión",
+        tabs: {
+          closeReasons: "Tipificaciones",
+          contactForms: "Formularios",
+        },
+        buttons: {
+          addCloseReason: "Nueva Tipificación",
+          addContactForm: "Nuevo Formulario",
+        },
+        noCloseReasons: "No hay tipificaciones configuradas para esta conexión.",
+        noContactForms: "No hay formularios configurados para esta conexión.",
+        confirmDelete: {
+          title: "¿Eliminar?",
+          message: "Esta acción no se puede deshacer.",
+        },
       },
     },
   },

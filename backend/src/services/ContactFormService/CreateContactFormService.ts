@@ -17,6 +17,7 @@ interface Request {
     isActive?: boolean;
     fields?: FieldData[];
     tenantId: number;
+    whatsappId: number;
 }
 
 const CreateContactFormService = async ({
@@ -24,11 +25,12 @@ const CreateContactFormService = async ({
     description,
     isActive = true,
     fields = [],
-    tenantId
+    tenantId,
+    whatsappId
 }: Request): Promise<ContactForm> => {
-    // Validate unique name per tenant
+    // Validate unique name per tenant and whatsapp
     const existingForm = await ContactForm.findOne({
-        where: { name, tenantId }
+        where: { name, tenantId, whatsappId }
     });
 
     if (existingForm) {
@@ -40,7 +42,8 @@ const CreateContactFormService = async ({
         name,
         description,
         isActive,
-        tenantId
+        tenantId,
+        whatsappId
     });
 
     // Create fields if provided

@@ -6,6 +6,7 @@ interface Request {
     searchParam?: string;
     pageNumber?: string;
     tenantId: number;
+    whatsappId?: number;
 }
 
 interface Response {
@@ -17,9 +18,14 @@ interface Response {
 const ListContactFormsService = async ({
     searchParam = "",
     pageNumber = "1",
-    tenantId
+    tenantId,
+    whatsappId
 }: Request): Promise<Response> => {
     const whereCondition: any = { tenantId };
+
+    if (whatsappId) {
+        whereCondition.whatsappId = whatsappId;
+    }
 
     if (searchParam) {
         whereCondition[Op.or] = [

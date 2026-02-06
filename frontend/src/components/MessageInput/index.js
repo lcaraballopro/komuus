@@ -34,6 +34,7 @@ import RecordingTimer from "./RecordingTimer";
 import { ReplyMessageContext } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import { AuthContext } from "../../context/Auth/AuthContext";
 import { useLocalStorage } from "../../hooks/useLocalStorage";
+import MicRecorder from "mic-recorder-to-mp3";
 import toastError from "../../errors/toastError";
 
 let Mp3Recorder = null;
@@ -41,7 +42,6 @@ let Mp3Recorder = null;
 const initRecorder = async () => {
   if (!Mp3Recorder) {
     try {
-      const MicRecorder = (await import("mic-recorder-to-mp3")).default;
       Mp3Recorder = new MicRecorder({ bitRate: 128 });
     } catch (error) {
       console.error("Failed to initialize recorder:", error);

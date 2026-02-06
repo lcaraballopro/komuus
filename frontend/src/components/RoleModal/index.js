@@ -56,7 +56,7 @@ const moduleTranslations = {
     contacts: "Contactos",
     users: "Usuarios",
     queues: "Colas",
-    connections: "Conexiones",
+    connections: "Cuentas",
     quickAnswers: "Respuestas Rápidas",
     settings: "Configuración",
     reports: "Reportes",

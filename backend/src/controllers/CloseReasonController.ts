@@ -9,10 +9,11 @@ import DeleteCloseReasonService from "../services/CloseReasonService/DeleteClose
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
     const { tenantId } = req.user;
-    const { activeOnly } = req.query;
+    const { activeOnly, whatsappId } = req.query;
 
     const closeReasons = await ListCloseReasonsService({
         tenantId,
+        whatsappId: whatsappId ? Number(whatsappId) : undefined,
         activeOnly: activeOnly === "true"
     });
 
@@ -21,7 +22,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
     const { tenantId } = req.user;
-    const { name, description, category, color, order, formId } = req.body;
+    const { name, description, category, color, order, formId, whatsappId } = req.body;
 
     const closeReason = await CreateCloseReasonService({
         name,
@@ -30,7 +31,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         color,
         order,
         formId,
-        tenantId
+        tenantId,
+        whatsappId
     });
 
     const io = getIO();

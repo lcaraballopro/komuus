@@ -12,6 +12,7 @@ import ListContactFormResponsesService from "../services/ContactFormService/List
 interface IndexQuery {
     searchParam?: string;
     pageNumber?: string;
+    whatsappId?: string;
 }
 
 interface ResponsesQuery {
@@ -22,12 +23,13 @@ interface ResponsesQuery {
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
     const { tenantId } = req.user;
-    const { searchParam, pageNumber } = req.query as IndexQuery;
+    const { searchParam, pageNumber, whatsappId } = req.query as IndexQuery;
 
     const { contactForms, count, hasMore } = await ListContactFormsService({
         searchParam,
         pageNumber,
-        tenantId
+        tenantId,
+        whatsappId: whatsappId ? Number(whatsappId) : undefined
     });
 
     return res.json({ contactForms, count, hasMore });
@@ -35,14 +37,15 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
     const { tenantId } = req.user;
-    const { name, description, isActive, fields } = req.body;
+    const { name, description, isActive, fields, whatsappId } = req.body;
 
     const contactForm = await CreateContactFormService({
         name,
         description,
         isActive,
         fields,
-        tenantId
+        tenantId,
+        whatsappId
     });
 
     const io = getIO();

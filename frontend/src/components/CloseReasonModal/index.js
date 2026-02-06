@@ -51,7 +51,7 @@ const CloseReasonSchema = Yup.object().shape({
     category: Yup.string().required("Requerido"),
 });
 
-const CloseReasonModal = ({ open, onClose, closeReasonId }) => {
+const CloseReasonModal = ({ open, onClose, closeReasonId, whatsappId }) => {
     const classes = useStyles();
     const [forms, setForms] = useState([]);
     const [loadingForms, setLoadingForms] = useState(false);
@@ -73,7 +73,8 @@ const CloseReasonModal = ({ open, onClose, closeReasonId }) => {
             const fetchForms = async () => {
                 setLoadingForms(true);
                 try {
-                    const { data } = await api.get("/contact-forms");
+                    const params = whatsappId ? { whatsappId } : {};
+                    const { data } = await api.get("/contact-forms", { params });
                     setForms(data.contactForms || data || []);
                 } catch (err) {
                     console.error("Error fetching forms:", err);
@@ -82,7 +83,7 @@ const CloseReasonModal = ({ open, onClose, closeReasonId }) => {
             };
             fetchForms();
         }
-    }, [open]);
+    }, [open, whatsappId]);
 
     useEffect(() => {
         if (!closeReasonId) {
@@ -119,6 +120,7 @@ const CloseReasonModal = ({ open, onClose, closeReasonId }) => {
             const payload = {
                 ...values,
                 formId: values.formId || null,
+                whatsappId: whatsappId,
             };
 
             if (closeReasonId) {

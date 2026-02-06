@@ -274,7 +274,7 @@ const ContactFormFiller = ({ open, onClose, ticketId, contactId, formId: propFor
                     <div style={{ textAlign: "center", padding: 20 }}>
                         <CircularProgress />
                     </div>
-                ) : forms.length === 0 ? (
+                ) : !propFormId && forms.length === 0 ? (
                     <Typography className={classes.noFormsMessage}>
                         {i18n.t("contactFormFiller.noForms")}
                     </Typography>

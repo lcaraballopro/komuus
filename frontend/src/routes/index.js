@@ -20,6 +20,7 @@ import ContactForms from "../pages/ContactForms/";
 import Reports from "../pages/Reports/";
 import WebchatChannels from "../pages/WebchatChannels/";
 import CloseReasons from "../pages/CloseReasons/";
+import Profile from "../pages/Profile/";
 import { AuthProvider } from "../context/Auth/AuthContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import { ThemeProvider } from "../context/DarkMode";
@@ -50,6 +51,7 @@ const Routes = () => {
                 <Route exact path="/reports" component={Reports} isPrivate />
                 <Route exact path="/webchat-channels" component={WebchatChannels} isPrivate />
                 <Route exact path="/close-reasons" component={CloseReasons} isPrivate />
+                <Route exact path="/profile" component={Profile} isPrivate />
               </LoggedInLayout>
             </WhatsAppsProvider>
           </Switch>

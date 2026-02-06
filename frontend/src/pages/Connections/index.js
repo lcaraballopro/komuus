@@ -25,6 +25,7 @@ import {
 	SignalCellular4Bar,
 	CropFree,
 	DeleteOutline,
+	Settings,
 } from "@material-ui/icons";
 
 import MainContainer from "../../components/MainContainer";
@@ -40,6 +41,7 @@ import QrcodeModal from "../../components/QrcodeModal";
 import { i18n } from "../../translate/i18n";
 import { WhatsAppsContext } from "../../context/WhatsApp/WhatsAppsContext";
 import toastError from "../../errors/toastError";
+import ConnectionConfigModal from "../../components/ConnectionConfigModal";
 
 const useStyles = makeStyles(theme => ({
 	mainPaper: {
@@ -110,6 +112,8 @@ const Connections = () => {
 	const [confirmModalInfo, setConfirmModalInfo] = useState(
 		confirmationModalInitialState
 	);
+	const [configModalOpen, setConfigModalOpen] = useState(false);
+	const [configWhatsApp, setConfigWhatsApp] = useState(null);
 
 	const handleStartWhatsAppSession = async whatsAppId => {
 		try {
@@ -150,6 +154,16 @@ const Connections = () => {
 	const handleEditWhatsApp = whatsApp => {
 		setSelectedWhatsApp(whatsApp);
 		setWhatsAppModalOpen(true);
+	};
+
+	const handleOpenConfigModal = (whatsApp) => {
+		setConfigWhatsApp(whatsApp);
+		setConfigModalOpen(true);
+	};
+
+	const handleCloseConfigModal = () => {
+		setConfigWhatsApp(null);
+		setConfigModalOpen(false);
 	};
 
 	const handleOpenConfirmationModal = (action, whatsAppId) => {
@@ -230,17 +244,17 @@ const Connections = () => {
 				{(whatsApp.status === "CONNECTED" ||
 					whatsApp.status === "PAIRING" ||
 					whatsApp.status === "TIMEOUT") && (
-					<Button
-						size="small"
-						variant="outlined"
-						color="secondary"
-						onClick={() => {
-							handleOpenConfirmationModal("disconnect", whatsApp.id);
-						}}
-					>
-						{i18n.t("connections.buttons.disconnect")}
-					</Button>
-				)}
+						<Button
+							size="small"
+							variant="outlined"
+							color="secondary"
+							onClick={() => {
+								handleOpenConfirmationModal("disconnect", whatsApp.id);
+							}}
+						>
+							{i18n.t("connections.buttons.disconnect")}
+						</Button>
+					)}
 				{whatsApp.status === "OPENING" && (
 					<Button size="small" variant="outlined" disabled color="default">
 						{i18n.t("connections.buttons.connecting")}
@@ -309,6 +323,11 @@ const Connections = () => {
 				onClose={handleCloseWhatsAppModal}
 				whatsAppId={!qrModalOpen && selectedWhatsApp?.id}
 			/>
+			<ConnectionConfigModal
+				open={configModalOpen}
+				onClose={handleCloseConfigModal}
+				whatsapp={configWhatsApp}
+			/>
 			<MainHeader>
 				<Title>{i18n.t("connections.title")}</Title>
 				<MainHeaderButtonsWrapper>
@@ -371,6 +390,13 @@ const Connections = () => {
 												)}
 											</TableCell>
 											<TableCell align="center">
+												<IconButton
+													size="small"
+													onClick={() => handleOpenConfigModal(whatsApp)}
+													title={i18n.t("connections.buttons.config")}
+												>
+													<Settings />
+												</IconButton>
 												<IconButton
 													size="small"
 													onClick={() => handleEditWhatsApp(whatsApp)}

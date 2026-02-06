@@ -14,6 +14,7 @@ import {
 } from "sequelize-typescript";
 import Company from "./Company";
 import ContactForm from "./ContactForm";
+import Whatsapp from "./Whatsapp";
 
 @Table
 class CloseReason extends Model<CloseReason> {
@@ -55,6 +56,13 @@ class CloseReason extends Model<CloseReason> {
 
     @BelongsTo(() => Company)
     company: Company;
+
+    @ForeignKey(() => Whatsapp)
+    @Column
+    whatsappId: number;
+
+    @BelongsTo(() => Whatsapp)
+    whatsapp: Whatsapp;
 
     @CreatedAt
     createdAt: Date;

@@ -33,10 +33,11 @@ import BusinessIcon from "@material-ui/icons/Business";
 import SecurityIcon from "@material-ui/icons/Security";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import BarChartIcon from "@material-ui/icons/BarChart";
+import CategoryIcon from "@material-ui/icons/Category";
 
 import NotificationsPopOver from "../components/NotificationsPopOver";
 import ToastNotificationContainer from "../components/ToastNotification";
-import UserModal from "../components/UserModal";
+
 import TopToolbar from "../components/TopToolbar";
 import NotificationDrawer from "../components/NotificationDrawer";
 import { AuthContext } from "../context/Auth/AuthContext";
@@ -278,7 +279,7 @@ const LoggedInLayout = ({ children }) => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const location = useLocation();
-  const [userModalOpen, setUserModalOpen] = useState(false);
+
   const [anchorEl, setAnchorEl] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -320,10 +321,7 @@ const LoggedInLayout = ({ children }) => {
     setMenuOpen(false);
   };
 
-  const handleOpenUserModal = () => {
-    setUserModalOpen(true);
-    handleCloseMenu();
-  };
+
 
   const handleClickLogout = () => {
     handleCloseMenu();
@@ -365,6 +363,7 @@ const LoggedInLayout = ({ children }) => {
   const adminNavItems = [
     { to: "/users", icon: PeopleAltOutlinedIcon, label: i18n.t("mainDrawer.listItems.users") },
     { to: "/queues", icon: AccountTreeOutlinedIcon, label: i18n.t("mainDrawer.listItems.queues") },
+    { to: "/close-reasons", icon: CategoryIcon, label: i18n.t("mainDrawer.listItems.closeReasons") },
     { to: "/ai-agents", icon: AppsIcon, label: i18n.t("mainDrawer.listItems.aiAgents") },
     { to: "/reports", icon: BarChartIcon, label: i18n.t("reports.title") },
     { to: "/settings", icon: SettingsOutlinedIcon, label: i18n.t("mainDrawer.listItems.settings") },
@@ -378,11 +377,7 @@ const LoggedInLayout = ({ children }) => {
 
   return (
     <div className={classes.root}>
-      <UserModal
-        open={userModalOpen}
-        onClose={() => setUserModalOpen(false)}
-        userId={user?.id}
-      />
+
       <ToastNotificationContainer />
 
       {/* Top Toolbar */}
@@ -509,7 +504,11 @@ const LoggedInLayout = ({ children }) => {
             open={menuOpen}
             onClose={handleCloseMenu}
           >
-            <MenuItem onClick={handleOpenUserModal}>
+            <MenuItem
+              component={RouterLink}
+              to="/profile"
+              onClick={handleCloseMenu}
+            >
               {i18n.t("mainDrawer.appBar.user.profile")}
             </MenuItem>
             <MenuItem onClick={handleClickLogout}>

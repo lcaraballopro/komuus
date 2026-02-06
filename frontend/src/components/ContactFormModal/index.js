@@ -93,7 +93,7 @@ const ContactFormSchema = Yup.object().shape({
     ),
 });
 
-const ContactFormModal = ({ open, onClose, contactFormId }) => {
+const ContactFormModal = ({ open, onClose, contactFormId, whatsappId }) => {
     const classes = useStyles();
 
     const [contactForm, setContactForm] = useState({
@@ -143,11 +143,12 @@ const ContactFormModal = ({ open, onClose, contactFormId }) => {
 
     const handleSaveContactForm = async (values) => {
         try {
+            const payload = { ...values, whatsappId };
             if (contactFormId) {
-                await api.put(`/contact-forms/${contactFormId}`, values);
+                await api.put(`/contact-forms/${contactFormId}`, payload);
                 toast.success(i18n.t("contactFormModal.success.edit"));
             } else {
-                await api.post("/contact-forms", values);
+                await api.post("/contact-forms", payload);
                 toast.success(i18n.t("contactFormModal.success.add"));
             }
             handleClose();

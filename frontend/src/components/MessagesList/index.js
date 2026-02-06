@@ -685,7 +685,9 @@ const MessagesList = ({ ticketId, isGroup }) => {
                 ) && checkMessageMedia(message)}
                 <div className={classes.textContentItem}>
                   {message.quotedMsg && renderQuotedMessage(message)}
-                  <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                  {message.mediaType !== "audio" && (
+                    <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                  )}
                   <span className={classes.timestamp}>
                     {format(parseISO(message.createdAt), "HH:mm")}
                   </span>
@@ -725,7 +727,9 @@ const MessagesList = ({ ticketId, isGroup }) => {
                     />
                   )}
                   {message.quotedMsg && renderQuotedMessage(message)}
-                  <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                  {message.mediaType !== "audio" && (
+                    <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                  )}
                   <span className={classes.timestamp}>
                     {format(parseISO(message.createdAt), "HH:mm")}
                     {renderMessageAck(message)}

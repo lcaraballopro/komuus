@@ -15,6 +15,7 @@ import {
 import Company from "./Company";
 import ContactFormField from "./ContactFormField";
 import ContactFormResponse from "./ContactFormResponse";
+import Whatsapp from "./Whatsapp";
 
 @Table
 class ContactForm extends Model<ContactForm> {
@@ -39,6 +40,13 @@ class ContactForm extends Model<ContactForm> {
 
     @BelongsTo(() => Company)
     company: Company;
+
+    @ForeignKey(() => Whatsapp)
+    @Column
+    whatsappId: number;
+
+    @BelongsTo(() => Whatsapp)
+    whatsapp: Whatsapp;
 
     @HasMany(() => ContactFormField)
     fields: ContactFormField[];

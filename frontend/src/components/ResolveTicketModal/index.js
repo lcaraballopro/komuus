@@ -86,7 +86,10 @@ const ResolveTicketModal = ({ open, onClose, ticket, onResolve }) => {
         setLoading(true);
         try {
             const { data } = await api.get("/close-reasons", {
-                params: { activeOnly: "true" }
+                params: {
+                    activeOnly: "true",
+                    whatsappId: ticket?.whatsappId
+                }
             });
             setCloseReasons(data);
         } catch (err) {

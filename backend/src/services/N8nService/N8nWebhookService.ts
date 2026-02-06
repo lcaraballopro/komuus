@@ -87,6 +87,12 @@ interface WebhookPayload {
         totalContactMessages: number;
         platform: string;
     };
+
+    // Media info (for audio/video/image messages)
+    media?: {
+        url: string;       // Public URL to download the media file
+        type: string;      // audio, video, image, document, ptt, etc.
+    };
 }
 
 interface TriggerOptions {
@@ -99,6 +105,7 @@ interface TriggerOptions {
     whatsappId: number;
     tenantId?: number;
     isGroup?: boolean;
+    mediaUrl?: string;  // URL of audio/media file
 }
 
 /**
@@ -259,6 +266,14 @@ const triggerN8nWebhook = async (options: TriggerOptions): Promise<boolean> => {
             platform: "whatsapp"
         }
     };
+
+    // Add media info if present (for audio, video, image messages)
+    if (options.mediaUrl) {
+        payload.media = {
+            url: `${process.env.BACKEND_URL || 'http://localhost:8080'}/public/${options.mediaUrl}`,
+            type: options.messageType
+        };
+    }
 
     try {
         const headers: Record<string, string> = { "Content-Type": "application/json" };

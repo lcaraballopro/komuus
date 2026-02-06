@@ -20,6 +20,8 @@ import Ticket from "./Ticket";
 import WhatsappQueue from "./WhatsappQueue";
 import AIAgent from "./AIAgent";
 import Company from "./Company";
+import CloseReason from "./CloseReason";
+import ContactForm from "./ContactForm";
 
 @Table
 class Whatsapp extends Model<Whatsapp> {
@@ -89,6 +91,12 @@ class Whatsapp extends Model<Whatsapp> {
 
   @HasMany(() => WhatsappQueue)
   whatsappQueues: WhatsappQueue[];
+
+  @HasMany(() => CloseReason)
+  closeReasons: CloseReason[];
+
+  @HasMany(() => ContactForm)
+  contactForms: ContactForm[];
 }
 
 export default Whatsapp;

@@ -303,127 +303,13 @@ const TopToolbar = ({ onSwipeDown }) => {
     return (
         <>
             <div className={classes.toolbar}>
-                {/* Left Section - Logo & Status */}
+                {/* Logo only - simplified toolbar */}
                 <div className={classes.leftSection}>
                     <img src={logo} alt="Komu" className={classes.logo} />
-
-                    {!isMobile && (
-                        <div className={classes.statusIndicators}>
-                            <Tooltip title={`${connectedCount}/${totalCount} conexiones activas`}>
-                                <div className={classes.statusChip}>
-                                    <FiberManualRecordIcon
-                                        className={`${classes.statusDot} ${allConnected ? classes.statusConnected : classes.statusDisconnected}`}
-                                    />
-                                    <WhatsAppIcon style={{ fontSize: 14 }} />
-                                    <span>{connectedCount}/{totalCount}</span>
-                                </div>
-                            </Tooltip>
-                        </div>
-                    )}
-                </div>
-
-                {/* Center Section - Search */}
-                <div className={classes.centerSection}>
-                    <ClickAwayListener onClickAway={handleSearchClose}>
-                        <div className={classes.searchContainer}>
-                            <SearchIcon className={classes.searchIcon} />
-                            <InputBase
-                                className={classes.searchInput}
-                                placeholder={i18n.t("mainDrawer.appBar.search") || "Buscar..."}
-                                value={searchQuery}
-                                onChange={(e) => setSearchQuery(e.target.value)}
-                                onFocus={handleSearchFocus}
-                            />
-                            {!isMobile && !searchOpen && (
-                                <span className={classes.searchShortcut}>⌘K</span>
-                            )}
-
-                            {/* Search Results Dropdown */}
-                            <Fade in={searchOpen}>
-                                <Paper className={classes.searchResults} elevation={0}>
-                                    <Typography className={classes.searchCategory}>
-                                        Acciones Rápidas
-                                    </Typography>
-                                    <List dense>
-                                        <ListItem
-                                            button
-                                            className={classes.searchItem}
-                                            onClick={() => handleQuickAction("new-ticket")}
-                                        >
-                                            <ListItemIcon><AddIcon color="primary" /></ListItemIcon>
-                                            <ListItemText primary="Nuevo Ticket" secondary="Crear una nueva conversación" />
-                                        </ListItem>
-                                        <ListItem
-                                            button
-                                            className={classes.searchItem}
-                                            onClick={() => handleQuickAction("new-contact")}
-                                        >
-                                            <ListItemIcon><PersonAddIcon color="primary" /></ListItemIcon>
-                                            <ListItemText primary="Nuevo Contacto" secondary="Agregar un contacto" />
-                                        </ListItem>
-                                    </List>
-
-                                    <Typography className={classes.searchCategory}>
-                                        Navegación
-                                    </Typography>
-                                    <List dense>
-                                        <ListItem
-                                            button
-                                            className={classes.searchItem}
-                                            onClick={() => handleQuickAction("tickets")}
-                                        >
-                                            <ListItemIcon><ConfirmationNumberIcon /></ListItemIcon>
-                                            <ListItemText primary="Ir a Tickets" />
-                                        </ListItem>
-                                        <ListItem
-                                            button
-                                            className={classes.searchItem}
-                                            onClick={() => handleQuickAction("contacts")}
-                                        >
-                                            <ListItemIcon><ContactPhoneIcon /></ListItemIcon>
-                                            <ListItemText primary="Ir a Contactos" />
-                                        </ListItem>
-                                    </List>
-                                </Paper>
-                            </Fade>
-                        </div>
-                    </ClickAwayListener>
-                </div>
-
-                {/* Right Section - Actions & Profile */}
-                <div className={classes.rightSection}>
-                    {!isMobile && (
-                        <>
-                            <Tooltip title="Nuevo Ticket">
-                                <IconButton
-                                    className={classes.actionButton}
-                                    onClick={() => setNewTicketModalOpen(true)}
-                                >
-                                    <Badge variant="dot" color="primary" invisible>
-                                        <AddIcon />
-                                    </Badge>
-                                </IconButton>
-                            </Tooltip>
-                            <Tooltip title="Nuevo Contacto">
-                                <IconButton
-                                    className={classes.actionButton}
-                                    onClick={() => setContactModalOpen(true)}
-                                >
-                                    <PersonAddIcon />
-                                </IconButton>
-                            </Tooltip>
-                        </>
-                    )}
-
-                    <Tooltip title={user?.name || "Usuario"}>
-                        <Avatar className={classes.avatar}>
-                            {getInitials(user?.name)}
-                        </Avatar>
-                    </Tooltip>
                 </div>
             </div>
 
-            {/* Modals */}
+            {/* Modals - kept for future use */}
             <NewTicketModal
                 modalOpen={newTicketModalOpen}
                 onClose={() => setNewTicketModalOpen(false)}
