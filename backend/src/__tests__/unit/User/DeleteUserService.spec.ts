@@ -4,6 +4,8 @@ import CreateUserService from "../../../services/UserServices/CreateUserService"
 import DeleteUserService from "../../../services/UserServices/DeleteUserService";
 import { disconnect, truncate } from "../../utils/database";
 
+const TENANT_ID = 1;
+
 describe("User", () => {
   beforeEach(async () => {
     await truncate();
@@ -21,14 +23,15 @@ describe("User", () => {
     const { id } = await CreateUserService({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: faker.internet.password(),
+      tenantId: TENANT_ID
     });
 
-    expect(DeleteUserService(id)).resolves.not.toThrow();
+    expect(DeleteUserService({ id, tenantId: TENANT_ID })).resolves.not.toThrow();
   });
 
   it("to throw an error if tries to delete a non existing user", async () => {
-    expect(DeleteUserService(faker.random.number())).rejects.toBeInstanceOf(
+    expect(DeleteUserService({ id: faker.random.number(), tenantId: TENANT_ID })).rejects.toBeInstanceOf(
       AppError
     );
   });

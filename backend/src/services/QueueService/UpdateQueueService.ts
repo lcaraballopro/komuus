@@ -10,10 +10,17 @@ interface QueueData {
   greetingMessage?: string;
 }
 
-const UpdateQueueService = async (
-  queueId: number | string,
-  queueData: QueueData
-): Promise<Queue> => {
+interface UpdateQueueRequest {
+  queueId: number | string;
+  queueData: QueueData;
+  tenantId: number;
+}
+
+const UpdateQueueService = async ({
+  queueId,
+  queueData,
+  tenantId
+}: UpdateQueueRequest): Promise<Queue> => {
   const { color, name } = queueData;
 
   const queueSchema = Yup.object().shape({
@@ -25,7 +32,7 @@ const UpdateQueueService = async (
         async value => {
           if (value) {
             const queueWithSameName = await Queue.findOne({
-              where: { name: value, id: { [Op.not]: queueId } }
+              where: { name: value, tenantId, id: { [Op.not]: queueId } }
             });
 
             return !queueWithSameName;
@@ -48,7 +55,7 @@ const UpdateQueueService = async (
         async value => {
           if (value) {
             const queueWithSameColor = await Queue.findOne({
-              where: { color: value, id: { [Op.not]: queueId } }
+              where: { color: value, tenantId, id: { [Op.not]: queueId } }
             });
             return !queueWithSameColor;
           }
@@ -63,7 +70,7 @@ const UpdateQueueService = async (
     throw new AppError(err.message);
   }
 
-  const queue = await ShowQueueService(queueId);
+  const queue = await ShowQueueService({ queueId, tenantId });
 
   await queue.update(queueData);
 

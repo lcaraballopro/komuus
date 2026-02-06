@@ -71,6 +71,9 @@ const useAuth = () => {
 	}, []);
 
 	useEffect(() => {
+		// Only connect socket when user is authenticated
+		if (!user.id) return;
+
 		const socket = openSocket();
 
 		socket.on("user", data => {
@@ -82,7 +85,7 @@ const useAuth = () => {
 		return () => {
 			socket.disconnect();
 		};
-	}, [user]);
+	}, [user.id]);
 
 	const handleLogin = async userData => {
 		setLoading(true);

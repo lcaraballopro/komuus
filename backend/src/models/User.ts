@@ -20,6 +20,8 @@ import Ticket from "./Ticket";
 import Queue from "./Queue";
 import UserQueue from "./UserQueue";
 import Whatsapp from "./Whatsapp";
+import Company from "./Company";
+import Role from "./Role";
 
 @Table
 class User extends Model<User> {
@@ -54,6 +56,20 @@ class User extends Model<User> {
 
   @BelongsTo(() => Whatsapp)
   whatsapp: Whatsapp;
+
+  @ForeignKey(() => Company)
+  @Column
+  tenantId: number;
+
+  @BelongsTo(() => Company)
+  company: Company;
+
+  @ForeignKey(() => Role)
+  @Column
+  roleId: number;
+
+  @BelongsTo(() => Role)
+  role: Role;
 
   @CreatedAt
   createdAt: Date;

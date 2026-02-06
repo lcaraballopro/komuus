@@ -19,7 +19,8 @@ interface WhatsappData {
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
-  const whatsapps = await ListWhatsAppsService();
+  const { tenantId } = req.user;
+  const whatsapps = await ListWhatsAppsService({ tenantId });
 
   return res.status(200).json(whatsapps);
 };
@@ -33,6 +34,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     farewellMessage,
     queueIds
   }: WhatsappData = req.body;
+  const { tenantId } = req.user;
 
   const { whatsapp, oldDefaultWhatsapp } = await CreateWhatsAppService({
     name,
@@ -40,19 +42,20 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     isDefault,
     greetingMessage,
     farewellMessage,
-    queueIds
+    queueIds,
+    tenantId
   });
 
   StartWhatsAppSession(whatsapp);
 
   const io = getIO();
-  io.emit("whatsapp", {
+  io.to(`tenant:${tenantId}`).emit("whatsapp", {
     action: "update",
     whatsapp
   });
 
   if (oldDefaultWhatsapp) {
-    io.emit("whatsapp", {
+    io.to(`tenant:${tenantId}`).emit("whatsapp", {
       action: "update",
       whatsapp: oldDefaultWhatsapp
     });
@@ -63,8 +66,9 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { whatsappId } = req.params;
+  const { tenantId } = req.user;
 
-  const whatsapp = await ShowWhatsAppService(whatsappId);
+  const whatsapp = await ShowWhatsAppService({ id: whatsappId, tenantId });
 
   return res.status(200).json(whatsapp);
 };
@@ -75,20 +79,22 @@ export const update = async (
 ): Promise<Response> => {
   const { whatsappId } = req.params;
   const whatsappData = req.body;
+  const { tenantId } = req.user;
 
   const { whatsapp, oldDefaultWhatsapp } = await UpdateWhatsAppService({
     whatsappData,
-    whatsappId
+    whatsappId,
+    tenantId
   });
 
   const io = getIO();
-  io.emit("whatsapp", {
+  io.to(`tenant:${tenantId}`).emit("whatsapp", {
     action: "update",
     whatsapp
   });
 
   if (oldDefaultWhatsapp) {
-    io.emit("whatsapp", {
+    io.to(`tenant:${tenantId}`).emit("whatsapp", {
       action: "update",
       whatsapp: oldDefaultWhatsapp
     });
@@ -102,15 +108,17 @@ export const remove = async (
   res: Response
 ): Promise<Response> => {
   const { whatsappId } = req.params;
+  const { tenantId } = req.user;
 
-  await DeleteWhatsAppService(whatsappId);
+  await DeleteWhatsAppService({ id: whatsappId, tenantId });
   removeWbot(+whatsappId);
 
   const io = getIO();
-  io.emit("whatsapp", {
+  io.to(`tenant:${tenantId}`).emit("whatsapp", {
     action: "delete",
     whatsappId: +whatsappId
   });
 
   return res.status(200).json({ message: "Whatsapp deleted." });
 };
+

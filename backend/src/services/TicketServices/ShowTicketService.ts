@@ -5,8 +5,32 @@ import User from "../../models/User";
 import Queue from "../../models/Queue";
 import Whatsapp from "../../models/Whatsapp";
 
-const ShowTicketService = async (id: string | number): Promise<Ticket> => {
-  const ticket = await Ticket.findByPk(id, {
+interface ShowTicketRequest {
+  id: string | number;
+  tenantId?: number;
+}
+
+const ShowTicketService = async (
+  idOrRequest: string | number | ShowTicketRequest
+): Promise<Ticket> => {
+  let id: string | number;
+  let tenantId: number | undefined;
+
+  // Support both old signature (just id) and new signature (object with id and tenantId)
+  if (typeof idOrRequest === "object" && idOrRequest !== null) {
+    id = idOrRequest.id;
+    tenantId = idOrRequest.tenantId;
+  } else {
+    id = idOrRequest;
+  }
+
+  const whereClause: any = { id };
+  if (tenantId !== undefined) {
+    whereClause.tenantId = tenantId;
+  }
+
+  const ticket = await Ticket.findOne({
+    where: whereClause,
     include: [
       {
         model: Contact,
@@ -40,3 +64,4 @@ const ShowTicketService = async (id: string | number): Promise<Ticket> => {
 };
 
 export default ShowTicketService;
+

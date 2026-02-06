@@ -36,7 +36,7 @@ const messages = {
       dashboard: {
         charts: {
           perDay: {
-            title: "Tickets hoje: ",
+            title: "Conversas hoje: ",
           },
         },
         messages: {
@@ -218,11 +218,11 @@ const messages = {
         success: "Usuário salvo com sucesso.",
       },
       chat: {
-        noTicketMessage: "Selecione um ticket para começar a conversar.",
+        noTicketMessage: "Selecione uma conversa para começar.",
       },
       ticketsManager: {
         buttons: {
-          newTicket: "Novo",
+          newTicket: "Nova",
         },
       },
       ticketsQueueSelect: {
@@ -230,25 +230,25 @@ const messages = {
       },
       tickets: {
         toasts: {
-          deleted: "O ticket que você estava foi deletado.",
+          deleted: "A conversa foi excluída.",
         },
         notification: {
           message: "Mensagem de",
         },
         tabs: {
-          open: { title: "Inbox" },
-          closed: { title: "Resolvidos" },
-          search: { title: "Busca" },
+          open: { title: "Ativas" },
+          closed: { title: "Arquivadas" },
+          search: { title: "Buscar" },
         },
         search: {
-          placeholder: "Buscar tickets e mensagens",
+          placeholder: "Buscar conversas...",
         },
         buttons: {
           showAll: "Todos",
         },
       },
       transferTicketModal: {
-        title: "Transferir Ticket",
+        title: "Transferir Conversa",
         fieldLabel: "Digite para buscar usuários",
         fieldQueueLabel: "Transferir para fila",
         fieldConnectionLabel: "Transferir para conexão",
@@ -262,17 +262,17 @@ const messages = {
       },
       ticketsList: {
         pendingHeader: "Aguardando",
-        assignedHeader: "Atendendo",
-        noTicketsTitle: "Nada aqui!",
+        assignedHeader: "Meus chats",
+        noTicketsTitle: "Sem conversas",
         noTicketsMessage:
-          "Nenhum ticket encontrado com esse status ou termo pesquisado",
-        connectionTitle: "Conexão que está sendo utilizada atualmente.",
+          "Nenhuma conversa encontrada com este status ou termo",
+        connectionTitle: "Conexão ativa",
         buttons: {
           accept: "Aceitar",
         },
       },
       newTicketModal: {
-        title: "Criar Ticket",
+        title: "Nova Conversa",
         fieldLabel: "Digite para pesquisar o contato",
         add: "Adicionar",
         buttons: {
@@ -284,10 +284,11 @@ const messages = {
         listItems: {
           dashboard: "Dashboard",
           connections: "Conexões",
-          tickets: "Tickets",
+          tickets: "Conversas",
           contacts: "Contatos",
           quickAnswers: "Respostas Rápidas",
           queues: "Filas",
+          contactForms: "Formulários",
           administration: "Administração",
           users: "Usuários",
           settings: "Configurações",
@@ -401,12 +402,12 @@ const messages = {
         extraInfo: "Outras informações",
       },
       ticketOptionsMenu: {
-        delete: "Deletar",
+        delete: "Excluir",
         transfer: "Transferir",
         confirmationModal: {
-          title: "Deletar o ticket do contato",
+          title: "Excluir conversa do contato",
           message:
-            "Atenção! Todas as mensagens relacionadas ao ticket serão perdidas.",
+            "Atenção! Todas as mensagens desta conversa serão perdidas.",
         },
         buttons: {
           delete: "Excluir",

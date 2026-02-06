@@ -1,8 +1,18 @@
 import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
 
-const ShowQueueService = async (queueId: number | string): Promise<Queue> => {
-  const queue = await Queue.findByPk(queueId);
+interface ShowQueueRequest {
+  queueId: number | string;
+  tenantId: number;
+}
+
+const ShowQueueService = async ({
+  queueId,
+  tenantId
+}: ShowQueueRequest): Promise<Queue> => {
+  const queue = await Queue.findOne({
+    where: { id: queueId, tenantId }
+  });
 
   if (!queue) {
     throw new AppError("ERR_QUEUE_NOT_FOUND");

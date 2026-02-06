@@ -41,15 +41,7 @@ const createContact = async (
 
   const number = validNumber;
 
-  const contactData = {
-    name: `${number}`,
-    number,
-    profilePicUrl,
-    isGroup: false
-  };
-
-  const contact = await CreateOrUpdateContactService(contactData);
-
+  // Get whatsapp first to obtain tenantId
   let whatsapp: Whatsapp | null;
 
   if (whatsappId === undefined) {
@@ -61,6 +53,16 @@ const createContact = async (
       throw new AppError(`whatsapp #${whatsappId} not found`);
     }
   }
+
+  const contactData = {
+    name: `${number}`,
+    number,
+    profilePicUrl,
+    isGroup: false,
+    tenantId: whatsapp.tenantId
+  };
+
+  const contact = await CreateOrUpdateContactService(contactData);
 
   const createTicket = await FindOrCreateTicketService(contact, whatsapp.id, 1);
 

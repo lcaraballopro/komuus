@@ -1,0 +1,15 @@
+
+> komu-frontend@0.1.0 build
+> vite build
+
+vite v4.5.14 building for production...
+transforming...
+✓ 13321 modules transformed.
+Could not resolve entry module "@material-ui/lab".
+✓ built in 21.62s
+error during build:
+RollupError: Could not resolve entry module "@material-ui/lab".
+    at error (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:2287:30)
+    at ModuleLoader.loadEntryModule (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:24881:20)
+    at async Promise.all (index 2)
+    at async Promise.all (index 0)

@@ -2,8 +2,31 @@ import Whatsapp from "../../models/Whatsapp";
 import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
 
-const ShowWhatsAppService = async (id: string | number): Promise<Whatsapp> => {
-  const whatsapp = await Whatsapp.findByPk(id, {
+interface ShowWhatsAppRequest {
+  id: string | number;
+  tenantId?: number;
+}
+
+const ShowWhatsAppService = async (
+  idOrRequest: string | number | ShowWhatsAppRequest
+): Promise<Whatsapp> => {
+  let id: string | number;
+  let tenantId: number | undefined;
+
+  if (typeof idOrRequest === "object" && idOrRequest !== null) {
+    id = idOrRequest.id;
+    tenantId = idOrRequest.tenantId;
+  } else {
+    id = idOrRequest;
+  }
+
+  const whereClause: any = { id };
+  if (tenantId !== undefined) {
+    whereClause.tenantId = tenantId;
+  }
+
+  const whatsapp = await Whatsapp.findOne({
+    where: whereClause,
     include: [
       {
         model: Queue,
@@ -22,3 +45,4 @@ const ShowWhatsAppService = async (id: string | number): Promise<Whatsapp> => {
 };
 
 export default ShowWhatsAppService;
+

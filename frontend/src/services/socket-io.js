@@ -1,14 +1,16 @@
 import openSocket from "socket.io-client";
-import { getBackendUrl } from "../config";
 
 function connectToSocket() {
-    const token = localStorage.getItem("token");
-    return openSocket(getBackendUrl(), {
-      transports: ["websocket", "polling", "flashsocket"],
-      query: {
-        token: JSON.parse(token),
-      },
-    });
+  const token = localStorage.getItem("token");
+  // Use the origin (base URL) for socket.io, not the API path
+  const socketUrl = window.location.origin;
+  return openSocket(socketUrl, {
+    transports: ["websocket", "polling", "flashsocket"],
+    path: "/socket.io",
+    query: {
+      token: JSON.parse(token),
+    },
+  });
 }
 
 export default connectToSocket;

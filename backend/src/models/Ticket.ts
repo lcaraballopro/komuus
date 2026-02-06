@@ -17,6 +17,8 @@ import Message from "./Message";
 import Queue from "./Queue";
 import User from "./User";
 import Whatsapp from "./Whatsapp";
+import Company from "./Company";
+import CloseReason from "./CloseReason";
 
 @Table
 class Ticket extends Model<Ticket> {
@@ -37,6 +39,13 @@ class Ticket extends Model<Ticket> {
   @Default(false)
   @Column
   isGroup: boolean;
+
+  @ForeignKey(() => Company)
+  @Column
+  tenantId: number;
+
+  @BelongsTo(() => Company)
+  company: Company;
 
   @CreatedAt
   createdAt: Date;
@@ -74,6 +83,25 @@ class Ticket extends Model<Ticket> {
 
   @HasMany(() => Message)
   messages: Message[];
+
+  // Close reason fields
+  @ForeignKey(() => CloseReason)
+  @Column
+  closeReasonId: number;
+
+  @BelongsTo(() => CloseReason)
+  closeReason: CloseReason;
+
+  @Column
+  closedAt: Date;
+
+  @ForeignKey(() => User)
+  @Column
+  closedBy: number;
+
+  @BelongsTo(() => User, "closedBy")
+  closedByUser: User;
 }
 
 export default Ticket;
+

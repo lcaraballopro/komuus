@@ -35,10 +35,27 @@ const messages = {
         },
       },
       dashboard: {
+        periods: {
+          today: "Hoy",
+          week: "Últimos 7 días",
+          month: "Últimos 30 días",
+        },
+        kpis: {
+          totalTickets: "Tickets Período",
+          resolutionRate: "Tasa Resolución",
+          pending: "Pendientes",
+          newContacts: "Nuevos Contactos",
+        },
+        sections: {
+          realtime: "Estado Actual",
+        },
         charts: {
           perDay: {
-            title: "Tickets hoy: ",
+            title: "Conversaciones hoy: ",
           },
+          trend: "Tendencia del Período",
+          queueDistribution: "Por Cola",
+          agentPerformance: "Top Agentes",
         },
         messages: {
           inAttendance: {
@@ -49,8 +66,44 @@ const messages = {
           },
           closed: {
             title: "Finalizado"
-          }
+          },
+          withBot: "Con Bot",
+          closedToday: "Cerrados hoy",
         }
+      },
+      reports: {
+        title: "Reportes",
+        refresh: "Actualizar",
+        filters: {
+          startDate: "Fecha inicio",
+          endDate: "Fecha fin",
+          agent: "Agente",
+          queue: "Cola",
+          status: "Estado",
+        },
+        stats: {
+          total: "Total Tickets",
+          open: "Abiertos",
+          pending: "Pendientes",
+          closed: "Cerrados",
+          bot: "Bot",
+          totalContacts: "Total Contactos",
+          newContacts: "Nuevos en el Período",
+        },
+        charts: {
+          daily: "Tickets por Día",
+          distribution: "Distribución por Estado",
+          agentPerformance: "Rendimiento por Agente",
+        },
+        tables: {
+          queues: "Estadísticas por Cola",
+          agents: "Detalle por Agente",
+          conversations: "Historial de Conversaciones",
+        },
+        export: {
+          excel: "Exportar Excel",
+          pdf: "Exportar PDF",
+        },
       },
       connections: {
         title: "Conexiones",
@@ -109,6 +162,8 @@ const messages = {
         form: {
           name: "Nombre",
           default: "Por Defecto",
+          aiAgent: "Agente IA",
+          noAgent: "Sin agente IA",
         },
         buttons: {
           okAdd: "Agregar",
@@ -219,11 +274,11 @@ const messages = {
         success: "Usuario guardado satisfactoriamente.",
       },
       chat: {
-        noTicketMessage: "Selecciona un ticket para empezar a chatear.",
+        noTicketMessage: "Selecciona una conversación para comenzar.",
       },
       ticketsManager: {
         buttons: {
-          newTicket: "Nuevo",
+          newTicket: "Nueva",
         },
       },
       ticketsQueueSelect: {
@@ -231,25 +286,25 @@ const messages = {
       },
       tickets: {
         toasts: {
-          deleted: "El ticket en el que estabas ha sido borrado.",
+          deleted: "La conversación ha sido eliminada.",
         },
         notification: {
           message: "Mensaje de",
         },
         tabs: {
-          open: { title: "Bandeja" },
-          closed: { title: "Resueltos" },
+          open: { title: "Activas" },
+          closed: { title: "Archivadas" },
           search: { title: "Buscar" },
         },
         search: {
-          placeholder: "Buscar tickets y mensajes.",
+          placeholder: "Buscar conversaciones...",
         },
         buttons: {
           showAll: "Todos",
         },
       },
       transferTicketModal: {
-        title: "Transferir Ticket",
+        title: "Transferir Conversación",
         fieldLabel: "Escriba para buscar usuarios",
         fieldQueueLabel: "Transferir a la cola",
         fieldConnectionLabel: "Transferir to conexión",
@@ -262,18 +317,18 @@ const messages = {
         },
       },
       ticketsList: {
-        pendingHeader: "Cola",
-        assignedHeader: "Trabajando en",
-        noTicketsTitle: "¡Nada acá!",
-        connectionTitle: "Conexión que se está utilizando actualmente.",
+        pendingHeader: "En espera",
+        assignedHeader: "Mis chats",
+        noTicketsTitle: "Sin conversaciones",
+        connectionTitle: "Conexión activa",
         noTicketsMessage:
-          "No se encontraron tickets con este estado o término de búsqueda",
+          "No hay conversaciones con este estado o término de búsqueda",
         buttons: {
           accept: "Acceptar",
         },
       },
       newTicketModal: {
-        title: "Crear Ticket",
+        title: "Nueva Conversación",
         fieldLabel: "Escribe para buscar un contacto",
         add: "Añadir",
         buttons: {
@@ -285,10 +340,14 @@ const messages = {
         listItems: {
           dashboard: "Dashboard",
           connections: "Conexiones",
-          tickets: "Tickets",
+          tickets: "Conversaciones",
           contacts: "Contactos",
           quickAnswers: "Respuestas rápidas",
           queues: "Linhas",
+          aiAgents: "Agentes IA",
+          contactForms: "Formularios",
+          webchatChannels: "Webchat",
+          closeReasons: "Tipificación",
           administration: "Administración",
           users: "Usuarios",
           settings: "Configuración",
@@ -341,6 +400,47 @@ const messages = {
           deleteTitle:
             "¿Está seguro de que desea eliminar esta respuesta rápida?",
           deleteMessage: "Esta acción no se puede deshacer.",
+        },
+      },
+      aiAgents: {
+        title: "Agentes IA",
+        table: {
+          name: "Nombre",
+          webhookUrl: "URL Webhook",
+          status: "Estado",
+          actions: "Acciones",
+        },
+        buttons: {
+          add: "Agregar Agente IA",
+        },
+        toasts: {
+          saved: "Agente IA guardado correctamente",
+          deleted: "Agente IA eliminado correctamente",
+        },
+        status: {
+          active: "Activo",
+          inactive: "Inactivo",
+        },
+        confirmationModal: {
+          deleteTitle: "Eliminar",
+          deleteMessage: "¿Estás seguro? Esta acción no se puede revertir.",
+        },
+      },
+      aiAgentModal: {
+        title: {
+          add: "Agregar Agente IA",
+          edit: "Editar Agente IA",
+        },
+        form: {
+          name: "Nombre",
+          webhookUrl: "URL del Webhook",
+          apiToken: "Token de API (opcional)",
+          isActive: "Agente Activo",
+        },
+        buttons: {
+          okAdd: "Agregar",
+          okEdit: "Guardar",
+          cancel: "Cancelar",
         },
       },
       users: {
@@ -402,13 +502,13 @@ const messages = {
         extraInfo: "Otra información",
       },
       ticketOptionsMenu: {
-        delete: "Borrar",
+        delete: "Eliminar",
         transfer: "Transferir",
         confirmationModal: {
-          title: "¿Borrar ticket #",
-          titleFrom: "del contacto ",
+          title: "¿Eliminar conversación #",
+          titleFrom: "de ",
           message:
-            "¡Atención! Todos los mensajes Todos los mensajes relacionados con el ticket se perderán.",
+            "¡Atención! Se perderán todos los mensajes de esta conversación.",
         },
         buttons: {
           delete: "Borrar",
@@ -466,8 +566,279 @@ const messages = {
         ERR_WAPP_GREETING_REQUIRED:
           "El mensaje de saludo es obligatorio cuando hay más de una cola.",
       },
+      companies: {
+        title: "Empresas",
+        toasts: {
+          deleted: "Empresa eliminada con éxito.",
+          created: "Empresa creada con éxito.",
+          updated: "Empresa actualizada con éxito.",
+        },
+        confirmationModal: {
+          deleteTitle: "Eliminar",
+          deleteMessage: "¿Estás seguro? Todos los datos de esta empresa serán eliminados.",
+        },
+        buttons: {
+          add: "Nueva Empresa",
+          viewUsers: "Ver Usuarios",
+        },
+        table: {
+          name: "Nombre",
+          slug: "Identificador",
+          plan: "Plan",
+          status: "Estado",
+          actions: "Acciones",
+          active: "Activo",
+          inactive: "Inactivo",
+        },
+      },
+      companyModal: {
+        title: {
+          add: "Crear Empresa",
+          edit: "Editar Empresa",
+        },
+        form: {
+          name: "Nombre de la empresa",
+          slug: "Identificador único",
+          slugHelp: "URL amigable, ej: mi-empresa",
+          plan: "Plan",
+          maxUsers: "Máximo de usuarios",
+          maxWhatsapps: "Máximo de conexiones",
+          isActive: "Empresa activa",
+        },
+        buttons: {
+          cancel: "Cancelar",
+          create: "Crear",
+          update: "Guardar",
+        },
+      },
+      companyUsersModal: {
+        title: "Usuarios",
+        noUsers: "No hay usuarios en esta empresa.",
+        users: "usuarios",
+        addUser: "Agregar nuevo usuario",
+        bulkImport: "Importar usuarios masivamente",
+        bulkFormat: "Formato CSV: nombre,email,contraseña,perfil (uno por línea)",
+        confirmDelete: "¿Estás seguro de que deseas eliminar este usuario?",
+        validation: {
+          required: "Nombre, email y contraseña son requeridos",
+          bulkEmpty: "El texto de importación está vacío",
+          invalidFormat: "Formato inválido. Use: nombre,email,contraseña,perfil",
+        },
+        toasts: {
+          created: "Usuario creado exitosamente",
+          deleted: "Usuario eliminado exitosamente",
+          bulkCreated: "{{created}} usuarios creados, {{errors}} errores",
+        },
+        buttons: {
+          addUser: "Agregar Usuario",
+          bulkImport: "Importar CSV",
+          create: "Crear Usuario",
+          importAll: "Importar Todos",
+        },
+      },
+      roles: {
+        title: "Roles y Permisos",
+        subtitle: "Administra los roles y permisos del sistema",
+        table: {
+          name: "Nombre",
+          description: "Descripción",
+          users: "Usuarios",
+          system: "Sistema",
+          actions: "Acciones",
+        },
+        buttons: {
+          add: "Nuevo Rol",
+        },
+        toasts: {
+          created: "Rol creado exitosamente",
+          updated: "Rol actualizado exitosamente",
+          deleted: "Rol eliminado exitosamente",
+        },
+        confirmationModal: {
+          deleteTitle: "Eliminar Rol",
+          deleteMessage: "¿Estás seguro? Esta acción no se puede revertir.",
+        },
+        errors: {
+          inUse: "No se puede eliminar un rol que está siendo usado",
+          systemRole: "No se puede eliminar un rol del sistema",
+        },
+      },
+      roleModal: {
+        title: {
+          add: "Crear Rol",
+          edit: "Editar Rol",
+        },
+        form: {
+          name: "Nombre del rol",
+          description: "Descripción",
+          permissions: "Permisos",
+        },
+        modules: {
+          tickets: "Conversaciones",
+          contacts: "Contactos",
+          users: "Usuarios",
+          queues: "Colas",
+          connections: "Conexiones",
+          quickAnswers: "Respuestas Rápidas",
+          settings: "Configuración",
+          reports: "Reportes",
+          campaigns: "Campañas",
+          aiAgents: "Agentes IA",
+        },
+        buttons: {
+          cancel: "Cancelar",
+          save: "Guardar",
+        },
+      },
+      contactForms: {
+        title: "Formularios",
+        searchPlaceholder: "Buscar formularios...",
+        table: {
+          name: "Nombre",
+          fields: "Campos",
+          status: "Estado",
+          actions: "Acciones",
+        },
+        status: {
+          active: "Activo",
+          inactive: "Inactivo",
+        },
+        buttons: {
+          add: "Nuevo Formulario",
+        },
+        toasts: {
+          deleted: "Formulario eliminado correctamente",
+        },
+        confirmationModal: {
+          deleteTitle: "¿Eliminar formulario",
+          deleteMessage: "Esta acción eliminará el formulario y todas sus respuestas. No se puede deshacer.",
+        },
+      },
+      contactFormModal: {
+        title: {
+          add: "Crear Formulario",
+          edit: "Editar Formulario",
+        },
+        form: {
+          name: "Nombre del formulario",
+          description: "Descripción",
+          active: "Formulario activo",
+          fields: "Campos del formulario",
+          field: "Campo",
+          fieldType: "Tipo",
+          fieldLabel: "Etiqueta",
+          placeholder: "Texto de ayuda",
+          options: "Opciones",
+          optionsHelp: "Separar opciones con comas",
+          required: "Requerido",
+        },
+        buttons: {
+          addField: "Agregar Campo",
+          cancel: "Cancelar",
+          okAdd: "Crear",
+          okEdit: "Guardar",
+        },
+        success: {
+          add: "Formulario creado correctamente",
+          edit: "Formulario actualizado correctamente",
+        },
+      },
+      contactFormFiller: {
+        title: "Llenar Formulario",
+        selectForm: "Seleccionar formulario",
+        noForms: "No hay formularios disponibles",
+        success: "Respuesta enviada correctamente",
+        buttons: {
+          cancel: "Cancelar",
+          submit: "Enviar",
+        },
+      },
+      webchatChannels: {
+        title: "Canales Webchat",
+        confirmDelete: "¿Estás seguro de que deseas eliminar este canal? Esta acción no se puede revertir.",
+        noChannels: "No hay canales de webchat. Crea uno para empezar.",
+        table: {
+          name: "Nombre",
+          color: "Color",
+          status: "Estado",
+          actions: "Acciones",
+        },
+        buttons: {
+          add: "Nuevo Canal",
+        },
+        modal: {
+          titleAdd: "Crear Canal Webchat",
+          titleEdit: "Editar Canal Webchat",
+          name: "Nombre",
+          active: "Canal activo",
+          color: "Color primario",
+          position: "Posición",
+          buttonText: "Texto del botón",
+          welcomeMessage: "Mensaje de bienvenida",
+          offlineMessage: "Mensaje fuera de línea",
+          allowedDomains: "Dominios permitidos",
+          cancel: "Cancelar",
+          save: "Guardar",
+        },
+      },
+      closeReasons: {
+        title: "Motivos de Cierre",
+        table: {
+          name: "Nombre",
+          category: "Categoría",
+          form: "Formulario",
+          status: "Estado",
+          actions: "Acciones",
+        },
+        categories: {
+          positive: "Positivo",
+          negative: "Negativo",
+        },
+        status: {
+          active: "Activo",
+          inactive: "Inactivo",
+        },
+        buttons: {
+          add: "Nuevo Motivo",
+        },
+        toasts: {
+          created: "Motivo de cierre creado correctamente",
+          updated: "Motivo de cierre actualizado correctamente",
+          deleted: "Motivo de cierre desactivado correctamente",
+        },
+        confirmationModal: {
+          deleteTitle: "¿Desactivar motivo",
+          deleteMessage: "Esta acción desactivará el motivo de cierre. Los tickets existentes mantendrán su historial.",
+        },
+        modal: {
+          addTitle: "Crear Motivo de Cierre",
+          editTitle: "Editar Motivo de Cierre",
+          name: "Nombre",
+          description: "Descripción",
+          category: "Categoría",
+          color: "Color",
+          order: "Orden",
+          associatedForm: "Formulario asociado",
+          noForm: "Sin formulario",
+          active: "Motivo activo",
+          cancel: "Cancelar",
+          add: "Crear",
+          save: "Guardar",
+        },
+      },
+      resolveTicketModal: {
+        title: "Tipificar Conversación",
+        noReasons: "No hay motivos de cierre configurados. Contacte al administrador.",
+        formRequired: "Este motivo requiere completar un formulario",
+        formCompleted: "Formulario completado",
+        fillForm: "Completar formulario",
+        cancel: "Cancelar",
+        confirm: "Cerrar Conversación",
+      },
     },
   },
 };
 
 export { messages };
+
+

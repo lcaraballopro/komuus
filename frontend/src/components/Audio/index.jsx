@@ -5,10 +5,13 @@ import { useState } from "react";
 
 const LS_NAME = 'audioMessageRate';
 
-export default function({url}) {
+export default function ({ url }) {
     const audioRef = useRef(null);
-    const [audioRate, setAudioRate] = useState( parseFloat(localStorage.getItem(LS_NAME) || "1") );
+    const [audioRate, setAudioRate] = useState(parseFloat(localStorage.getItem(LS_NAME) || "1"));
     const [showButtonRate, setShowButtonRate] = useState(false);
+
+    // Construct the full URL for public audio files
+    const audioUrl = url && url.startsWith("http") ? url : `/public/${url}`;
 
     useEffect(() => {
         audioRef.current.playbackRate = audioRate;
@@ -30,7 +33,7 @@ export default function({url}) {
     const toogleRate = () => {
         let newRate = null;
 
-        switch(audioRate) {
+        switch (audioRate) {
             case 0.5:
                 newRate = 1;
                 break;
@@ -47,16 +50,16 @@ export default function({url}) {
                 newRate = 1;
                 break;
         }
-        
+
         setAudioRate(newRate);
     };
 
     return (
         <>
             <audio ref={audioRef} controls>
-                <source src={url} type="audio/ogg"></source>
+                <source src={audioUrl} type="audio/ogg"></source>
             </audio>
-            {showButtonRate && <Button style={{marginLeft: "5px", marginTop: "-45px"}} onClick={toogleRate}>{audioRate}x</Button>}
+            {showButtonRate && <Button style={{ marginLeft: "5px", marginTop: "-45px" }} onClick={toogleRate}>{audioRate}x</Button>}
         </>
     );
 }

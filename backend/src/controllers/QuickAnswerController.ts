@@ -21,17 +21,20 @@ interface QuickAnswerData {
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
+  const { tenantId } = req.user;
   const { searchParam, pageNumber } = req.query as IndexQuery;
 
   const { quickAnswers, count, hasMore } = await ListQuickAnswerService({
     searchParam,
-    pageNumber
+    pageNumber,
+    tenantId
   });
 
   return res.json({ quickAnswers, count, hasMore });
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
+  const { tenantId } = req.user;
   const newQuickAnswer: QuickAnswerData = req.body;
 
   const QuickAnswerSchema = Yup.object().shape({
@@ -46,11 +49,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   }
 
   const quickAnswer = await CreateQuickAnswerService({
-    ...newQuickAnswer
+    ...newQuickAnswer,
+    tenantId
   });
 
   const io = getIO();
-  io.emit("quickAnswer", {
+  io.to(`tenant:${tenantId}`).emit("quickAnswer", {
     action: "create",
     quickAnswer
   });
@@ -59,9 +63,13 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
+  const { tenantId } = req.user;
   const { quickAnswerId } = req.params;
 
-  const quickAnswer = await ShowQuickAnswerService(quickAnswerId);
+  const quickAnswer = await ShowQuickAnswerService({
+    id: quickAnswerId,
+    tenantId
+  });
 
   return res.status(200).json(quickAnswer);
 };
@@ -70,6 +78,7 @@ export const update = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  const { tenantId } = req.user;
   const quickAnswerData: QuickAnswerData = req.body;
 
   const schema = Yup.object().shape({
@@ -87,11 +96,12 @@ export const update = async (
 
   const quickAnswer = await UpdateQuickAnswerService({
     quickAnswerData,
-    quickAnswerId
+    quickAnswerId,
+    tenantId
   });
 
   const io = getIO();
-  io.emit("quickAnswer", {
+  io.to(`tenant:${tenantId}`).emit("quickAnswer", {
     action: "update",
     quickAnswer
   });
@@ -103,12 +113,16 @@ export const remove = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  const { tenantId } = req.user;
   const { quickAnswerId } = req.params;
 
-  await DeleteQuickAnswerService(quickAnswerId);
+  await DeleteQuickAnswerService({
+    id: quickAnswerId,
+    tenantId
+  });
 
   const io = getIO();
-  io.emit("quickAnswer", {
+  io.to(`tenant:${tenantId}`).emit("quickAnswer", {
     action: "delete",
     quickAnswerId
   });

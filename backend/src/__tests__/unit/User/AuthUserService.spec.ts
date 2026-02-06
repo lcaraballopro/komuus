@@ -4,6 +4,8 @@ import AuthUserService from "../../../services/UserServices/AuthUserService";
 import CreateUserService from "../../../services/UserServices/CreateUserService";
 import { disconnect, truncate } from "../../utils/database";
 
+const TENANT_ID = 1;
+
 describe("Auth", () => {
   beforeEach(async () => {
     await truncate();
@@ -24,7 +26,8 @@ describe("Auth", () => {
     await CreateUserService({
       name: faker.name.findName(),
       email,
-      password
+      password,
+      tenantId: TENANT_ID
     });
 
     const response = await AuthUserService({
@@ -41,7 +44,7 @@ describe("Auth", () => {
         email: faker.internet.email(),
         password: faker.internet.password()
       });
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(AppError);
       expect(err.statusCode).toBe(401);
       expect(err.message).toBe("ERR_INVALID_CREDENTIALS");
@@ -52,7 +55,8 @@ describe("Auth", () => {
     await CreateUserService({
       name: faker.name.findName(),
       email: "mail@test.com",
-      password: faker.internet.password()
+      password: faker.internet.password(),
+      tenantId: TENANT_ID
     });
 
     try {
@@ -60,7 +64,7 @@ describe("Auth", () => {
         email: "mail@test.com",
         password: faker.internet.password()
       });
-    } catch (err) {
+    } catch (err: any) {
       expect(err).toBeInstanceOf(AppError);
       expect(err.statusCode).toBe(401);
       expect(err.message).toBe("ERR_INVALID_CREDENTIALS");

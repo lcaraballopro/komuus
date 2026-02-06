@@ -17,7 +17,7 @@ import api from "../../services/api";
 import { ReplyMessageProvider } from "../../context/ReplyingMessage/ReplyingMessageContext";
 import toastError from "../../errors/toastError";
 
-const drawerWidth = 320;
+const drawerWidth = 360;
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,19 +30,22 @@ const useStyles = makeStyles((theme) => ({
   ticketInfo: {
     maxWidth: "50%",
     flexBasis: "50%",
+    overflow: "hidden",
     [theme.breakpoints.down("sm")]: {
-      maxWidth: "80%",
-      flexBasis: "80%",
+      maxWidth: "45%",
+      flexBasis: "45%",
+      flexShrink: 0,
     },
   },
   ticketActionButtons: {
     maxWidth: "50%",
     flexBasis: "50%",
     display: "flex",
+    justifyContent: "flex-end",
     [theme.breakpoints.down("sm")]: {
-      maxWidth: "100%",
-      flexBasis: "100%",
-      marginBottom: "5px",
+      maxWidth: "55%",
+      flexBasis: "55%",
+      flexGrow: 1,
     },
   },
 
@@ -177,6 +180,7 @@ const Ticket = () => {
         handleDrawerClose={handleDrawerClose}
         contact={contact}
         loading={loading}
+        ticketId={ticketId}
       />
     </div>
   );

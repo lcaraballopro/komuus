@@ -4,6 +4,8 @@ import openSocket from "../../services/socket-io";
 import { makeStyles } from "@material-ui/core/styles";
 import List from "@material-ui/core/List";
 import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
 
 import TicketListItem from "../TicketListItem";
 import TicketsListSkeleton from "../TicketsListSkeleton";
@@ -21,53 +23,52 @@ const useStyles = makeStyles(theme => ({
 		overflow: "hidden",
 		borderTopRightRadius: 0,
 		borderBottomRightRadius: 0,
+		backgroundColor: theme.palette.background.default,
 	},
 
 	ticketsList: {
 		flex: 1,
-		overflowY: "scroll",
+		overflowY: "auto",
+		padding: theme.spacing(0.5, 0),
 		...theme.scrollbarStyles,
-		borderTop: "2px solid rgba(0, 0, 0, 0.12)",
-	},
-
-	ticketsListHeader: {
-		color: "rgb(67, 83, 105)",
-		zIndex: 2,
-		backgroundColor: "white",
-		borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
-		display: "flex",
-		alignItems: "center",
-		justifyContent: "space-between",
-	},
-
-	ticketsCount: {
-		fontWeight: "normal",
-		color: "rgb(104, 121, 146)",
-		marginLeft: "8px",
-		fontSize: "14px",
-	},
-
-	noTicketsText: {
-		textAlign: "center",
-		color: "rgb(104, 121, 146)",
-		fontSize: "14px",
-		lineHeight: "1.4",
-	},
-
-	noTicketsTitle: {
-		textAlign: "center",
-		fontSize: "16px",
-		fontWeight: "600",
-		margin: "0px",
+		"&::-webkit-scrollbar": {
+			width: 6,
+		},
+		"&::-webkit-scrollbar-thumb": {
+			backgroundColor: theme.palette.type === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.2)",
+			borderRadius: 3,
+		},
 	},
 
 	noTicketsDiv: {
 		display: "flex",
-		height: "100px",
-		margin: 40,
+		height: "100%",
 		flexDirection: "column",
 		alignItems: "center",
 		justifyContent: "center",
+		padding: theme.spacing(4),
+		textAlign: "center",
+	},
+
+	noTicketsIcon: {
+		fontSize: 80,
+		color: theme.palette.text.secondary,
+		opacity: 0.2,
+		marginBottom: theme.spacing(2),
+	},
+
+	noTicketsTitle: {
+		fontSize: "1.25rem",
+		fontWeight: 600,
+		color: theme.palette.text.primary,
+		marginBottom: theme.spacing(1),
+	},
+
+	noTicketsText: {
+		fontSize: "0.9rem",
+		color: theme.palette.text.secondary,
+		maxWidth: 280,
+		lineHeight: 1.5,
 	},
 }));
 
@@ -152,9 +153,9 @@ const reducer = (state, action) => {
 	}
 };
 
-	const TicketsList = (props) => {
-		const { status, searchParam, showAll, selectedQueueIds, updateCount, style } =
-			props;
+const TicketsList = (props) => {
+	const { status, searchParam, showAll, selectedQueueIds, updateCount, style } =
+		props;
 	const classes = useStyles();
 	const [pageNumber, setPageNumber] = useState(1);
 	const [ticketsList, dispatch] = useReducer(reducer, []);
@@ -184,12 +185,15 @@ const reducer = (state, action) => {
 	useEffect(() => {
 		const socket = openSocket();
 
+		// If user has no specific queues selected, show all tickets
+		// Otherwise only show tickets matching the selected queues
 		const shouldUpdateTicket = ticket => !searchParam &&
 			(!ticket.userId || ticket.userId === user?.id || showAll) &&
-			(!ticket.queueId || selectedQueueIds.indexOf(ticket.queueId) > -1);
+			(selectedQueueIds.length === 0 || !ticket.queueId || selectedQueueIds.indexOf(ticket.queueId) > -1);
 
+		// Only filter by queue if user has specific queues selected
 		const notBelongsToUserQueues = ticket =>
-			ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
+			selectedQueueIds.length > 0 && ticket.queueId && selectedQueueIds.indexOf(ticket.queueId) === -1;
 
 		socket.on("connect", () => {
 			if (status) {
@@ -200,6 +204,11 @@ const reducer = (state, action) => {
 		});
 
 		socket.on("ticket", data => {
+			console.log("🎫 Ticket event received:", data.action, data.ticket?.id, data.ticket?.status, {
+				shouldUpdate: data.ticket ? shouldUpdateTicket(data.ticket) : "no ticket",
+				currentStatus: status,
+				ticketStatus: data.ticket?.status
+			});
 			if (data.action === "updateUnread") {
 				dispatch({
 					type: "RESET_UNREAD",
@@ -208,10 +217,17 @@ const reducer = (state, action) => {
 			}
 
 			if (data.action === "update" && shouldUpdateTicket(data.ticket)) {
-				dispatch({
-					type: "UPDATE_TICKET",
-					payload: data.ticket,
-				});
+				// If ticket status doesn't match the current list status, remove it from this list
+				if (status && data.ticket.status !== status) {
+					console.log("🎫 DELETE_TICKET - status mismatch", status, data.ticket.status);
+					dispatch({ type: "DELETE_TICKET", payload: data.ticket.id });
+				} else {
+					console.log("🎫 UPDATE_TICKET - adding/updating", data.ticket.id);
+					dispatch({
+						type: "UPDATE_TICKET",
+						payload: data.ticket,
+					});
+				}
 			}
 
 			if (data.action === "update" && notBelongsToUserQueues(data.ticket)) {
@@ -224,11 +240,14 @@ const reducer = (state, action) => {
 		});
 
 		socket.on("appMessage", data => {
+			// Only update if ticket status matches this list's status
 			if (data.action === "create" && shouldUpdateTicket(data.ticket)) {
-				dispatch({
-					type: "UPDATE_TICKET_UNREAD_MESSAGES",
-					payload: data.ticket,
-				});
+				if (!status || data.ticket.status === status) {
+					dispatch({
+						type: "UPDATE_TICKET_UNREAD_MESSAGES",
+						payload: data.ticket,
+					});
+				}
 			}
 		});
 
@@ -247,11 +266,11 @@ const reducer = (state, action) => {
 	}, [status, searchParam, showAll, user, selectedQueueIds]);
 
 	useEffect(() => {
-    if (typeof updateCount === "function") {
-      updateCount(ticketsList.length);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [ticketsList]);
+		if (typeof updateCount === "function") {
+			updateCount(ticketsList.length);
+		}
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [ticketsList]);
 
 	const loadMore = () => {
 		setPageNumber(prevState => prevState + 1);
@@ -269,35 +288,31 @@ const reducer = (state, action) => {
 	};
 
 	return (
-    <Paper className={classes.ticketsListWrapper} style={style}>
-			<Paper
-				square
-				name="closed"
-				elevation={0}
+		<Paper className={classes.ticketsListWrapper} style={style} elevation={0}>
+			<div
 				className={classes.ticketsList}
 				onScroll={handleScroll}
 			>
-				<List style={{ paddingTop: 0 }}>
-					{ticketsList.length === 0 && !loading ? (
-						<div className={classes.noTicketsDiv}>
-							<span className={classes.noTicketsTitle}>
-								{i18n.t("ticketsList.noTicketsTitle")}
-							</span>
-							<p className={classes.noTicketsText}>
-								{i18n.t("ticketsList.noTicketsMessage")}
-							</p>
-						</div>
-					) : (
-						<>
-							{ticketsList.map(ticket => (
-								<TicketListItem ticket={ticket} key={ticket.id} />
-							))}
-						</>
-					)}
-					{loading && <TicketsListSkeleton />}
-				</List>
-			</Paper>
-    </Paper>
+				{ticketsList.length === 0 && !loading ? (
+					<div className={classes.noTicketsDiv}>
+						<ChatBubbleOutlineIcon className={classes.noTicketsIcon} />
+						<Typography className={classes.noTicketsTitle}>
+							{i18n.t("ticketsList.noTicketsTitle")}
+						</Typography>
+						<Typography className={classes.noTicketsText}>
+							{i18n.t("ticketsList.noTicketsMessage")}
+						</Typography>
+					</div>
+				) : (
+					<>
+						{ticketsList.map(ticket => (
+							<TicketListItem ticket={ticket} key={ticket.id} />
+						))}
+					</>
+				)}
+				{loading && <TicketsListSkeleton />}
+			</div>
+		</Paper>
 	);
 };
 

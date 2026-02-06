@@ -13,6 +13,7 @@ interface Request {
   email?: string;
   profilePicUrl?: string;
   extraInfo?: ExtraInfo[];
+  tenantId: number;
 }
 
 const CreateOrUpdateContactService = async ({
@@ -21,19 +22,20 @@ const CreateOrUpdateContactService = async ({
   profilePicUrl,
   isGroup,
   email = "",
-  extraInfo = []
+  extraInfo = [],
+  tenantId
 }: Request): Promise<Contact> => {
   const number = isGroup ? rawNumber : rawNumber.replace(/[^0-9]/g, "");
 
   const io = getIO();
   let contact: Contact | null;
 
-  contact = await Contact.findOne({ where: { number } });
+  contact = await Contact.findOne({ where: { number, tenantId } });
 
   if (contact) {
     contact.update({ profilePicUrl });
 
-    io.emit("contact", {
+    io.to(`tenant:${tenantId}`).emit("contact", {
       action: "update",
       contact
     });
@@ -44,10 +46,11 @@ const CreateOrUpdateContactService = async ({
       profilePicUrl,
       email,
       isGroup,
-      extraInfo
+      extraInfo,
+      tenantId
     });
 
-    io.emit("contact", {
+    io.to(`tenant:${tenantId}`).emit("contact", {
       action: "create",
       contact
     });
@@ -57,3 +60,4 @@ const CreateOrUpdateContactService = async ({
 };
 
 export default CreateOrUpdateContactService;
+

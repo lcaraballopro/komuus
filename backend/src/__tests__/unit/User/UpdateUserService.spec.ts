@@ -4,6 +4,8 @@ import CreateUserService from "../../../services/UserServices/CreateUserService"
 import UpdateUserService from "../../../services/UserServices/UpdateUserService";
 import { disconnect, truncate } from "../../utils/database";
 
+const TENANT_ID = 1;
+
 describe("User", () => {
   beforeEach(async () => {
     await truncate();
@@ -21,7 +23,8 @@ describe("User", () => {
     const newUser = await CreateUserService({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: faker.internet.password(),
+      tenantId: TENANT_ID
     });
 
     const updatedUser = await UpdateUserService({
@@ -29,7 +32,8 @@ describe("User", () => {
       userData: {
         name: "New name",
         email: "newmail@email.com"
-      }
+      },
+      tenantId: TENANT_ID
     });
 
     expect(updatedUser).toHaveProperty("name", "New name");
@@ -43,7 +47,7 @@ describe("User", () => {
       email: faker.internet.email()
     };
 
-    expect(UpdateUserService({ userId, userData })).rejects.toBeInstanceOf(
+    expect(UpdateUserService({ userId, userData, tenantId: TENANT_ID })).rejects.toBeInstanceOf(
       AppError
     );
   });
@@ -52,7 +56,8 @@ describe("User", () => {
     const newUser = await CreateUserService({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: faker.internet.password(),
+      tenantId: TENANT_ID
     });
 
     const userId = newUser.id;
@@ -61,7 +66,7 @@ describe("User", () => {
       email: "test.worgn.email"
     };
 
-    expect(UpdateUserService({ userId, userData })).rejects.toBeInstanceOf(
+    expect(UpdateUserService({ userId, userData, tenantId: TENANT_ID })).rejects.toBeInstanceOf(
       AppError
     );
   });

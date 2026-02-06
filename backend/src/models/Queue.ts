@@ -7,14 +7,15 @@ import {
   PrimaryKey,
   AutoIncrement,
   AllowNull,
-  Unique,
-  BelongsToMany
+  BelongsToMany,
+  ForeignKey,
+  BelongsTo
 } from "sequelize-typescript";
 import User from "./User";
 import UserQueue from "./UserQueue";
-
 import Whatsapp from "./Whatsapp";
 import WhatsappQueue from "./WhatsappQueue";
+import Company from "./Company";
 
 @Table
 class Queue extends Model<Queue> {
@@ -24,17 +25,22 @@ class Queue extends Model<Queue> {
   id: number;
 
   @AllowNull(false)
-  @Unique
   @Column
   name: string;
 
   @AllowNull(false)
-  @Unique
   @Column
   color: string;
 
   @Column
   greetingMessage: string;
+
+  @ForeignKey(() => Company)
+  @Column
+  tenantId: number;
+
+  @BelongsTo(() => Company)
+  company: Company;
 
   @CreatedAt
   createdAt: Date;

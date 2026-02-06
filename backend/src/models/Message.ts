@@ -8,10 +8,13 @@ import {
   PrimaryKey,
   Default,
   BelongsTo,
-  ForeignKey
+  ForeignKey,
+  HasMany,
+  AllowNull
 } from "sequelize-typescript";
 import Contact from "./Contact";
 import Ticket from "./Ticket";
+import Company from "./Company";
 
 @Table
 class Message extends Model<Message> {
@@ -34,37 +37,28 @@ class Message extends Model<Message> {
   @Column(DataType.TEXT)
   body: string;
 
-  @Column(DataType.STRING)
-  get mediaUrl(): string | null {
-    if (this.getDataValue("mediaUrl")) {
-      return `${process.env.BACKEND_URL}:${
-        process.env.PROXY_PORT
-      }/public/${this.getDataValue("mediaUrl")}`;
-    }
-    return null;
-  }
-
   @Column
+  mediaUrl: string;
+
+  @Column(DataType.STRING)
   mediaType: string;
 
   @Default(false)
   @Column
   isDeleted: boolean;
 
+  @ForeignKey(() => Company)
+  @Column
+  tenantId: number;
+
+  @BelongsTo(() => Company)
+  company: Company;
+
   @CreatedAt
-  @Column(DataType.DATE(6))
   createdAt: Date;
 
   @UpdatedAt
-  @Column(DataType.DATE(6))
   updatedAt: Date;
-
-  @ForeignKey(() => Message)
-  @Column
-  quotedMsgId: string;
-
-  @BelongsTo(() => Message, "quotedMsgId")
-  quotedMsg: Message;
 
   @ForeignKey(() => Ticket)
   @Column
@@ -77,8 +71,15 @@ class Message extends Model<Message> {
   @Column
   contactId: number;
 
-  @BelongsTo(() => Contact, "contactId")
+  @BelongsTo(() => Contact)
   contact: Contact;
+
+  @ForeignKey(() => Message)
+  @Column
+  quotedMsgId: string;
+
+  @BelongsTo(() => Message, "quotedMsgId")
+  quotedMsg: Message;
 }
 
 export default Message;

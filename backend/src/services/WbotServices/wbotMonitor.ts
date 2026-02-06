@@ -16,6 +16,7 @@ const wbotMonitor = async (
 ): Promise<void> => {
   const io = getIO();
   const sessionName = whatsapp.name;
+  const tenantId = whatsapp.tenantId;
 
   try {
     wbot.on("change_state", async newState => {
@@ -27,7 +28,7 @@ const wbotMonitor = async (
         logger.error(err);
       }
 
-      io.emit("whatsappSession", {
+      io.to(`tenant:${tenantId}`).emit("whatsappSession", {
         action: "update",
         session: whatsapp
       });
@@ -46,7 +47,7 @@ const wbotMonitor = async (
         logger.error(err);
       }
 
-      io.emit("whatsappSession", {
+      io.to(`tenant:${tenantId}`).emit("whatsappSession", {
         action: "update",
         session: whatsapp
       });
@@ -61,7 +62,7 @@ const wbotMonitor = async (
         logger.error(err);
       }
 
-      io.emit("whatsappSession", {
+      io.to(`tenant:${tenantId}`).emit("whatsappSession", {
         action: "update",
         session: whatsapp
       });

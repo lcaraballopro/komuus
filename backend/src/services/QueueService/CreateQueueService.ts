@@ -6,10 +6,11 @@ interface QueueData {
   name: string;
   color: string;
   greetingMessage?: string;
+  tenantId: number;
 }
 
 const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
-  const { color, name } = queueData;
+  const { color, name, tenantId } = queueData;
 
   const queueSchema = Yup.object().shape({
     name: Yup.string()
@@ -21,7 +22,7 @@ const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
         async value => {
           if (value) {
             const queueWithSameName = await Queue.findOne({
-              where: { name: value }
+              where: { name: value, tenantId }
             });
 
             return !queueWithSameName;
@@ -44,7 +45,7 @@ const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
         async value => {
           if (value) {
             const queueWithSameColor = await Queue.findOne({
-              where: { color: value }
+              where: { color: value, tenantId }
             });
             return !queueWithSameColor;
           }

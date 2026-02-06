@@ -6,6 +6,7 @@ import ShowTicketService from "../TicketServices/ShowTicketService";
 interface Request {
   ticketId: string;
   pageNumber?: string;
+  tenantId: number;
 }
 
 interface Response {
@@ -17,9 +18,10 @@ interface Response {
 
 const ListMessagesService = async ({
   pageNumber = "1",
-  ticketId
+  ticketId,
+  tenantId
 }: Request): Promise<Response> => {
-  const ticket = await ShowTicketService(ticketId);
+  const ticket = await ShowTicketService({ id: ticketId, tenantId });
 
   if (!ticket) {
     throw new AppError("ERR_NO_TICKET_FOUND", 404);
@@ -30,7 +32,7 @@ const ListMessagesService = async ({
   const offset = limit * (+pageNumber - 1);
 
   const { count, rows: messages } = await Message.findAndCountAll({
-    where: { ticketId },
+    where: { ticketId, tenantId },
     limit,
     include: [
       "contact",
@@ -55,3 +57,4 @@ const ListMessagesService = async ({
 };
 
 export default ListMessagesService;
+

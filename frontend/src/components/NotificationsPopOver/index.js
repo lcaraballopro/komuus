@@ -18,6 +18,8 @@ import { i18n } from "../../translate/i18n";
 import useTickets from "../../hooks/useTickets";
 import alertSound from "../../assets/sound.mp3";
 import { AuthContext } from "../../context/Auth/AuthContext";
+import usePushSubscription from "../../hooks/usePushSubscription";
+import { showToastNotification } from "../ToastNotification";
 
 const useStyles = makeStyles(theme => ({
 	tabContainer: {
@@ -61,18 +63,34 @@ const NotificationsPopOver = () => {
 
 	const historyRef = useRef(history);
 
+	// Web Push subscription hook
+	const { isSubscribed, isSupported, subscribe } = usePushSubscription();
+
 	useEffect(() => {
 		soundAlertRef.current = play;
 
 		if (!("Notification" in window)) {
 			console.log("This browser doesn't support notifications");
 		} else {
-			Notification.requestPermission();
+			Notification.requestPermission().then(permission => {
+				// Auto-subscribe to Web Push when permission is granted
+				if (permission === "granted" && isSupported && !isSubscribed) {
+					subscribe();
+				}
+			});
 		}
-	}, [play]);
+	}, [play, isSupported, isSubscribed, subscribe]);
 
 	useEffect(() => {
-		setNotifications(tickets);
+		// Use a Map to ensure unique tickets by ID and prevent duplicates
+		setNotifications(prevState => {
+			const ticketMap = new Map();
+			// Add existing notifications first
+			prevState.forEach(t => ticketMap.set(t.id, t));
+			// Override with new tickets from API (they have the latest data)
+			tickets.forEach(t => ticketMap.set(t.id, t));
+			return Array.from(ticketMap.values());
+		});
 	}, [tickets]);
 
 	useEffect(() => {
@@ -87,22 +105,17 @@ const NotificationsPopOver = () => {
 		socket.on("ticket", data => {
 			if (data.action === "updateUnread" || data.action === "delete") {
 				setNotifications(prevState => {
-					const ticketIndex = prevState.findIndex(t => t.id === data.ticketId);
-					if (ticketIndex !== -1) {
-						prevState.splice(ticketIndex, 1);
-						return [...prevState];
-					}
-					return prevState;
+					// Use filter for immutable update - removes the ticket
+					return prevState.filter(t => t.id !== data.ticketId);
 				});
 
 				setDesktopNotifications(prevState => {
-					const notfiticationIndex = prevState.findIndex(
+					const notificationIndex = prevState.findIndex(
 						n => n.tag === String(data.ticketId)
 					);
-					if (notfiticationIndex !== -1) {
-						prevState[notfiticationIndex].close();
-						prevState.splice(notfiticationIndex, 1);
-						return [...prevState];
+					if (notificationIndex !== -1) {
+						prevState[notificationIndex].close();
+						return prevState.filter(n => n.tag !== String(data.ticketId));
 					}
 					return prevState;
 				});
@@ -116,11 +129,15 @@ const NotificationsPopOver = () => {
 				(data.ticket.userId === user?.id || !data.ticket.userId)
 			) {
 				setNotifications(prevState => {
-					const ticketIndex = prevState.findIndex(t => t.id === data.ticket.id);
-					if (ticketIndex !== -1) {
-						prevState[ticketIndex] = data.ticket;
-						return [...prevState];
+					// Check if ticket already exists to prevent duplicates
+					const existingIndex = prevState.findIndex(t => t.id === data.ticket.id);
+					if (existingIndex !== -1) {
+						// Update existing ticket with new data using immutable approach
+						const newState = [...prevState];
+						newState[existingIndex] = data.ticket;
+						return newState;
 					}
+					// Add new ticket at the beginning
 					return [data.ticket, ...prevState];
 				});
 
@@ -144,36 +161,34 @@ const NotificationsPopOver = () => {
 	const handleNotifications = data => {
 		const { message, contact, ticket } = data;
 
+		// Show in-app toast notification (Windows-style)
+		showToastNotification({ message, contact, ticket });
+
 		const options = {
 			body: `${message.body} - ${format(new Date(), "HH:mm")}`,
 			icon: contact.profilePicUrl,
-			tag: ticket.id,
+			tag: String(ticket.id),
 			renotify: true,
 		};
 
-		const notification = new Notification(
-			`${i18n.t("tickets.notification.message")} ${contact.name}`,
-			options
-		);
+		const title = `${i18n.t("tickets.notification.message")} ${contact.name}`;
 
-		notification.onclick = e => {
-			e.preventDefault();
-			window.focus();
-			historyRef.current.push(`/tickets/${ticket.id}`);
-		};
+		// Use Service Worker for notifications (works in background on PWA)
+		if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+			navigator.serviceWorker.ready.then(registration => {
+				registration.showNotification(title, options);
+			});
+		} else {
+			// Fallback for browsers without SW support
+			const notification = new Notification(title, options);
+			notification.onclick = e => {
+				e.preventDefault();
+				window.focus();
+				historyRef.current.push(`/tickets/${ticket.id}`);
+			};
+		}
 
-		setDesktopNotifications(prevState => {
-			const notfiticationIndex = prevState.findIndex(
-				n => n.tag === notification.tag
-			);
-			if (notfiticationIndex !== -1) {
-				prevState[notfiticationIndex] = notification;
-				return [...prevState];
-			}
-			return [notification, ...prevState];
-		});
-
-		soundAlertRef.current();
+		// Note: Sound is now played by ToastNotificationContainer
 	};
 
 	const handleClick = () => {

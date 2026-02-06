@@ -25,6 +25,7 @@ import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import CreateContactService from "../ContactServices/CreateContactService";
 import GetContactService from "../ContactServices/GetContactService";
 import formatBody from "../../helpers/Mustache";
+import { triggerN8nWebhook } from "../N8nService/N8nWebhookService";
 
 interface Session extends Client {
   id?: number;
@@ -32,14 +33,18 @@ interface Session extends Client {
 
 const writeFileAsync = promisify(writeFile);
 
-const verifyContact = async (msgContact: WbotContact): Promise<Contact> => {
+const verifyContact = async (
+  msgContact: WbotContact,
+  tenantId: number
+): Promise<Contact> => {
   const profilePicUrl = await msgContact.getProfilePicUrl();
 
   const contactData = {
     name: msgContact.name || msgContact.pushname || msgContact.id.user,
     number: msgContact.id.user,
     profilePicUrl,
-    isGroup: msgContact.isGroup
+    isGroup: msgContact.isGroup,
+    tenantId
   };
 
   const contact = CreateOrUpdateContactService(contactData);
@@ -298,6 +303,9 @@ const handleMessage = async (
 
     const chat = await msg.getChat();
 
+    // Get whatsapp info including tenantId before verifying contacts
+    const whatsapp = await ShowWhatsAppService(wbot.id!);
+
     if (chat.isGroup) {
       let msgGroupContact;
 
@@ -307,13 +315,12 @@ const handleMessage = async (
         msgGroupContact = await wbot.getContactById(msg.from);
       }
 
-      groupContact = await verifyContact(msgGroupContact);
+      groupContact = await verifyContact(msgGroupContact, whatsapp.tenantId);
     }
-    const whatsapp = await ShowWhatsAppService(wbot.id!);
 
     const unreadMessages = msg.fromMe ? 0 : chat.unreadCount;
 
-    const contact = await verifyContact(msgContact);
+    const contact = await verifyContact(msgContact, whatsapp.tenantId);
 
     if (
       unreadMessages === 0 &&
@@ -333,6 +340,23 @@ const handleMessage = async (
       await verifyMediaMessage(msg, ticket, contact);
     } else {
       await verifyMessage(msg, ticket, contact);
+    }
+
+    // Trigger n8n webhook for incoming customer messages (non-group)
+    if (!msg.fromMe && !chat.isGroup) {
+      triggerN8nWebhook({
+        chatId: `${contact.number}@c.us`,
+        ticketId: ticket.id,
+        contactId: contact.id,
+        contactName: contact.name,
+        message: msg.body,
+        messageType: msg.type,
+        whatsappId: wbot.id!,
+        isGroup: false
+      }).catch(err => {
+        // Non-blocking - log error but don't interrupt message flow
+        logger.error(`N8n webhook error: ${err.message}`);
+      });
     }
 
     if (
@@ -362,10 +386,15 @@ const handleMessage = async (
             }
           }
         }
+        // Get tenantId from the whatsapp connection
+        const whatsappForVcard = await ShowWhatsAppService(wbot.id!);
+        const vcardTenantId = whatsappForVcard.tenantId;
+
         for await (const ob of obj) {
           const cont = await CreateContactService({
             name: contact,
-            number: ob.number.replace(/\D/g, "")
+            number: ob.number.replace(/\D/g, ""),
+            tenantId: vcardTenantId
           });
         }
       } catch (error) {

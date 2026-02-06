@@ -39,19 +39,29 @@ const useStyles = makeStyles((theme) => ({
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
+    backgroundImage: `url(${whatsBackground})`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
   },
 
   messagesList: {
-    backgroundImage: `url(${whatsBackground})`,
     display: "flex",
     flexDirection: "column",
     flexGrow: 1,
     padding: "20px 20px 20px 20px",
-    overflowY: "scroll",
-    [theme.breakpoints.down("sm")]: {
-      paddingBottom: "90px",
+    overflowY: "auto",
+    overflowX: "hidden",
+    scrollbarWidth: "none",
+    msOverflowStyle: "none",
+    "&::-webkit-scrollbar": {
+      display: "none",
+      width: 0,
+      height: 0,
     },
-    ...theme.scrollbarStyles,
+    [theme.breakpoints.down("sm")]: {
+      paddingBottom: 140,
+    },
   },
 
   circleLoading: {
@@ -259,6 +269,36 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: "inherit",
     padding: 10,
   },
+
+  messageSystem: {
+    marginLeft: "auto",
+    marginRight: "auto",
+    marginTop: 10,
+    marginBottom: 10,
+    maxWidth: "80%",
+    backgroundColor: "#fff3cd",
+    border: "1px solid #ffc107",
+    borderRadius: 8,
+    padding: 12,
+    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
+    textAlign: "left",
+    whiteSpace: "pre-wrap",
+  },
+
+  systemMessageIcon: {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 8,
+    color: "#856404",
+    fontWeight: 600,
+  },
+
+  systemMessageBody: {
+    color: "#856404",
+    fontSize: "0.9rem",
+    lineHeight: 1.4,
+  },
 }));
 
 const reducer = (state, action) => {
@@ -465,19 +505,25 @@ const MessagesList = ({ ticketId, isGroup }) => {
         )
       } else return (<></>)
     }*/
-    else if ( /^.*\.(jpe?g|png|gif)?$/i.exec(message.mediaUrl) && message.mediaType === "image") {
+    else if (/^.*\.(jpe?g|png|gif)?$/i.exec(message.mediaUrl) && message.mediaType === "image") {
       return <ModalImageCors imageUrl={message.mediaUrl} />;
     } else if (message.mediaType === "audio") {
       return <Audio url={message.mediaUrl} />
     } else if (message.mediaType === "video") {
+      const videoUrl = message.mediaUrl.startsWith("http")
+        ? message.mediaUrl
+        : `/public/${message.mediaUrl}`;
       return (
         <video
           className={classes.messageMedia}
-          src={message.mediaUrl}
+          src={videoUrl}
           controls
         />
       );
     } else {
+      const downloadUrl = message.mediaUrl.startsWith("http")
+        ? message.mediaUrl
+        : `/public/${message.mediaUrl}`;
       return (
         <>
           <div className={classes.downloadMedia}>
@@ -486,7 +532,7 @@ const MessagesList = ({ ticketId, isGroup }) => {
               color="primary"
               variant="outlined"
               target="_blank"
-              href={message.mediaUrl}
+              href={downloadUrl}
             >
               Download
             </Button>
@@ -593,6 +639,26 @@ const MessagesList = ({ ticketId, isGroup }) => {
   const renderMessages = () => {
     if (messagesList.length > 0) {
       const viewMessagesList = messagesList.map((message, index) => {
+        // Render system messages (internal notes for agents)
+        if (message.mediaType === "system") {
+          return (
+            <React.Fragment key={message.id}>
+              {renderDailyTimestamps(message, index)}
+              <div className={classes.messageSystem}>
+                <div className={classes.systemMessageIcon}>
+                  📋 NOTA DEL SISTEMA
+                </div>
+                <div className={classes.systemMessageBody}>
+                  <MarkdownWrapper>{message.body}</MarkdownWrapper>
+                </div>
+                <span className={classes.timestamp} style={{ position: 'relative', display: 'block', textAlign: 'right', marginTop: 8 }}>
+                  {format(parseISO(message.createdAt), "HH:mm")}
+                </span>
+              </div>
+            </React.Fragment>
+          );
+        }
+
         if (!message.fromMe) {
           return (
             <React.Fragment key={message.id}>

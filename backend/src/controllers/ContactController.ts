@@ -37,10 +37,12 @@ interface ContactData {
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { searchParam, pageNumber } = req.query as IndexQuery;
+  const { tenantId } = req.user;
 
   const { contacts, count, hasMore } = await ListContactsService({
     searchParam,
-    pageNumber
+    pageNumber,
+    tenantId
   });
 
   return res.json({ contacts, count, hasMore });
@@ -51,10 +53,12 @@ export const getContact = async (
   res: Response
 ): Promise<Response> => {
   const { name, number } = req.body as IndexGetContactQuery;
+  const { tenantId } = req.user;
 
   const contact = await GetContactService({
     name,
-    number
+    number,
+    tenantId
   });
 
   return res.status(200).json(contact);
@@ -62,6 +66,7 @@ export const getContact = async (
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const newContact: ContactData = req.body;
+  const { tenantId } = req.user;
   newContact.number = newContact.number.replace("-", "").replace(" ", "");
 
   const schema = Yup.object().shape({
@@ -92,11 +97,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     number,
     email,
     extraInfo,
-    profilePicUrl
+    profilePicUrl,
+    tenantId
   });
 
   const io = getIO();
-  io.emit("contact", {
+  io.to(`tenant:${tenantId}`).emit("contact", {
     action: "create",
     contact
   });
@@ -106,8 +112,9 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { contactId } = req.params;
+  const { tenantId } = req.user;
 
-  const contact = await ShowContactService(contactId);
+  const contact = await ShowContactService({ id: contactId, tenantId });
 
   return res.status(200).json(contact);
 };
@@ -117,6 +124,7 @@ export const update = async (
   res: Response
 ): Promise<Response> => {
   const contactData: ContactData = req.body;
+  const { tenantId } = req.user;
 
   const schema = Yup.object().shape({
     name: Yup.string(),
@@ -136,10 +144,10 @@ export const update = async (
 
   const { contactId } = req.params;
 
-  const contact = await UpdateContactService({ contactData, contactId });
+  const contact = await UpdateContactService({ contactData, contactId, tenantId });
 
   const io = getIO();
-  io.emit("contact", {
+  io.to(`tenant:${tenantId}`).emit("contact", {
     action: "update",
     contact
   });
@@ -152,14 +160,16 @@ export const remove = async (
   res: Response
 ): Promise<Response> => {
   const { contactId } = req.params;
+  const { tenantId } = req.user;
 
-  await DeleteContactService(contactId);
+  await DeleteContactService({ id: contactId, tenantId });
 
   const io = getIO();
-  io.emit("contact", {
+  io.to(`tenant:${tenantId}`).emit("contact", {
     action: "delete",
     contactId
   });
 
   return res.status(200).json({ message: "Contact deleted" });
 };
+

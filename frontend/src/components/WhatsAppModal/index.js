@@ -16,6 +16,10 @@ import {
 	TextField,
 	Switch,
 	FormControlLabel,
+	FormControl,
+	InputLabel,
+	Select,
+	MenuItem,
 } from "@material-ui/core";
 
 import api from "../../services/api";
@@ -28,18 +32,19 @@ const useStyles = makeStyles(theme => ({
 		display: "flex",
 		flexWrap: "wrap",
 	},
-
 	multFieldLine: {
 		display: "flex",
 		"& > *:not(:last-child)": {
 			marginRight: theme.spacing(1),
 		},
 	},
-
+	formControl: {
+		marginTop: theme.spacing(1),
+		minWidth: "100%",
+	},
 	btnWrapper: {
 		position: "relative",
 	},
-
 	buttonProgress: {
 		color: green[500],
 		position: "absolute",
@@ -64,9 +69,23 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 		greetingMessage: "",
 		farewellMessage: "",
 		isDefault: false,
+		aiAgentId: "",
 	};
 	const [whatsApp, setWhatsApp] = useState(initialState);
 	const [selectedQueueIds, setSelectedQueueIds] = useState([]);
+	const [aiAgents, setAiAgents] = useState([]);
+
+	useEffect(() => {
+		const fetchAiAgents = async () => {
+			try {
+				const { data } = await api.get("/ai-agents");
+				setAiAgents(data.agents || []);
+			} catch (err) {
+				console.error("Error fetching AI agents:", err);
+			}
+		};
+		fetchAiAgents();
+	}, []);
 
 	useEffect(() => {
 		const fetchSession = async () => {
@@ -74,7 +93,10 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 
 			try {
 				const { data } = await api.get(`whatsapp/${whatsAppId}`);
-				setWhatsApp(data);
+				setWhatsApp({
+					...data,
+					aiAgentId: data.aiAgentId || "",
+				});
 
 				const whatsQueueIds = data.queues?.map(queue => queue.id);
 				setSelectedQueueIds(whatsQueueIds);
@@ -86,7 +108,11 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 	}, [whatsAppId]);
 
 	const handleSaveWhatsApp = async values => {
-		const whatsappData = { ...values, queueIds: selectedQueueIds };
+		const whatsappData = {
+			...values,
+			queueIds: selectedQueueIds,
+			aiAgentId: values.aiAgentId || null,
+		};
 
 		try {
 			if (whatsAppId) {
@@ -164,15 +190,11 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 										label={i18n.t("queueModal.form.greetingMessage")}
 										type="greetingMessage"
 										multiline
-										rows={5}
+										rows={4}
 										fullWidth
 										name="greetingMessage"
-										error={
-											touched.greetingMessage && Boolean(errors.greetingMessage)
-										}
-										helperText={
-											touched.greetingMessage && errors.greetingMessage
-										}
+										error={touched.greetingMessage && Boolean(errors.greetingMessage)}
+										helperText={touched.greetingMessage && errors.greetingMessage}
 										variant="outlined"
 										margin="dense"
 									/>
@@ -183,19 +205,35 @@ const WhatsAppModal = ({ open, onClose, whatsAppId }) => {
 										label={i18n.t("whatsappModal.form.farewellMessage")}
 										type="farewellMessage"
 										multiline
-										rows={5}
+										rows={4}
 										fullWidth
 										name="farewellMessage"
-										error={
-											touched.farewellMessage && Boolean(errors.farewellMessage)
-										}
-										helperText={
-											touched.farewellMessage && errors.farewellMessage
-										}
+										error={touched.farewellMessage && Boolean(errors.farewellMessage)}
+										helperText={touched.farewellMessage && errors.farewellMessage}
 										variant="outlined"
 										margin="dense"
 									/>
 								</div>
+								<FormControl variant="outlined" className={classes.formControl} margin="dense">
+									<InputLabel id="ai-agent-select-label">
+										{i18n.t("whatsappModal.form.aiAgent")}
+									</InputLabel>
+									<Field
+										as={Select}
+										labelId="ai-agent-select-label"
+										name="aiAgentId"
+										label={i18n.t("whatsappModal.form.aiAgent")}
+									>
+										<MenuItem value="">
+											<em>{i18n.t("whatsappModal.form.noAgent")}</em>
+										</MenuItem>
+										{aiAgents.filter(a => a.isActive).map(agent => (
+											<MenuItem key={agent.id} value={agent.id}>
+												{agent.name}
+											</MenuItem>
+										))}
+									</Field>
+								</FormControl>
 								<QueueSelect
 									selectedQueueIds={selectedQueueIds}
 									onChange={selectedIds => setSelectedQueueIds(selectedIds)}

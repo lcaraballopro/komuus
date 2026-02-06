@@ -1,95 +1,176 @@
-import React, { useState, useEffect, useRef } from "react";
+import React from "react";
 import { useTheme } from "@material-ui/core/styles";
+import useMediaQuery from "@material-ui/core/useMediaQuery";
 import {
-	BarChart,
-	CartesianGrid,
-	Bar,
+	AreaChart,
+	Area,
 	XAxis,
 	YAxis,
-	Label,
+	CartesianGrid,
+	Tooltip,
 	ResponsiveContainer,
+	Legend,
 } from "recharts";
-import { startOfHour, parseISO, format } from "date-fns";
+import Paper from "@material-ui/core/Paper";
+import Typography from "@material-ui/core/Typography";
+import Box from "@material-ui/core/Box";
 
 import { i18n } from "../../translate/i18n";
 
-import Title from "./Title";
-import useTickets from "../../hooks/useTickets";
-
-const Chart = () => {
+const TrendChart = ({ data = [], title = "Tendencia Semanal" }) => {
 	const theme = useTheme();
+	const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
 
-	const date = useRef(new Date().toISOString());
-	const { tickets } = useTickets({ date: date.current });
+	// Transform daily stats data
+	const chartData = data.map((item) => ({
+		date: formatDate(item.date),
+		created: item.created,
+		closed: item.closed,
+	}));
 
-	const [chartData, setChartData] = useState([
-		{ time: "08:00", amount: 0 },
-		{ time: "09:00", amount: 0 },
-		{ time: "10:00", amount: 0 },
-		{ time: "11:00", amount: 0 },
-		{ time: "12:00", amount: 0 },
-		{ time: "13:00", amount: 0 },
-		{ time: "14:00", amount: 0 },
-		{ time: "15:00", amount: 0 },
-		{ time: "16:00", amount: 0 },
-		{ time: "17:00", amount: 0 },
-		{ time: "18:00", amount: 0 },
-		{ time: "19:00", amount: 0 },
-	]);
+	function formatDate(dateStr) {
+		const date = new Date(dateStr);
+		const options = { weekday: "short", day: "numeric" };
+		return date.toLocaleDateString("es-ES", options);
+	}
 
-	useEffect(() => {
-		setChartData(prevState => {
-			let aux = [...prevState];
+	const chartMargins = isMobile
+		? { top: 10, right: 10, bottom: 0, left: -20 }
+		: { top: 10, right: 30, bottom: 0, left: 0 };
 
-			aux.forEach(a => {
-				tickets.forEach(ticket => {
-					format(startOfHour(parseISO(ticket.createdAt)), "HH:mm") === a.time &&
-						a.amount++;
-				});
-			});
+	const CustomTooltip = ({ active, payload, label }) => {
+		if (active && payload && payload.length) {
+			return (
+				<Paper
+					style={{
+						padding: theme.spacing(1.5),
+						backgroundColor: theme.palette.background.paper,
+						border: `1px solid ${theme.palette.divider}`,
+					}}
+				>
+					<Typography variant="subtitle2" style={{ fontWeight: 600 }}>
+						{label}
+					</Typography>
+					{payload.map((entry, index) => (
+						<Typography
+							key={index}
+							variant="body2"
+							style={{ color: entry.color }}
+						>
+							{entry.name}: {entry.value}
+						</Typography>
+					))}
+				</Paper>
+			);
+		}
+		return null;
+	};
 
-			return aux;
-		});
-	}, [tickets]);
+	if (chartData.length === 0) {
+		return (
+			<Box
+				style={{
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					height: "100%",
+					color: theme.palette.text.secondary,
+				}}
+			>
+				<Typography>Sin datos disponibles</Typography>
+			</Box>
+		);
+	}
 
 	return (
 		<React.Fragment>
-			<Title>{`${i18n.t("dashboard.charts.perDay.title")}${
-				tickets.length
-			}`}</Title>
-			<ResponsiveContainer>
-				<BarChart
-					data={chartData}
-					barSize={40}
-					width={730}
-					height={250}
-					margin={{
-						top: 16,
-						right: 16,
-						bottom: 0,
-						left: 24,
-					}}
-				>
-					<CartesianGrid strokeDasharray="3 3" />
-					<XAxis dataKey="time" stroke={theme.palette.text.secondary} />
-					<YAxis
-						type="number"
-						allowDecimals={false}
+			<Typography
+				variant="subtitle1"
+				style={{
+					fontWeight: 600,
+					marginBottom: theme.spacing(1),
+					color: theme.palette.text.primary,
+				}}
+			>
+				{title}
+			</Typography>
+			<ResponsiveContainer width="100%" height="85%">
+				<AreaChart data={chartData} margin={chartMargins}>
+					<defs>
+						<linearGradient id="colorCreated" x1="0" y1="0" x2="0" y2="1">
+							<stop
+								offset="5%"
+								stopColor={theme.palette.primary.main}
+								stopOpacity={0.3}
+							/>
+							<stop
+								offset="95%"
+								stopColor={theme.palette.primary.main}
+								stopOpacity={0}
+							/>
+						</linearGradient>
+						<linearGradient id="colorClosed" x1="0" y1="0" x2="0" y2="1">
+							<stop
+								offset="5%"
+								stopColor={theme.palette.success.main}
+								stopOpacity={0.3}
+							/>
+							<stop
+								offset="95%"
+								stopColor={theme.palette.success.main}
+								stopOpacity={0}
+							/>
+						</linearGradient>
+					</defs>
+					<CartesianGrid
+						strokeDasharray="3 3"
+						stroke={theme.palette.divider}
+						vertical={false}
+					/>
+					<XAxis
+						dataKey="date"
 						stroke={theme.palette.text.secondary}
-					>
-						<Label
-							angle={270}
-							position="left"
-							style={{ textAnchor: "middle", fill: theme.palette.text.primary }}
-						>
-							Tickets
-						</Label>
-					</YAxis>
-					<Bar dataKey="amount" fill={theme.palette.primary.main} />
-				</BarChart>
+						tick={{ fontSize: isMobile ? 10 : 12 }}
+						tickLine={false}
+						axisLine={false}
+					/>
+					<YAxis
+						stroke={theme.palette.text.secondary}
+						tick={{ fontSize: isMobile ? 10 : 12 }}
+						tickLine={false}
+						axisLine={false}
+						allowDecimals={false}
+						width={isMobile ? 30 : 40}
+					/>
+					<Tooltip content={<CustomTooltip />} />
+					<Legend
+						wrapperStyle={{
+							paddingTop: theme.spacing(1),
+							fontSize: isMobile ? 11 : 12,
+						}}
+					/>
+					<Area
+						type="monotone"
+						dataKey="created"
+						name="Creados"
+						stroke={theme.palette.primary.main}
+						strokeWidth={2}
+						fillOpacity={1}
+						fill="url(#colorCreated)"
+					/>
+					<Area
+						type="monotone"
+						dataKey="closed"
+						name="Cerrados"
+						stroke={theme.palette.success.main}
+						strokeWidth={2}
+						fillOpacity={1}
+						fill="url(#colorClosed)"
+					/>
+				</AreaChart>
 			</ResponsiveContainer>
 		</React.Fragment>
 	);
 };
 
-export default Chart;
+export default TrendChart;

@@ -17,10 +17,12 @@ type IndexQuery = {
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { searchParam, pageNumber } = req.query as IndexQuery;
+  const { tenantId } = req.user;
 
   const { users, count, hasMore } = await ListUsersService({
     searchParam,
-    pageNumber
+    pageNumber,
+    tenantId
   });
 
   return res.json({ users, count, hasMore });
@@ -28,13 +30,14 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { email, password, name, profile, queueIds, whatsappId } = req.body;
+  const { tenantId } = req.user;
 
   if (
     req.url === "/signup" &&
     (await CheckSettingsHelper("userCreation")) === "disabled"
   ) {
     throw new AppError("ERR_USER_CREATION_DISABLED", 403);
-  } else if (req.url !== "/signup" && req.user.profile !== "admin") {
+  } else if (req.url !== "/signup" && req.user.profile !== "admin" && req.user.profile !== "superadmin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
@@ -44,11 +47,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name,
     profile,
     queueIds,
-    whatsappId
+    whatsappId,
+    tenantId
   });
 
   const io = getIO();
-  io.emit("user", {
+  io.to(`tenant:${tenantId}`).emit("user", {
     action: "create",
     user
   });
@@ -58,8 +62,9 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { userId } = req.params;
+  const { tenantId } = req.user;
 
-  const user = await ShowUserService(userId);
+  const user = await ShowUserService(userId, tenantId);
 
   return res.status(200).json(user);
 };
@@ -68,17 +73,18 @@ export const update = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
-  if (req.user.profile !== "admin") {
+  if (req.user.profile !== "admin" && req.user.profile !== "superadmin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
   const { userId } = req.params;
   const userData = req.body;
+  const { tenantId } = req.user;
 
-  const user = await UpdateUserService({ userData, userId });
+  const user = await UpdateUserService({ userData, userId, tenantId });
 
   const io = getIO();
-  io.emit("user", {
+  io.to(`tenant:${tenantId}`).emit("user", {
     action: "update",
     user
   });
@@ -91,12 +97,16 @@ export const remove = async (
   res: Response
 ): Promise<Response> => {
   const { userId } = req.params;
+  const { tenantId, profile } = req.user;
 
-  if (req.user.profile !== "admin") {
+  if (profile !== "admin" && profile !== "superadmin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
   }
 
-  await DeleteUserService(userId);
+  // Superadmin can delete users from any tenant
+  const effectiveTenantId = profile === "superadmin" ? null : tenantId;
+
+  await DeleteUserService({ id: userId, tenantId: effectiveTenantId });
 
   const io = getIO();
   io.emit("user", {

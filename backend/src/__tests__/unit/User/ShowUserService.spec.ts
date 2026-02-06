@@ -5,6 +5,8 @@ import CreateUserService from "../../../services/UserServices/CreateUserService"
 import ShowUserService from "../../../services/UserServices/ShowUserService";
 import { disconnect, truncate } from "../../utils/database";
 
+const TENANT_ID = 1;
+
 describe("User", () => {
   beforeEach(async () => {
     await truncate();
@@ -22,17 +24,18 @@ describe("User", () => {
     const newUser = await CreateUserService({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: faker.internet.password(),
+      tenantId: TENANT_ID
     });
 
-    const user = await ShowUserService(newUser.id);
+    const user = await ShowUserService(newUser.id, TENANT_ID);
 
     expect(user).toHaveProperty("id");
     expect(user).toBeInstanceOf(User);
   });
 
   it("should not be able to find a inexisting user", async () => {
-    expect(ShowUserService(faker.random.number())).rejects.toBeInstanceOf(
+    expect(ShowUserService(faker.random.number(), TENANT_ID)).rejects.toBeInstanceOf(
       AppError
     );
   });

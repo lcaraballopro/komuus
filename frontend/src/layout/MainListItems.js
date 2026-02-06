@@ -15,6 +15,10 @@ import PeopleAltOutlinedIcon from "@material-ui/icons/PeopleAltOutlined";
 import ContactPhoneOutlinedIcon from "@material-ui/icons/ContactPhoneOutlined";
 import AccountTreeOutlinedIcon from "@material-ui/icons/AccountTreeOutlined";
 import QuestionAnswerOutlinedIcon from "@material-ui/icons/QuestionAnswerOutlined";
+import BusinessIcon from "@material-ui/icons/Business";
+import DynamicFormIcon from "@material-ui/icons/Assignment";
+import WebIcon from "@material-ui/icons/Web";
+import CategoryIcon from "@material-ui/icons/Category";
 
 import { i18n } from "../translate/i18n";
 import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
@@ -102,6 +106,11 @@ const MainListItems = (props) => {
         primary={i18n.t("mainDrawer.listItems.quickAnswers")}
         icon={<QuestionAnswerOutlinedIcon />}
       />
+      <ListItemLink
+        to="/contact-forms"
+        primary={i18n.t("mainDrawer.listItems.contactForms")}
+        icon={<DynamicFormIcon />}
+      />
       <Can
         role={user.profile}
         perform="drawer-admin-items:view"
@@ -122,10 +131,27 @@ const MainListItems = (props) => {
               icon={<AccountTreeOutlinedIcon />}
             />
             <ListItemLink
+              to="/close-reasons"
+              primary={i18n.t("mainDrawer.listItems.closeReasons")}
+              icon={<CategoryIcon />}
+            />
+            <ListItemLink
+              to="/webchat-channels"
+              primary={i18n.t("mainDrawer.listItems.webchatChannels")}
+              icon={<WebIcon />}
+            />
+            <ListItemLink
               to="/settings"
               primary={i18n.t("mainDrawer.listItems.settings")}
               icon={<SettingsOutlinedIcon />}
             />
+            {user.profile === "superadmin" && (
+              <ListItemLink
+                to="/companies"
+                primary={i18n.t("companies.title")}
+                icon={<BusinessIcon />}
+              />
+            )}
           </>
         )}
       />
@@ -134,3 +160,4 @@ const MainListItems = (props) => {
 };
 
 export default MainListItems;
+

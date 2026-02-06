@@ -10,6 +10,21 @@ import Queue from "../models/Queue";
 import WhatsappQueue from "../models/WhatsappQueue";
 import UserQueue from "../models/UserQueue";
 import QuickAnswer from "../models/QuickAnswer";
+import AIAgent from "../models/AIAgent";
+import Company from "../models/Company";
+import Lead from "../models/Lead";
+import Role from "../models/Role";
+import Permission from "../models/Permission";
+import RolePermission from "../models/RolePermission";
+import PushSubscription from "../models/PushSubscription";
+import ContactForm from "../models/ContactForm";
+import ContactFormField from "../models/ContactFormField";
+import ContactFormResponse from "../models/ContactFormResponse";
+import ContactFormResponseValue from "../models/ContactFormResponseValue";
+import WebchatChannel from "../models/WebchatChannel";
+import WebchatSession from "../models/WebchatSession";
+import WebchatMessage from "../models/WebchatMessage";
+import CloseReason from "../models/CloseReason";
 
 // eslint-disable-next-line
 const dbConfig = require("../config/database");
@@ -18,6 +33,10 @@ const dbConfig = require("../config/database");
 const sequelize = new Sequelize(dbConfig);
 
 const models = [
+  Company,
+  Role,
+  Permission,
+  RolePermission,
   User,
   Contact,
   Ticket,
@@ -28,7 +47,18 @@ const models = [
   Queue,
   WhatsappQueue,
   UserQueue,
-  QuickAnswer
+  QuickAnswer,
+  AIAgent,
+  Lead,
+  PushSubscription,
+  ContactForm,
+  ContactFormField,
+  ContactFormResponse,
+  ContactFormResponseValue,
+  WebchatChannel,
+  WebchatSession,
+  WebchatMessage,
+  CloseReason
 ];
 
 sequelize.addModels(models);

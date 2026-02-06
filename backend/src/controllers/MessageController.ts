@@ -24,10 +24,12 @@ type MessageData = {
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const { ticketId } = req.params;
   const { pageNumber } = req.query as IndexQuery;
+  const { tenantId } = req.user;
 
   const { count, messages, ticket, hasMore } = await ListMessagesService({
     pageNumber,
-    ticketId
+    ticketId,
+    tenantId
   });
 
   SetTicketMessagesAsRead(ticket);
@@ -39,8 +41,9 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   const { ticketId } = req.params;
   const { body, quotedMsg }: MessageData = req.body;
   const medias = req.files as Express.Multer.File[];
+  const { tenantId } = req.user;
 
-  const ticket = await ShowTicketService(ticketId);
+  const ticket = await ShowTicketService({ id: ticketId, tenantId });
 
   SetTicketMessagesAsRead(ticket);
 
@@ -66,7 +69,8 @@ export const remove = async (
   const message = await DeleteWhatsAppMessage(messageId);
 
   const io = getIO();
-  io.to(message.ticketId.toString()).emit("appMessage", {
+  const ticket = message.ticket;
+  io.to(`tenant:${ticket.tenantId}`).emit("appMessage", {
     action: "update",
     message
   });

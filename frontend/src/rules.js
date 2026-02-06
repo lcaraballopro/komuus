@@ -14,6 +14,19 @@ const rules = {
 			"contacts-page:deleteContact",
 		],
 	},
+
+	superadmin: {
+		static: [
+			"drawer-admin-items:view",
+			"tickets-manager:showall",
+			"user-modal:editProfile",
+			"user-modal:editQueues",
+			"ticket-options:deleteTicket",
+			"ticket-options:transferWhatsapp",
+			"contacts-page:deleteContact",
+			"companies:manage",
+		],
+	},
 };
 
 export default rules;

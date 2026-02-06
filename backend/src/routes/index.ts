@@ -11,6 +11,17 @@ import whatsappSessionRoutes from "./whatsappSessionRoutes";
 import queueRoutes from "./queueRoutes";
 import quickAnswerRoutes from "./quickAnswerRoutes";
 import apiRoutes from "./apiRoutes";
+import n8nRoutes from "./n8nRoutes";
+import aiAgentRoutes from "./aiAgentRoutes";
+import companyRoutes from "./companyRoutes";
+import leadRoutes from "./leadRoutes";
+import roleRoutes from "./roleRoutes";
+import pushRoutes from "./pushRoutes";
+import contactFormRoutes from "./contactFormRoutes";
+import reportRoutes from "./reportRoutes";
+import webchatChannelRoutes from "./webchatChannelRoutes";
+import webchatPublicRoutes from "./webchatPublicRoutes";
+import closeReasonRoutes from "./closeReasonRoutes";
 
 const routes = Router();
 
@@ -24,6 +35,18 @@ routes.use(messageRoutes);
 routes.use(whatsappSessionRoutes);
 routes.use(queueRoutes);
 routes.use(quickAnswerRoutes);
-routes.use("/api/messages", apiRoutes);
+routes.use("/messages", apiRoutes);
+routes.use("/n8n", n8nRoutes);
+routes.use("/leads", leadRoutes);
+routes.use(aiAgentRoutes);
+routes.use(companyRoutes);
+routes.use(roleRoutes);
+routes.use("/push", pushRoutes);
+routes.use(contactFormRoutes);
+routes.use(reportRoutes);
+routes.use(webchatChannelRoutes);
+routes.use(webchatPublicRoutes);
+routes.use(closeReasonRoutes);
 
 export default routes;
+

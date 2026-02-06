@@ -1,0 +1,28 @@
+
+> komu-frontend@0.1.0 build
+> vite build
+
+vite v4.5.14 building for production...
+transforming...
+✓ 13325 modules transformed.
+✓ built in 18.23s
+"createFilterOptions" is not exported by "node_modules/@mui/lab/Autocomplete/index.js", imported by "src/components/NewTicketModal/index.js".
+file: /opt/whaticket/frontend/src/components/NewTicketModal/index.js:12:1
+10: import DialogTitle from "@mui/material/DialogTitle";
+11: import Autocomplete, {
+12:   createFilterOptions,
+      ^
+13: } from "@mui/lab/Autocomplete";
+14: import CircularProgress from "@mui/material/CircularProgress";
+error during build:
+RollupError: "createFilterOptions" is not exported by "node_modules/@mui/lab/Autocomplete/index.js", imported by "src/components/NewTicketModal/index.js".
+    at error (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:2287:30)
+    at Module.error (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:13745:16)
+    at Module.traceVariable (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:14175:29)
+    at ModuleScope.findVariable (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:12615:39)
+    at Identifier.bind (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:8319:40)
+    at CallExpression.bind (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5892:23)
+    at CallExpression.bind (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:9890:15)
+    at VariableDeclarator.bind (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5892:23)
+    at VariableDeclaration.bind (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5888:28)
+    at Program.bind (file:///opt/whaticket/frontend/node_modules/rollup/dist/es/shared/node-entry.js:5888:28)

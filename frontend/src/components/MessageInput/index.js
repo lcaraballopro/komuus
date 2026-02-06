@@ -53,44 +53,92 @@ const initRecorder = async () => {
 
 const useStyles = makeStyles(theme => ({
   mainWrapper: {
-    background: "#eee",
+    background: "rgba(240, 242, 245, 0.95)",
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    borderTop: "1px solid rgba(0, 0, 0, 0.12)",
+    margin: "8px 12px",
+    borderRadius: 28,
+    boxShadow: "0 2px 8px rgba(0, 0, 0, 0.08)",
     [theme.breakpoints.down("sm")]: {
       position: "fixed",
-      bottom: 0,
-      width: "100%",
+      bottom: 56,
+      left: 0,
+      right: 0,
+      margin: "0 6px 6px 6px",
+      borderRadius: 24,
+      zIndex: 1000,
     },
   },
 
   newMessageBox: {
-    background: "#eee",
+    background: "transparent",
     width: "100%",
     display: "flex",
-    padding: "7px",
+    padding: "6px 6px 6px 12px",
     alignItems: "center",
+    gap: 2,
   },
 
   messageInputWrapper: {
-    padding: 6,
-    marginRight: 7,
-    background: "#fff",
+    padding: "4px 8px",
+    background: "#ffffff",
     display: "flex",
-    borderRadius: 20,
+    borderRadius: 24,
     flex: 1,
     position: "relative",
+    alignItems: "center",
+    border: "1px solid rgba(0, 0, 0, 0.08)",
+    minHeight: 44,
   },
 
   messageInput: {
-    paddingLeft: 10,
+    paddingLeft: 8,
+    paddingRight: 8,
     flex: 1,
     border: "none",
+    fontSize: 15,
+    lineHeight: 1.4,
   },
 
   sendMessageIcons: {
-    color: "grey",
+    color: "#54656f",
+    fontSize: 22,
+  },
+
+  actionIconButton: {
+    padding: 6,
+    "&:hover": {
+      backgroundColor: "rgba(0, 0, 0, 0.04)",
+    },
+  },
+
+  sendButton: {
+    backgroundColor: "#00a884",
+    color: "#fff",
+    padding: 8,
+    marginLeft: 6,
+    "&:hover": {
+      backgroundColor: "#008f72",
+    },
+    "& svg": {
+      fontSize: 20,
+    },
+  },
+
+  micButton: {
+    backgroundColor: "#00a884",
+    color: "#fff",
+    padding: 8,
+    marginLeft: 6,
+    "&:hover": {
+      backgroundColor: "#008f72",
+    },
+    "& svg": {
+      fontSize: 20,
+    },
   },
 
   uploadInput: {
@@ -103,8 +151,18 @@ const useStyles = makeStyles(theme => ({
     position: "relative",
     justifyContent: "space-between",
     alignItems: "center",
-    backgroundColor: "#eee",
-    borderTop: "1px solid rgba(0, 0, 0, 0.12)",
+    backgroundColor: "rgba(240, 242, 245, 0.95)",
+    borderRadius: 28,
+    margin: "8px 12px",
+    [theme.breakpoints.down("sm")]: {
+      position: "fixed",
+      bottom: 56,
+      left: 0,
+      right: 0,
+      margin: "0 6px 6px 6px",
+      borderRadius: 24,
+      zIndex: 1000,
+    },
   },
 
   emojiBox: {
@@ -132,14 +190,15 @@ const useStyles = makeStyles(theme => ({
     display: "flex",
     alignItems: "center",
     alignContent: "middle",
+    gap: 4,
   },
 
   cancelAudioIcon: {
-    color: "red",
+    color: "#f44336",
   },
 
   sendAudioIcon: {
-    color: "green",
+    color: "#00a884",
   },
 
   replyginMsgWrapper: {
@@ -148,8 +207,8 @@ const useStyles = makeStyles(theme => ({
     alignItems: "center",
     justifyContent: "center",
     paddingTop: 8,
-    paddingLeft: 73,
-    paddingRight: 7,
+    paddingLeft: 12,
+    paddingRight: 12,
   },
 
   replyginMsgContainer: {
@@ -192,20 +251,24 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     bottom: "50px",
     background: "#ffffff",
-    padding: "2px",
-    border: "1px solid #CCC",
+    padding: "4px",
+    borderRadius: 8,
+    boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
     left: 0,
     width: "100%",
+    maxHeight: 200,
+    overflowY: "auto",
     "& li": {
       listStyle: "none",
       "& a": {
         display: "block",
-        padding: "8px",
+        padding: "10px 12px",
         textOverflow: "ellipsis",
         overflow: "hidden",
-        maxHeight: "32px",
+        maxHeight: "40px",
+        borderRadius: 6,
         "&:hover": {
-          background: "#F1F1F1",
+          background: "#f0f2f5",
           cursor: "pointer",
         },
       },
@@ -474,10 +537,12 @@ const MessageInput = ({ ticketStatus }) => {
       <Paper square elevation={0} className={classes.mainWrapper}>
         {replyingMessage && renderReplyingMessage(replyingMessage)}
         <div className={classes.newMessageBox}>
+          {/* Desktop: emoji, attach, and sign toggle outside */}
           <Hidden only={["sm", "xs"]}>
             <IconButton
               aria-label="emojiPicker"
               component="span"
+              className={classes.actionIconButton}
               disabled={loading || recording || ticketStatus !== "open"}
               onClick={e => setShowEmoji(prevState => !prevState)}
             >
@@ -508,13 +573,14 @@ const MessageInput = ({ ticketStatus }) => {
               <IconButton
                 aria-label="upload"
                 component="span"
+                className={classes.actionIconButton}
                 disabled={loading || recording || ticketStatus !== "open"}
               >
                 <AttachFileIcon className={classes.sendMessageIcons} />
               </IconButton>
             </label>
             <FormControlLabel
-              style={{ marginRight: 7, color: "gray" }}
+              style={{ marginRight: 7, color: "#54656f", fontSize: 13 }}
               label={i18n.t("messagesInput.signMessage")}
               labelPlacement="start"
               control={
@@ -530,71 +596,54 @@ const MessageInput = ({ ticketStatus }) => {
               }
             />
           </Hidden>
-          <Hidden only={["md", "lg", "xl"]}>
-            <IconButton
-              aria-controls="simple-menu"
-              aria-haspopup="true"
-              onClick={handleOpenMenuClick}
-            >
-              <MoreVert></MoreVert>
-            </IconButton>
-            <Menu
-              id="simple-menu"
-              keepMounted
-              anchorEl={anchorEl}
-              open={Boolean(anchorEl)}
-              onClose={handleMenuItemClick}
-            >
-              <MenuItem onClick={handleMenuItemClick}>
-                <IconButton
-                  aria-label="emojiPicker"
-                  component="span"
-                  disabled={loading || recording || ticketStatus !== "open"}
-                  onClick={e => setShowEmoji(prevState => !prevState)}
-                >
-                  <MoodIcon className={classes.sendMessageIcons} />
-                </IconButton>
-              </MenuItem>
-              <MenuItem onClick={handleMenuItemClick}>
-                <input
-                  multiple
-                  type="file"
-                  id="upload-button"
-                  disabled={loading || recording || ticketStatus !== "open"}
-                  className={classes.uploadInput}
-                  onChange={handleChangeMedias}
-                />
-                <label htmlFor="upload-button">
-                  <IconButton
-                    aria-label="upload"
-                    component="span"
-                    disabled={loading || recording || ticketStatus !== "open"}
-                  >
-                    <AttachFileIcon className={classes.sendMessageIcons} />
-                  </IconButton>
-                </label>
-              </MenuItem>
-              <MenuItem onClick={handleMenuItemClick}>
-                <FormControlLabel
-                  style={{ marginRight: 7, color: "gray" }}
-                  label={i18n.t("messagesInput.signMessage")}
-                  labelPlacement="start"
-                  control={
-                    <Switch
-                      size="small"
-                      checked={signMessage}
-                      onChange={e => {
-                        setSignMessage(e.target.checked);
-                      }}
-                      name="showAllTickets"
-                      color="primary"
-                    />
-                  }
-                />
-              </MenuItem>
-            </Menu>
-          </Hidden>
+
+          {/* Input wrapper with icons inside for all sizes */}
           <div className={classes.messageInputWrapper}>
+            {/* Mobile only: compact icons inside input */}
+            <Hidden only={["md", "lg", "xl"]}>
+              <IconButton
+                aria-label="emojiPicker"
+                component="span"
+                size="small"
+                style={{ padding: 6 }}
+                disabled={loading || recording || ticketStatus !== "open"}
+                onClick={e => setShowEmoji(prevState => !prevState)}
+              >
+                <MoodIcon style={{ fontSize: 20, color: "#54656f" }} />
+              </IconButton>
+              {showEmoji ? (
+                <div className={classes.emojiBox}>
+                  <ClickAwayListener onClickAway={e => setShowEmoji(false)}>
+                    <Picker
+                      perLine={8}
+                      showPreview={false}
+                      showSkinTones={false}
+                      onSelect={handleAddEmoji}
+                    />
+                  </ClickAwayListener>
+                </div>
+              ) : null}
+              <input
+                multiple
+                type="file"
+                id="upload-button-mobile"
+                disabled={loading || recording || ticketStatus !== "open"}
+                className={classes.uploadInput}
+                onChange={handleChangeMedias}
+              />
+              <label htmlFor="upload-button-mobile">
+                <IconButton
+                  aria-label="upload"
+                  component="span"
+                  size="small"
+                  style={{ padding: 6 }}
+                  disabled={loading || recording || ticketStatus !== "open"}
+                >
+                  <AttachFileIcon style={{ fontSize: 20, color: "#54656f" }} />
+                </IconButton>
+              </label>
+            </Hidden>
+
             <InputBase
               inputRef={input => {
                 input && input.focus();
@@ -637,25 +686,26 @@ const MessageInput = ({ ticketStatus }) => {
                   );
                 })}
               </ul>
-            ) : (
-              <div></div>
-            )}
+            ) : null}
           </div>
+
+          {/* Action button: Send or Mic */}
           {inputMessage ? (
             <IconButton
               aria-label="sendMessage"
               component="span"
+              className={classes.sendButton}
               onClick={handleSendMessage}
               disabled={loading}
             >
-              <SendIcon className={classes.sendMessageIcons} />
+              <SendIcon />
             </IconButton>
           ) : recording ? (
             <div className={classes.recorderWrapper}>
               <IconButton
                 aria-label="cancelRecording"
                 component="span"
-                fontSize="large"
+                size="small"
                 disabled={loading}
                 onClick={handleCancelAudio}
               >
@@ -668,10 +718,10 @@ const MessageInput = ({ ticketStatus }) => {
               ) : (
                 <RecordingTimer />
               )}
-
               <IconButton
                 aria-label="sendRecordedAudio"
                 component="span"
+                size="small"
                 onClick={handleUploadAudio}
                 disabled={loading}
               >
@@ -682,10 +732,11 @@ const MessageInput = ({ ticketStatus }) => {
             <IconButton
               aria-label="showRecorder"
               component="span"
+              className={classes.micButton}
               disabled={loading || ticketStatus !== "open"}
               onClick={handleStartRecording}
             >
-              <MicIcon className={classes.sendMessageIcons} />
+              <MicIcon />
             </IconButton>
           )}
         </div>

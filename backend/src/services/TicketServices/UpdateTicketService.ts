@@ -5,12 +5,16 @@ import Ticket from "../../models/Ticket";
 import SendWhatsAppMessage from "../WbotServices/SendWhatsAppMessage";
 import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import ShowTicketService from "./ShowTicketService";
+import { activateBot } from "../BotStateService/BotStateService";
+import { logger } from "../../utils/logger";
 
 interface TicketData {
   status?: string;
   userId?: number;
   queueId?: number;
   whatsappId?: number;
+  closeReasonId?: number;
+  closedBy?: number;
 }
 
 interface Request {
@@ -28,7 +32,7 @@ const UpdateTicketService = async ({
   ticketData,
   ticketId
 }: Request): Promise<Response> => {
-  const { status, userId, queueId, whatsappId } = ticketData;
+  const { status, userId, queueId, whatsappId, closeReasonId, closedBy } = ticketData;
 
   const ticket = await ShowTicketService(ticketId);
   await SetTicketMessagesAsRead(ticket);
@@ -44,11 +48,28 @@ const UpdateTicketService = async ({
     await CheckContactOpenTickets(ticket.contact.id, ticket.whatsappId);
   }
 
-  await ticket.update({
+  // Prepare update data
+  const updateData: any = {
     status,
     queueId,
     userId
-  });
+  };
+
+  // If closing ticket, set close reason and timestamp
+  if (status === "closed" && oldStatus !== "closed") {
+    updateData.closeReasonId = closeReasonId;
+    updateData.closedAt = new Date();
+    updateData.closedBy = closedBy || userId;
+  }
+
+  // If reopening ticket, clear close reason data
+  if (status !== "closed" && oldStatus === "closed") {
+    updateData.closeReasonId = null;
+    updateData.closedAt = null;
+    updateData.closedBy = null;
+  }
+
+  await ticket.update(updateData);
 
   if (whatsappId) {
     await ticket.update({
@@ -59,23 +80,35 @@ const UpdateTicketService = async ({
   await ticket.reload();
 
   const io = getIO();
+  const tenantId = ticket.tenantId;
 
   if (ticket.status !== oldStatus || ticket.user?.id !== oldUserId) {
-    io.to(oldStatus).emit("ticket", {
+    io.to(`tenant:${tenantId}`).emit("ticket", {
       action: "delete",
       ticketId: ticket.id
     });
   }
 
-  io.to(ticket.status)
-    .to("notification")
-    .to(ticketId.toString())
-    .emit("ticket", {
-      action: "update",
-      ticket
-    });
+  io.to(`tenant:${tenantId}`).emit("ticket", {
+    action: "update",
+    ticket
+  });
+
+  // Reactivate bot when ticket is closed/resolved
+  // This allows the customer to interact with the chatbot again in future conversations
+  if (status === "closed" && oldStatus !== "closed") {
+    try {
+      const chatId = `${ticket.contact.number}@c.us`;
+      await activateBot(chatId);
+      logger.info(`Bot reactivated for ${chatId} after ticket ${ticket.id} was closed`);
+    } catch (err: any) {
+      logger.error(`Failed to reactivate bot after closing ticket ${ticket.id}: ${err.message}`);
+    }
+  }
 
   return { ticket, oldStatus, oldUserId };
 };
 
 export default UpdateTicketService;
+
+

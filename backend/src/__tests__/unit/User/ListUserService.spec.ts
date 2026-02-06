@@ -4,6 +4,8 @@ import CreateUserService from "../../../services/UserServices/CreateUserService"
 import ListUsersService from "../../../services/UserServices/ListUsersService";
 import { disconnect, truncate } from "../../utils/database";
 
+const TENANT_ID = 1;
+
 describe("User", () => {
   beforeEach(async () => {
     await truncate();
@@ -21,11 +23,13 @@ describe("User", () => {
     await CreateUserService({
       name: faker.name.findName(),
       email: faker.internet.email(),
-      password: faker.internet.password()
+      password: faker.internet.password(),
+      tenantId: TENANT_ID
     });
 
     const response = await ListUsersService({
-      pageNumber: 1
+      pageNumber: 1,
+      tenantId: TENANT_ID
     });
 
     expect(response).toHaveProperty("users");

@@ -13,6 +13,13 @@ import Users from "../pages/Users";
 import Contacts from "../pages/Contacts/";
 import QuickAnswers from "../pages/QuickAnswers/";
 import Queues from "../pages/Queues/";
+import AIAgents from "../pages/AIAgents/";
+import Companies from "../pages/Companies/";
+import Roles from "../pages/Roles/";
+import ContactForms from "../pages/ContactForms/";
+import Reports from "../pages/Reports/";
+import WebchatChannels from "../pages/WebchatChannels/";
+import CloseReasons from "../pages/CloseReasons/";
 import { AuthProvider } from "../context/Auth/AuthContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import { ThemeProvider } from "../context/DarkMode";
@@ -36,6 +43,13 @@ const Routes = () => {
                 <Route exact path="/quickAnswers" component={QuickAnswers} isPrivate />
                 <Route exact path="/Settings" component={Settings} isPrivate />
                 <Route exact path="/Queues" component={Queues} isPrivate />
+                <Route exact path="/ai-agents" component={AIAgents} isPrivate />
+                <Route exact path="/companies" component={Companies} isPrivate />
+                <Route exact path="/roles" component={Roles} isPrivate />
+                <Route exact path="/contact-forms" component={ContactForms} isPrivate />
+                <Route exact path="/reports" component={Reports} isPrivate />
+                <Route exact path="/webchat-channels" component={WebchatChannels} isPrivate />
+                <Route exact path="/close-reasons" component={CloseReasons} isPrivate />
               </LoggedInLayout>
             </WhatsAppsProvider>
           </Switch>
@@ -47,3 +61,4 @@ const Routes = () => {
 };
 
 export default Routes;
+

@@ -1,7 +1,15 @@
 import ShowQueueService from "./ShowQueueService";
 
-const DeleteQueueService = async (queueId: number | string): Promise<void> => {
-  const queue = await ShowQueueService(queueId);
+interface DeleteQueueRequest {
+  queueId: number | string;
+  tenantId: number;
+}
+
+const DeleteQueueService = async ({
+  queueId,
+  tenantId
+}: DeleteQueueRequest): Promise<void> => {
+  const queue = await ShowQueueService({ queueId, tenantId });
 
   await queue.destroy();
 };

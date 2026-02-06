@@ -7,6 +7,15 @@ import authConfig from "../config/auth";
 
 let io: SocketIO;
 
+interface TokenPayload {
+  id: string;
+  username: string;
+  profile: string;
+  tenantId: number;
+  iat: number;
+  exp: number;
+}
+
 export const initIO = (httpServer: Server): SocketIO => {
   io = new SocketIO(httpServer, {
     cors: {
@@ -16,9 +25,9 @@ export const initIO = (httpServer: Server): SocketIO => {
 
   io.on("connection", socket => {
     const { token } = socket.handshake.query;
-    let tokenData = null;
+    let tokenData: TokenPayload | null = null;
     try {
-      tokenData = verify(token, authConfig.secret);
+      tokenData = verify(token as string, authConfig.secret) as TokenPayload;
       logger.debug(JSON.stringify(tokenData), "io-onConnection: tokenData");
     } catch (error) {
       logger.error(JSON.stringify(error), "Error decoding token");
@@ -27,6 +36,14 @@ export const initIO = (httpServer: Server): SocketIO => {
     }
 
     logger.info("Client Connected");
+
+    // Automatically join the tenant room for multi-tenant isolation
+    if (tokenData && tokenData.tenantId) {
+      const tenantRoom = `tenant:${tokenData.tenantId}`;
+      socket.join(tenantRoom);
+      logger.info(`Client joined tenant room: ${tenantRoom}`);
+    }
+
     socket.on("joinChatBox", (ticketId: string) => {
       logger.info("A client joined a ticket channel");
       socket.join(ticketId);
@@ -57,3 +74,4 @@ export const getIO = (): SocketIO => {
   }
   return io;
 };
+

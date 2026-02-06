@@ -9,17 +9,19 @@ interface QuickAnswerData {
 interface Request {
   quickAnswerData: QuickAnswerData;
   quickAnswerId: string;
+  tenantId: number;
 }
 
 const UpdateQuickAnswerService = async ({
   quickAnswerData,
-  quickAnswerId
+  quickAnswerId,
+  tenantId
 }: Request): Promise<QuickAnswer> => {
   const { shortcut, message } = quickAnswerData;
 
   const quickAnswer = await QuickAnswer.findOne({
-    where: { id: quickAnswerId },
-    attributes: ["id", "shortcut", "message"]
+    where: { id: quickAnswerId, tenantId },
+    attributes: ["id", "shortcut", "message", "tenantId"]
   });
 
   if (!quickAnswer) {
@@ -31,7 +33,7 @@ const UpdateQuickAnswerService = async ({
   });
 
   await quickAnswer.reload({
-    attributes: ["id", "shortcut", "message"]
+    attributes: ["id", "shortcut", "message", "tenantId"]
   });
 
   return quickAnswer;

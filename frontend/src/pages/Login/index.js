@@ -1,21 +1,16 @@
 import React, { useState, useContext } from "react";
-import { Link as RouterLink } from "react-router-dom";
 
 import {
-  Avatar,
   Button,
   CssBaseline,
   TextField,
-  Grid,
   Box,
   Typography,
-  Container,
   InputAdornment,
   IconButton,
-  Link
 } from '@material-ui/core';
 
-import { LockOutlined, Visibility, VisibilityOff } from '@material-ui/icons';
+import { Visibility, VisibilityOff } from '@material-ui/icons';
 
 import { makeStyles } from "@material-ui/core/styles";
 
@@ -23,36 +18,101 @@ import { i18n } from "../../translate/i18n";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 
-// const Copyright = () => {
-// 	return (
-// 		<Typography variant="body2" color="textSecondary" align="center">
-// 			{"Copyleft "}
-// 			<Link color="inherit" href="https://github.com/canove">
-// 				Canove
-// 			</Link>{" "}
-// 			{new Date().getFullYear()}
-// 			{"."}
-// 		</Typography>
-// 	);
-// };
-
 const useStyles = makeStyles((theme) => ({
-  paper: {
-    marginTop: theme.spacing(8),
+  root: {
+    minHeight: "100vh",
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f5f7fa",
+    backgroundImage: "radial-gradient(ellipse at 50% 50%, rgba(97, 87, 255, 0.08) 0%, transparent 60%)",
   },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+  card: {
+    width: "100%",
+    maxWidth: 400,
+    padding: theme.spacing(5),
+    backgroundColor: "#fff",
+    borderRadius: 16,
+    boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)",
+  },
+  logoContainer: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: theme.spacing(3),
+  },
+  logo: {
+    height: 40,
+    marginRight: theme.spacing(1),
+    filter: "invert(1) brightness(0.2)",
+  },
+  logoText: {
+    fontWeight: 600,
+    fontSize: "1.25rem",
+    color: "#3f51b5",
+  },
+  title: {
+    fontWeight: 700,
+    fontSize: "1.75rem",
+    color: "#1a1a2e",
+    marginBottom: theme.spacing(1),
+  },
+  subtitle: {
+    color: "#666",
+    fontSize: "0.875rem",
+    marginBottom: theme.spacing(3),
   },
   form: {
-    width: "100%", // Fix IE 11 issue.
-    marginTop: theme.spacing(1),
+    width: "100%",
+  },
+  label: {
+    fontWeight: 500,
+    fontSize: "0.875rem",
+    color: "#333",
+    marginBottom: theme.spacing(0.5),
+    display: "block",
+  },
+  textField: {
+    marginBottom: theme.spacing(2.5),
+    "& .MuiOutlinedInput-root": {
+      borderRadius: 8,
+      backgroundColor: "#fafafa",
+      transition: "all 0.2s ease",
+      "&:hover": {
+        backgroundColor: "#f5f5f5",
+      },
+      "&.Mui-focused": {
+        backgroundColor: "#fff",
+        "& fieldset": {
+          borderColor: "#3f51b5",
+          borderWidth: 2,
+        },
+      },
+    },
+    "& .MuiOutlinedInput-input": {
+      padding: "14px 16px",
+    },
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    marginTop: theme.spacing(1),
+    padding: theme.spacing(1.5),
+    borderRadius: 8,
+    textTransform: "none",
+    fontSize: "1rem",
+    fontWeight: 600,
+    boxShadow: "none",
+    background: "linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)",
+    transition: "all 0.2s ease",
+    "&:hover": {
+      boxShadow: "0 4px 12px rgba(63, 81, 181, 0.4)",
+      transform: "translateY(-1px)",
+    },
+  },
+  copyright: {
+    marginTop: theme.spacing(4),
+    textAlign: "center",
+    color: "#999",
+    fontSize: "0.75rem",
   },
 }));
 
@@ -74,47 +134,66 @@ const Login = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
+    <div className={classes.root}>
       <CssBaseline />
-      <div className={classes.paper}>
-        <Avatar className={classes.avatar}>
-          <LockOutlined />
-        </Avatar>
-        <Typography component="h1" variant="h5">
+      <Box className={classes.card}>
+        <div className={classes.logoContainer}>
+          <img
+            src="/login-logo.png"
+            alt="Komu Logo"
+            className={classes.logo}
+          />
+        </div>
+
+        <Typography className={classes.title}>
           {i18n.t("login.title")}
         </Typography>
+
+        <Typography className={classes.subtitle}>
+          Ingresa tus credenciales para continuar
+        </Typography>
+
         <form className={classes.form} noValidate onSubmit={handlSubmit}>
+          <label className={classes.label}>
+            {i18n.t("login.form.email")}
+          </label>
           <TextField
             variant="outlined"
-            margin="normal"
             required
             fullWidth
             id="email"
-            label={i18n.t("login.form.email")}
             name="email"
             value={user.email}
             onChange={handleChangeInput}
             autoComplete="email"
             autoFocus
+            placeholder="tu@email.com"
+            className={classes.textField}
           />
+
+          <label className={classes.label}>
+            {i18n.t("login.form.password")}
+          </label>
           <TextField
             variant="outlined"
-            margin="normal"
             required
             fullWidth
             name="password"
-            label={i18n.t("login.form.password")}
             id="password"
             value={user.password}
             onChange={handleChangeInput}
             autoComplete="current-password"
             type={showPassword ? 'text' : 'password'}
+            placeholder="••••••••"
+            className={classes.textField}
             InputProps={{
               endAdornment: (
                 <InputAdornment position="end">
                   <IconButton
                     aria-label="toggle password visibility"
                     onClick={() => setShowPassword((e) => !e)}
+                    edge="end"
+                    size="small"
                   >
                     {showPassword ? <VisibilityOff /> : <Visibility />}
                   </IconButton>
@@ -122,6 +201,7 @@ const Login = () => {
               )
             }}
           />
+
           <Button
             type="submit"
             fullWidth
@@ -131,22 +211,13 @@ const Login = () => {
           >
             {i18n.t("login.buttons.submit")}
           </Button>
-          <Grid container>
-            <Grid item>
-              <Link
-                href="#"
-                variant="body2"
-                component={RouterLink}
-                to="/signup"
-              >
-                {i18n.t("login.buttons.register")}
-              </Link>
-            </Grid>
-          </Grid>
         </form>
-      </div>
-      <Box mt={8}>{/* <Copyright /> */}</Box>
-    </Container>
+
+        <Typography className={classes.copyright}>
+          © {new Date().getFullYear()} Komu. Todos los derechos reservados.
+        </Typography>
+      </Box>
+    </div>
   );
 };
 

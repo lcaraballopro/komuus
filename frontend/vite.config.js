@@ -14,6 +14,10 @@ export default defineConfig({
   build: {
     outDir: "build",
     sourcemap: true,
+    commonjsOptions: {
+      include: [/node_modules/],
+      transformMixedEsModules: true,
+    },
     rollupOptions: {
       output: {
         manualChunks: {
@@ -22,8 +26,12 @@ export default defineConfig({
             "@material-ui/icons",
             "@material-ui/lab",
           ],
+          "charts": ["recharts"],
         },
       },
+      external: [
+        /^\.\.\/internals\/.*/,
+      ],
     },
   },
   envPrefix: "VITE_",
@@ -41,8 +49,9 @@ export default defineConfig({
       "@material-ui/core",
       "@material-ui/icons",
       "@material-ui/lab",
+      "recharts",
     ],
-    exclude: [],
+    exclude: ["xlsx"],
   },
   resolve: {
     alias: {
@@ -50,3 +59,4 @@ export default defineConfig({
     },
   },
 });
+

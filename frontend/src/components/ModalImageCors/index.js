@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 
 import ModalImage from "react-modal-image";
-import api from "../../services/api";
 
 const useStyles = makeStyles(theme => ({
 	messageMedia: {
@@ -24,14 +23,21 @@ const ModalImageCors = ({ imageUrl }) => {
 	useEffect(() => {
 		if (!imageUrl) return;
 		const fetchImage = async () => {
-			const { data, headers } = await api.get(imageUrl, {
-				responseType: "blob",
-			});
-			const url = window.URL.createObjectURL(
-				new Blob([data], { type: headers["content-type"] })
-			);
-			setBlobUrl(url);
-			setFetching(false);
+			// Construct the full URL for public images
+			const fullUrl = imageUrl.startsWith("http")
+				? imageUrl
+				: `/public/${imageUrl}`;
+
+			try {
+				const response = await fetch(fullUrl);
+				const blob = await response.blob();
+				const url = window.URL.createObjectURL(blob);
+				setBlobUrl(url);
+				setFetching(false);
+			} catch (error) {
+				console.error("Error fetching image:", error);
+				setFetching(false);
+			}
 		};
 		fetchImage();
 	}, [imageUrl]);
@@ -48,3 +54,4 @@ const ModalImageCors = ({ imageUrl }) => {
 };
 
 export default ModalImageCors;
+

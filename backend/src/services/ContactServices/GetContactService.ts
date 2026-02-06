@@ -13,20 +13,23 @@ interface Request {
   email?: string;
   profilePicUrl?: string;
   extraInfo?: ExtraInfo[];
+  tenantId: number;
 }
 
 const GetContactService = async ({
   name,
-  number
+  number,
+  tenantId
 }: Request): Promise<Contact> => {
   const numberExists = await Contact.findOne({
-    where: { number }
+    where: { number, tenantId }
   });
 
   if (!numberExists) {
     const contact = await CreateContactService({
       name,
-      number
+      number,
+      tenantId
     });
 
     if (contact == null) throw new AppError("CONTACT_NOT_FIND");
@@ -37,3 +40,4 @@ const GetContactService = async ({
 };
 
 export default GetContactService;
+

@@ -9,11 +9,23 @@ import { useHistory } from "react-router-dom";
 const useStyles = makeStyles((theme) => ({
   ticketHeader: {
     display: "flex",
-    backgroundColor: "#eee",
+    backgroundColor: "#fff",
     flex: "none",
-    borderBottom: "1px solid rgba(0, 0, 0, 0.12)",
+    borderBottom: "1px solid rgba(0, 0, 0, 0.08)",
+    alignItems: "center",
+    padding: "4px 0",
+    minHeight: 56,
     [theme.breakpoints.down("sm")]: {
-      flexWrap: "wrap",
+      minHeight: 48,
+      padding: "2px 0",
+    },
+  },
+  backButton: {
+    minWidth: 36,
+    padding: "6px 8px",
+    [theme.breakpoints.down("sm")]: {
+      minWidth: 32,
+      padding: "4px 6px",
     },
   },
 }));
@@ -31,8 +43,12 @@ const TicketHeader = ({ loading, children }) => {
         <TicketHeaderSkeleton />
       ) : (
         <Card square className={classes.ticketHeader}>
-          <Button color="primary" onClick={handleBack}>
-            <ArrowBackIos />
+          <Button
+            color="primary"
+            onClick={handleBack}
+            className={classes.backButton}
+          >
+            <ArrowBackIos style={{ fontSize: 18 }} />
           </Button>
           {children}
         </Card>
