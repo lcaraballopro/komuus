@@ -35,6 +35,7 @@ const syncUnreadMessages = async (wbot: Session) => {
 export const initWbot = async (whatsapp: Whatsapp): Promise<Session> => {
   return new Promise((resolve, reject) => {
     try {
+      removeWbot(whatsapp.id);
       const io = getIO();
       const sessionName = whatsapp.name;
       let sessionCfg;

@@ -5,6 +5,7 @@ import { getIO } from "../../libs/socket";
 import Whatsapp from "../../models/Whatsapp";
 import { logger } from "../../utils/logger";
 import { StartWhatsAppSession } from "./StartWhatsAppSession";
+import { removeWbot } from "../../libs/wbot";
 
 interface Session extends Client {
   id?: number;
@@ -56,6 +57,7 @@ const wbotMonitor = async (
     wbot.on("disconnected", async reason => {
       logger.info(`Disconnected session: ${sessionName}, reason: ${reason}`);
       try {
+        removeWbot(whatsapp.id);
         await whatsapp.update({ status: "OPENING", session: "" });
       } catch (err) {
         Sentry.captureException(err);
