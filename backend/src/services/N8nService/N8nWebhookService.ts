@@ -269,8 +269,9 @@ const triggerN8nWebhook = async (options: TriggerOptions): Promise<boolean> => {
 
     // Add media info if present (for audio, video, image messages)
     if (options.mediaUrl) {
+        const isAbsoluteUrl = options.mediaUrl.startsWith("http://") || options.mediaUrl.startsWith("https://");
         payload.media = {
-            url: `${process.env.BACKEND_URL || 'http://localhost:8080'}/public/${options.mediaUrl}`,
+            url: isAbsoluteUrl ? options.mediaUrl : `${process.env.BACKEND_URL || 'http://localhost:8080'}/public/${options.mediaUrl}`,
             type: options.messageType
         };
     }

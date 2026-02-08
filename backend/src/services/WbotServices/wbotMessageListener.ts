@@ -1,6 +1,7 @@
 import { join } from "path";
 import { promisify } from "util";
-import { writeFile } from "fs";
+import fs, { writeFile } from "fs";
+import { execSync } from "child_process";
 import * as Sentry from "@sentry/node";
 
 import {
@@ -47,7 +48,7 @@ const verifyContact = async (
     tenantId
   };
 
-  const contact = CreateOrUpdateContactService(contactData);
+  const contact = await CreateOrUpdateContactService(contactData);
 
   return contact;
 };
@@ -128,11 +129,9 @@ const verifyMediaMessage = async (
     const mp3FilePath = join(publicDir, mp3Filename);
 
     try {
-      const { execSync } = require("child_process");
       execSync(`ffmpeg -i "${originalFilePath}" -acodec libmp3lame -ab 128k -y "${mp3FilePath}" 2>/dev/null`);
 
       // Remove original file and use MP3
-      const fs = require("fs");
       if (fs.existsSync(mp3FilePath)) {
         fs.unlinkSync(originalFilePath);
         finalFilename = mp3Filename;
@@ -418,19 +417,23 @@ const handleMessage = async (
             }
           }
         }
-        // Get tenantId from the whatsapp connection
-        const whatsappForVcard = await ShowWhatsAppService(wbot.id!);
-        const vcardTenantId = whatsappForVcard.tenantId;
+        const vcardTenantId = whatsapp.tenantId;
 
         for await (const ob of obj) {
-          const cont = await CreateContactService({
-            name: contact,
-            number: ob.number.replace(/\D/g, ""),
-            tenantId: vcardTenantId
-          });
+          try {
+            await CreateContactService({
+              name: contact,
+              number: ob.number.replace(/\D/g, ""),
+              tenantId: vcardTenantId
+            });
+          } catch (error) {
+            if (error.message !== "ERR_DUPLICATED_CONTACT") {
+              logger.error(`Error creating contact from vcard: ${error}`);
+            }
+          }
         }
       } catch (error) {
-        console.log(error);
+        logger.error(`Error parsing vcard: ${error}`);
       }
     }
 
