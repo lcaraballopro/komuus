@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useContext } from "react";
+import React, { useState, useCallback, useContext, useEffect, useReducer } from "react";
 import { toast } from "react-toastify";
 import { format, parseISO } from "date-fns";
 
@@ -16,6 +16,10 @@ import {
 	Tooltip,
 	Typography,
 	CircularProgress,
+	Tabs,
+	Tab,
+	Box,
+	Chip,
 } from "@material-ui/core";
 import {
 	Edit,
@@ -26,7 +30,17 @@ import {
 	CropFree,
 	DeleteOutline,
 	Settings,
+	Add as AddIcon,
+	Code as CodeIcon,
+	FileCopy as CopyIcon,
+	Delete as DeleteIcon,
 } from "@material-ui/icons";
+import WhatsAppIcon from "@material-ui/icons/WhatsApp";
+import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
+import InstagramIcon from "@material-ui/icons/Instagram";
+import FacebookIcon from "@material-ui/icons/Facebook";
+import ForumIcon from "@material-ui/icons/Forum";
+import PhoneIcon from "@material-ui/icons/Phone";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
@@ -42,6 +56,8 @@ import { i18n } from "../../translate/i18n";
 import { WhatsAppsContext } from "../../context/WhatsApp/WhatsAppsContext";
 import toastError from "../../errors/toastError";
 import ConnectionConfigModal from "../../components/ConnectionConfigModal";
+import WebchatChannelModal from "../../components/WebchatChannelModal";
+import TelephonyChannelModal from "../../components/TelephonyChannelModal";
 
 const useStyles = makeStyles(theme => ({
 	mainPaper: {
@@ -67,6 +83,52 @@ const useStyles = makeStyles(theme => ({
 	},
 	buttonProgress: {
 		color: green[500],
+	},
+	tabsContainer: {
+		borderBottom: `1px solid ${theme.palette.divider}`,
+		marginBottom: theme.spacing(2),
+	},
+	tab: {
+		minWidth: 100,
+		textTransform: "none",
+		fontWeight: 600,
+		fontSize: 13,
+	},
+	tabPanel: {
+		width: "100%",
+	},
+	comingSoon: {
+		display: "flex",
+		flexDirection: "column",
+		alignItems: "center",
+		justifyContent: "center",
+		padding: theme.spacing(8, 2),
+		textAlign: "center",
+	},
+	comingSoonIcon: {
+		fontSize: 64,
+		color: theme.palette.text.disabled,
+		marginBottom: theme.spacing(2),
+	},
+	colorPreview: {
+		width: 24,
+		height: 24,
+		borderRadius: 4,
+		marginRight: 8,
+		border: "1px solid #ddd",
+	},
+	scriptDialog: {
+		marginTop: theme.spacing(2),
+		padding: theme.spacing(2),
+		backgroundColor: "#1e1e1e",
+		borderRadius: theme.shape.borderRadius,
+		fontFamily: "monospace",
+		fontSize: 12,
+		color: "#d4d4d4",
+		whiteSpace: "pre-wrap",
+		wordBreak: "break-all",
+		maxHeight: 200,
+		overflow: "auto",
 	},
 }));
 
@@ -94,9 +156,60 @@ const CustomToolTip = ({ title, content, children }) => {
 	);
 };
 
+// Webchat channels reducer
+const webchatReducer = (state, action) => {
+	if (action.type === "LOAD_CHANNELS") {
+		return [...action.payload];
+	}
+	if (action.type === "UPDATE_CHANNEL") {
+		const channelIndex = state.findIndex((c) => c.id === action.payload.id);
+		if (channelIndex !== -1) {
+			state[channelIndex] = action.payload;
+			return [...state];
+		}
+		return [action.payload, ...state];
+	}
+	if (action.type === "DELETE_CHANNEL") {
+		return state.filter((c) => c.id !== action.payload);
+	}
+	return state;
+};
+
+// Tab panel helper
+function TabPanel({ children, value, index, ...other }) {
+	return (
+		<div role="tabpanel" hidden={value !== index} {...other}>
+			{value === index && <Box>{children}</Box>}
+		</div>
+	);
+}
+
+// Coming soon placeholder
+const ComingSoonTab = ({ icon: Icon, channelName }) => {
+	const classes = useStyles();
+	return (
+		<div className={classes.comingSoon}>
+			<Icon className={classes.comingSoonIcon} />
+			<Typography variant="h6" color="textSecondary" gutterBottom>
+				{channelName}
+			</Typography>
+			<Typography variant="body1" color="textSecondary">
+				{i18n.t("connections.comingSoon")}
+			</Typography>
+			<Typography variant="body2" color="textSecondary" style={{ marginTop: 8 }}>
+				{i18n.t("connections.comingSoonDesc")}
+			</Typography>
+		</div>
+	);
+};
+
 const Connections = () => {
 	const classes = useStyles();
 
+	// Active tab
+	const [activeTab, setActiveTab] = useState(0);
+
+	// ─── WhatsApp state ───
 	const { whatsApps, loading } = useContext(WhatsAppsContext);
 	const [whatsAppModalOpen, setWhatsAppModalOpen] = useState(false);
 	const [qrModalOpen, setQrModalOpen] = useState(false);
@@ -115,6 +228,56 @@ const Connections = () => {
 	const [configModalOpen, setConfigModalOpen] = useState(false);
 	const [configWhatsApp, setConfigWhatsApp] = useState(null);
 
+	// ─── Webchat state ───
+	const [webchatChannels, dispatchWebchat] = useReducer(webchatReducer, []);
+	const [webchatLoading, setWebchatLoading] = useState(false);
+	const [webchatModalOpen, setWebchatModalOpen] = useState(false);
+	const [selectedWebchatChannel, setSelectedWebchatChannel] = useState(null);
+	const [webchatConfirmOpen, setWebchatConfirmOpen] = useState(false);
+	const [scriptModalOpen, setScriptModalOpen] = useState(false);
+	const [embedCode, setEmbedCode] = useState("");
+
+	// ─── Telephony state ───
+	const [telephonyChannels, setTelephonyChannels] = useState([]);
+	const [telephonyLoading, setTelephonyLoading] = useState(false);
+	const [telephonyModalOpen, setTelephonyModalOpen] = useState(false);
+	const [selectedTelephonyChannel, setSelectedTelephonyChannel] = useState(null);
+	const [telephonyConfirmOpen, setTelephonyConfirmOpen] = useState(false);
+
+	// ─── Webchat data loading ───
+	const fetchWebchatChannels = useCallback(async () => {
+		setWebchatLoading(true);
+		try {
+			const { data } = await api.get("/webchat-channels");
+			dispatchWebchat({ type: "LOAD_CHANNELS", payload: data });
+		} catch (err) {
+			toastError(err);
+		}
+		setWebchatLoading(false);
+	}, []);
+
+	// ─── Telephony data loading ───
+	const fetchTelephonyChannels = useCallback(async () => {
+		setTelephonyLoading(true);
+		try {
+			const { data } = await api.get("/telephony");
+			setTelephonyChannels(data);
+		} catch (err) {
+			toastError(err);
+		}
+		setTelephonyLoading(false);
+	}, []);
+
+	useEffect(() => {
+		if (activeTab === 1) {
+			fetchWebchatChannels();
+		}
+		if (activeTab === 2) {
+			fetchTelephonyChannels();
+		}
+	}, [activeTab, fetchWebchatChannels]);
+
+	// ─── WhatsApp handlers ───
 	const handleStartWhatsAppSession = async whatsAppId => {
 		try {
 			await api.post(`/whatsappsession/${whatsAppId}`);
@@ -208,6 +371,91 @@ const Connections = () => {
 		setConfirmModalInfo(confirmationModalInitialState);
 	};
 
+	// ─── Webchat handlers ───
+	const handleOpenWebchatModal = () => {
+		setSelectedWebchatChannel(null);
+		setWebchatModalOpen(true);
+	};
+
+	const handleEditWebchatChannel = (channel) => {
+		setSelectedWebchatChannel(channel);
+		setWebchatModalOpen(true);
+	};
+
+	const handleCloseWebchatModal = () => {
+		setSelectedWebchatChannel(null);
+		setWebchatModalOpen(false);
+		fetchWebchatChannels();
+	};
+
+	const handleDeleteWebchatChannel = (channel) => {
+		setSelectedWebchatChannel(channel);
+		setWebchatConfirmOpen(true);
+	};
+
+	const handleConfirmDeleteWebchat = async () => {
+		try {
+			await api.delete(`/webchat-channels/${selectedWebchatChannel.id}`);
+			dispatchWebchat({ type: "DELETE_CHANNEL", payload: selectedWebchatChannel.id });
+			toast.success(i18n.t("webchatChannels.toasts.deleted"));
+		} catch (err) {
+			toastError(err);
+		}
+		setWebchatConfirmOpen(false);
+		setSelectedWebchatChannel(null);
+	};
+
+	const handleGetScript = async (channel) => {
+		try {
+			const { data } = await api.get(`/webchat-channels/${channel.id}/script`);
+			setEmbedCode(data.embedCode);
+			setScriptModalOpen(true);
+		} catch (err) {
+			toastError(err);
+		}
+	};
+
+	const handleCopyScript = () => {
+		navigator.clipboard.writeText(embedCode);
+		toast.success(i18n.t("webchatChannels.toasts.scriptCopied"));
+		setScriptModalOpen(false);
+	};
+
+	// ─── Telephony handlers ───
+	const handleOpenTelephonyModal = () => {
+		setSelectedTelephonyChannel(null);
+		setTelephonyModalOpen(true);
+	};
+
+	const handleEditTelephonyChannel = (channel) => {
+		setSelectedTelephonyChannel(channel);
+		setTelephonyModalOpen(true);
+	};
+
+	const handleCloseTelephonyModal = () => {
+		setSelectedTelephonyChannel(null);
+		setTelephonyModalOpen(false);
+		fetchTelephonyChannels();
+	};
+
+	const handleDeleteTelephonyChannel = (channel) => {
+		setSelectedTelephonyChannel(channel);
+		setTelephonyConfirmOpen(true);
+	};
+
+	const handleConfirmDeleteTelephony = async () => {
+		try {
+			await api.delete(`/telephony/${selectedTelephonyChannel.id}`);
+			toast.success(i18n.t("telephony.toasts.deleted"));
+			fetchTelephonyChannels();
+		} catch (err) {
+			toastError(err);
+		}
+		setTelephonyConfirmOpen(false);
+		setSelectedTelephonyChannel(null);
+	};
+
+	// ─── WhatsApp renderers ───
 	const renderActionButtons = whatsApp => {
 		return (
 			<>
@@ -303,8 +551,59 @@ const Connections = () => {
 		);
 	};
 
+	// ─── Dynamic add button ───
+	const renderAddButton = () => {
+		if (activeTab === 0) {
+			return (
+				<Button
+					variant="contained"
+					color="primary"
+					onClick={handleOpenWhatsAppModal}
+				>
+					{i18n.t("connections.buttons.addWhatsApp")}
+				</Button>
+			);
+		}
+		if (activeTab === 1) {
+			return (
+				<Button
+					variant="contained"
+					color="primary"
+					onClick={handleOpenWebchatModal}
+				>
+					<AddIcon style={{ marginRight: 8 }} />
+					{i18n.t("connections.buttons.addWebchat")}
+				</Button>
+			);
+		}
+		if (activeTab === 2) {
+			return (
+				<Button
+					variant="contained"
+					color="primary"
+					onClick={handleOpenTelephonyModal}
+				>
+					<AddIcon style={{ marginRight: 8 }} />
+					{i18n.t("connections.buttons.addTelephony")}
+				</Button>
+			);
+		}
+		return null;
+	};
+
+	// Tab configs
+	const tabConfig = [
+		{ label: i18n.t("connections.tabs.whatsapp"), icon: <WhatsAppIcon style={{ fontSize: 18 }} /> },
+		{ label: i18n.t("connections.tabs.webchat"), icon: <ChatBubbleOutlineIcon style={{ fontSize: 18 }} /> },
+		{ label: i18n.t("connections.tabs.telephony"), icon: <PhoneIcon style={{ fontSize: 18 }} /> },
+		{ label: i18n.t("connections.tabs.instagram"), icon: <InstagramIcon style={{ fontSize: 18 }} /> },
+		{ label: i18n.t("connections.tabs.facebook"), icon: <FacebookIcon style={{ fontSize: 18 }} /> },
+		{ label: i18n.t("connections.tabs.messenger"), icon: <ForumIcon style={{ fontSize: 18 }} /> },
+	];
+
 	return (
 		<MainContainer>
+			{/* ─── WhatsApp modals ─── */}
 			<ConfirmationModal
 				title={confirmModalInfo.title}
 				open={confirmModalOpen}
@@ -328,98 +627,349 @@ const Connections = () => {
 				onClose={handleCloseConfigModal}
 				whatsapp={configWhatsApp}
 			/>
+
+			{/* ─── Webchat modals ─── */}
+			<ConfirmationModal
+				title={i18n.t("webchatChannels.confirmDeleteTitle")}
+				open={webchatConfirmOpen}
+				onClose={() => setWebchatConfirmOpen(false)}
+				onConfirm={handleConfirmDeleteWebchat}
+			>
+				{i18n.t("webchatChannels.confirmDelete")}
+			</ConfirmationModal>
+			<WebchatChannelModal
+				open={webchatModalOpen}
+				onClose={handleCloseWebchatModal}
+				channelId={selectedWebchatChannel?.id}
+			/>
+
+			{/* ─── Telephony modals ─── */}
+			<ConfirmationModal
+				title={i18n.t("telephony.confirmDeleteTitle")}
+				open={telephonyConfirmOpen}
+				onClose={() => setTelephonyConfirmOpen(false)}
+				onConfirm={handleConfirmDeleteTelephony}
+			>
+				{i18n.t("telephony.confirmDeleteMessage")}
+			</ConfirmationModal>
+			<TelephonyChannelModal
+				open={telephonyModalOpen}
+				onClose={handleCloseTelephonyModal}
+				channelId={selectedTelephonyChannel?.id}
+			/>
+
+			{/* Script embed modal */}
+			{scriptModalOpen && (
+				<div style={{
+					position: "fixed",
+					top: 0,
+					left: 0,
+					right: 0,
+					bottom: 0,
+					backgroundColor: "rgba(0,0,0,0.5)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					zIndex: 9999
+				}}>
+					<Paper style={{ padding: 24, maxWidth: 600, width: "90%" }}>
+						<Typography variant="h6" gutterBottom>
+							{i18n.t("webchatChannels.embedCode.title")}
+						</Typography>
+						<Typography variant="body2" color="textSecondary" gutterBottom>
+							{i18n.t("webchatChannels.embedCode.description")}
+						</Typography>
+						<div className={classes.scriptDialog}>
+							{embedCode}
+						</div>
+						<div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "flex-end" }}>
+							<Button onClick={() => setScriptModalOpen(false)}>{i18n.t("webchatChannels.embedCode.cancel")}</Button>
+							<Button
+								variant="contained"
+								color="primary"
+								startIcon={<CopyIcon />}
+								onClick={handleCopyScript}
+							>
+								{i18n.t("webchatChannels.embedCode.copy")}
+							</Button>
+						</div>
+					</Paper>
+				</div>
+			)}
+
+			{/* ─── Header ─── */}
 			<MainHeader>
 				<Title>{i18n.t("connections.title")}</Title>
 				<MainHeaderButtonsWrapper>
-					<Button
-						variant="contained"
-						color="primary"
-						onClick={handleOpenWhatsAppModal}
-					>
-						{i18n.t("connections.buttons.add")}
-					</Button>
+					{renderAddButton()}
 				</MainHeaderButtonsWrapper>
 			</MainHeader>
-			<Paper className={classes.mainPaper} variant="outlined">
-				<Table size="small">
-					<TableHead>
-						<TableRow>
-							<TableCell align="center">
-								{i18n.t("connections.table.name")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.status")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.session")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.lastUpdate")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.default")}
-							</TableCell>
-							<TableCell align="center">
-								{i18n.t("connections.table.actions")}
-							</TableCell>
-						</TableRow>
-					</TableHead>
-					<TableBody>
-						{loading ? (
-							<TableRowSkeleton />
-						) : (
-							<>
-								{whatsApps?.length > 0 &&
-									whatsApps.map(whatsApp => (
-										<TableRow key={whatsApp.id}>
-											<TableCell align="center">{whatsApp.name}</TableCell>
-											<TableCell align="center">
-												{renderStatusToolTips(whatsApp)}
-											</TableCell>
-											<TableCell align="center">
-												{renderActionButtons(whatsApp)}
-											</TableCell>
-											<TableCell align="center">
-												{format(parseISO(whatsApp.updatedAt), "dd/MM/yy HH:mm")}
-											</TableCell>
-											<TableCell align="center">
-												{whatsApp.isDefault && (
-													<div className={classes.customTableCell}>
-														<CheckCircle style={{ color: green[500] }} />
-													</div>
-												)}
-											</TableCell>
-											<TableCell align="center">
+
+			{/* ─── Tabs ─── */}
+			<div className={classes.tabsContainer}>
+				<Tabs
+					value={activeTab}
+					onChange={(_, newVal) => setActiveTab(newVal)}
+					indicatorColor="primary"
+					textColor="primary"
+					variant="scrollable"
+					scrollButtons="auto"
+				>
+					{tabConfig.map((tab, idx) => (
+						<Tab
+							key={idx}
+							className={classes.tab}
+							label={
+								<Box display="flex" alignItems="center" gridGap={6}>
+									{tab.icon}
+									<span>{tab.label}</span>
+								</Box>
+							}
+						/>
+					))}
+				</Tabs>
+			</div>
+
+			{/* ─── Tab 0: WhatsApp ─── */}
+			<TabPanel value={activeTab} index={0} className={classes.tabPanel}>
+				<Paper className={classes.mainPaper} variant="outlined">
+					<Table size="small">
+						<TableHead>
+							<TableRow>
+								<TableCell align="center">
+									{i18n.t("connections.table.name")}
+								</TableCell>
+								<TableCell align="center">
+									{i18n.t("connections.table.status")}
+								</TableCell>
+								<TableCell align="center">
+									{i18n.t("connections.table.session")}
+								</TableCell>
+								<TableCell align="center">
+									{i18n.t("connections.table.lastUpdate")}
+								</TableCell>
+								<TableCell align="center">
+									{i18n.t("connections.table.default")}
+								</TableCell>
+								<TableCell align="center">
+									{i18n.t("connections.table.actions")}
+								</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{loading ? (
+								<TableRowSkeleton />
+							) : (
+								<>
+									{whatsApps?.length > 0 &&
+										whatsApps.map(whatsApp => (
+											<TableRow key={whatsApp.id}>
+												<TableCell align="center">{whatsApp.name}</TableCell>
+												<TableCell align="center">
+													{renderStatusToolTips(whatsApp)}
+												</TableCell>
+												<TableCell align="center">
+													{renderActionButtons(whatsApp)}
+												</TableCell>
+												<TableCell align="center">
+													{whatsApp.updatedAt
+														? (() => { try { return format(parseISO(whatsApp.updatedAt), "dd/MM/yy HH:mm"); } catch (e) { return "-"; } })()
+														: "-"}
+												</TableCell>
+												<TableCell align="center">
+													{whatsApp.isDefault && (
+														<div className={classes.customTableCell}>
+															<CheckCircle style={{ color: green[500] }} />
+														</div>
+													)}
+												</TableCell>
+												<TableCell align="center">
+													<IconButton
+														size="small"
+														onClick={() => handleOpenConfigModal(whatsApp)}
+														title={i18n.t("connections.buttons.config")}
+													>
+														<Settings />
+													</IconButton>
+													<IconButton
+														size="small"
+														onClick={() => handleEditWhatsApp(whatsApp)}
+													>
+														<Edit />
+													</IconButton>
+
+													<IconButton
+														size="small"
+														onClick={e => {
+															handleOpenConfirmationModal("delete", whatsApp.id);
+														}}
+													>
+														<DeleteOutline />
+													</IconButton>
+												</TableCell>
+											</TableRow>
+										))}
+								</>
+							)}
+						</TableBody>
+					</Table>
+				</Paper>
+			</TabPanel>
+
+			{/* ─── Tab 1: Webchat ─── */}
+			<TabPanel value={activeTab} index={1} className={classes.tabPanel}>
+				<Paper className={classes.mainPaper} variant="outlined">
+					<Table size="small">
+						<TableHead>
+							<TableRow>
+								<TableCell>{i18n.t("webchatChannels.table.name")}</TableCell>
+								<TableCell align="center">{i18n.t("webchatChannels.table.color")}</TableCell>
+								<TableCell align="center">{i18n.t("webchatChannels.table.status")}</TableCell>
+								<TableCell align="center">{i18n.t("webchatChannels.table.actions")}</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{webchatLoading ? (
+								<TableRowSkeleton />
+							) : webchatChannels.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={4} align="center">
+										<Typography color="textSecondary">
+											{i18n.t("webchatChannels.noChannels")}
+										</Typography>
+									</TableCell>
+								</TableRow>
+							) : (
+								webchatChannels.map((channel) => (
+									<TableRow key={channel.id}>
+										<TableCell>{channel.name}</TableCell>
+										<TableCell align="center">
+											<div className={classes.customTableCell}>
+												<div
+													className={classes.colorPreview}
+													style={{ backgroundColor: channel.primaryColor }}
+												/>
+												{channel.primaryColor}
+											</div>
+										</TableCell>
+										<TableCell align="center">
+											<Chip
+												label={channel.isActive ? i18n.t("webchatChannels.status.active") : i18n.t("webchatChannels.status.inactive")}
+												color={channel.isActive ? "primary" : "default"}
+												size="small"
+											/>
+										</TableCell>
+										<TableCell align="center">
+											<Tooltip title={i18n.t("webchatChannels.tooltips.getCode")}>
 												<IconButton
 													size="small"
-													onClick={() => handleOpenConfigModal(whatsApp)}
-													title={i18n.t("connections.buttons.config")}
+													onClick={() => handleGetScript(channel)}
 												>
-													<Settings />
+													<CodeIcon />
 												</IconButton>
+											</Tooltip>
+											<Tooltip title={i18n.t("webchatChannels.tooltips.edit")}>
 												<IconButton
 													size="small"
-													onClick={() => handleEditWhatsApp(whatsApp)}
+													onClick={() => handleEditWebchatChannel(channel)}
 												>
 													<Edit />
 												</IconButton>
-
+											</Tooltip>
+											<Tooltip title={i18n.t("webchatChannels.tooltips.delete")}>
 												<IconButton
 													size="small"
-													onClick={e => {
-														handleOpenConfirmationModal("delete", whatsApp.id);
-													}}
+													onClick={() => handleDeleteWebchatChannel(channel)}
 												>
-													<DeleteOutline />
+													<DeleteIcon />
 												</IconButton>
-											</TableCell>
-										</TableRow>
-									))}
-							</>
-						)}
-					</TableBody>
-				</Table>
-			</Paper>
+											</Tooltip>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						</TableBody>
+					</Table>
+				</Paper>
+			</TabPanel>
+
+			{/* ─── Tab 2: Telephony ─── */}
+			<TabPanel value={activeTab} index={2} className={classes.tabPanel}>
+				<Paper className={classes.mainPaper} variant="outlined">
+					<Table size="small">
+						<TableHead>
+							<TableRow>
+								<TableCell>{i18n.t("telephony.table.name")}</TableCell>
+								<TableCell align="center">{i18n.t("telephony.table.trunk")}</TableCell>
+								<TableCell align="center">{i18n.t("telephony.table.domain")}</TableCell>
+								<TableCell align="center">{i18n.t("telephony.table.queue")}</TableCell>
+								<TableCell align="center">{i18n.t("telephony.table.actions")}</TableCell>
+							</TableRow>
+						</TableHead>
+						<TableBody>
+							{telephonyLoading ? (
+								<TableRowSkeleton />
+							) : telephonyChannels.length === 0 ? (
+								<TableRow>
+									<TableCell colSpan={5} align="center">
+										<Typography color="textSecondary">
+											{i18n.t("telephony.noChannels")}
+										</Typography>
+									</TableCell>
+								</TableRow>
+							) : (
+								telephonyChannels.map((channel) => (
+									<TableRow key={channel.id}>
+										<TableCell>{channel.name}</TableCell>
+										<TableCell align="center">{channel.trunkUsername}</TableCell>
+										<TableCell align="center">{channel.trunkDomain}</TableCell>
+										<TableCell align="center">{channel.queue?.name || "-"}</TableCell>
+										<TableCell align="center">
+											<Tooltip title={i18n.t("telephony.modal.titleEdit")}>
+												<IconButton
+													size="small"
+													onClick={() => handleEditTelephonyChannel(channel)}
+												>
+													<Edit />
+												</IconButton>
+											</Tooltip>
+											<Tooltip title={i18n.t("telephony.confirmDeleteTitle")}>
+												<IconButton
+													size="small"
+													onClick={() => handleDeleteTelephonyChannel(channel)}
+												>
+													<DeleteIcon />
+												</IconButton>
+											</Tooltip>
+										</TableCell>
+									</TableRow>
+								))
+							)}
+						</TableBody>
+					</Table>
+				</Paper>
+			</TabPanel>
+
+			{/* ─── Tab 3: Instagram ─── */}
+			<TabPanel value={activeTab} index={3} className={classes.tabPanel}>
+				<Paper className={classes.mainPaper} variant="outlined">
+					<ComingSoonTab icon={InstagramIcon} channelName="Instagram" />
+				</Paper>
+			</TabPanel>
+
+			{/* ─── Tab 4: Facebook ─── */}
+			<TabPanel value={activeTab} index={4} className={classes.tabPanel}>
+				<Paper className={classes.mainPaper} variant="outlined">
+					<ComingSoonTab icon={FacebookIcon} channelName="Facebook" />
+				</Paper>
+			</TabPanel>
+
+			{/* ─── Tab 5: Messenger ─── */}
+			<TabPanel value={activeTab} index={5} className={classes.tabPanel}>
+				<Paper className={classes.mainPaper} variant="outlined">
+					<ComingSoonTab icon={ForumIcon} channelName="Messenger" />
+				</Paper>
+			</TabPanel>
 		</MainContainer>
 	);
 };

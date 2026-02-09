@@ -29,23 +29,27 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { email, password, name, profile, queueIds, whatsappId } = req.body;
-  const { tenantId } = req.user;
+  const { email, password, name, phone, profile, queueIds, whatsappId } = req.body;
+  let tenantId: number | null = null;
 
-  if (
-    req.url === "/signup" &&
-    (await CheckSettingsHelper("userCreation")) === "disabled"
-  ) {
-    throw new AppError("ERR_USER_CREATION_DISABLED", 403);
-  } else if (req.url !== "/signup" && req.user.profile !== "admin" && req.user.profile !== "superadmin") {
-    throw new AppError("ERR_NO_PERMISSION", 403);
+  if (req.url === "/signup") {
+    if ((await CheckSettingsHelper("userCreation")) === "disabled") {
+      throw new AppError("ERR_USER_CREATION_DISABLED", 403);
+    }
+    // For signup, use default tenant (ID 1)
+    tenantId = 1;
+  } else {
+    if (req.user.profile !== "admin" && req.user.profile !== "superadmin") {
+      throw new AppError("ERR_NO_PERMISSION", 403);
+    }
+    tenantId = req.user.tenantId;
   }
 
   const user = await CreateUserService({
     email,
     password,
     name,
-    profile,
+    profile: req.url === "/signup" ? "admin" : profile, // Default signup profile
     queueIds,
     whatsappId,
     tenantId

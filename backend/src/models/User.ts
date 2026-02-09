@@ -92,7 +92,10 @@ class User extends Model<User> {
   };
 
   public checkPassword = async (password: string): Promise<boolean> => {
-    return compare(password, this.getDataValue("passwordHash"));
+    const hash = this.getDataValue("passwordHash");
+    const isMatch = await compare(password, hash);
+    console.log(`[DEBUG] checkPassword: Input '${password}' vs Stored '${hash}' = ${isMatch}`);
+    return isMatch;
   };
 }
 

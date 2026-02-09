@@ -10,6 +10,9 @@ import {
     Switch,
     Grid,
     MenuItem,
+    Select,
+    InputLabel,
+    FormControl,
     CircularProgress,
     Typography
 } from "@material-ui/core";
@@ -58,7 +61,8 @@ const initialValues = {
     welcomeMessage: "",
     offlineMessage: "",
     buttonText: "Chat",
-    allowedDomains: ""
+    allowedDomains: "",
+    aiAgentId: ""
 };
 
 const WebchatChannelModal = ({ open, onClose, channelId }) => {
@@ -66,6 +70,21 @@ const WebchatChannelModal = ({ open, onClose, channelId }) => {
     const [values, setValues] = useState(initialValues);
     const [loading, setLoading] = useState(false);
     const [submitting, setSubmitting] = useState(false);
+    const [aiAgents, setAiAgents] = useState([]);
+
+    // Fetch available AI agents
+    useEffect(() => {
+        const fetchAgents = async () => {
+            try {
+                const { data } = await api.get("/ai-agents");
+                const list = Array.isArray(data) ? data : data.agents || [];
+                setAiAgents(list.filter(a => a.isActive));
+            } catch (err) {
+                console.error("Error loading AI agents", err);
+            }
+        };
+        if (open) fetchAgents();
+    }, [open]);
 
     useEffect(() => {
         if (!open) {
@@ -84,7 +103,8 @@ const WebchatChannelModal = ({ open, onClose, channelId }) => {
                 const { data } = await api.get(`/webchat-channels/${channelId}`);
                 setValues({
                     ...data,
-                    allowedDomains: (data.allowedDomains || []).join(", ")
+                    allowedDomains: (data.allowedDomains || []).join(", "),
+                    aiAgentId: data.aiAgentId || ""
                 });
             } catch (err) {
                 toast.error("Error loading channel");
@@ -115,7 +135,8 @@ const WebchatChannelModal = ({ open, onClose, channelId }) => {
                 ...values,
                 allowedDomains: values.allowedDomains
                     ? values.allowedDomains.split(",").map((d) => d.trim()).filter(Boolean)
-                    : []
+                    : [],
+                aiAgentId: values.aiAgentId || null
             };
 
             if (channelId) {
@@ -257,6 +278,30 @@ const WebchatChannelModal = ({ open, onClose, channelId }) => {
                                 variant="outlined"
                                 helperText="Comma-separated list of domains (e.g., example.com, mysite.com). Leave empty to allow all."
                             />
+                        </Grid>
+
+                        <Grid item xs={12}>
+                            <FormControl variant="outlined" fullWidth>
+                                <InputLabel id="ai-agent-select-label">
+                                    Agente IA
+                                </InputLabel>
+                                <Select
+                                    labelId="ai-agent-select-label"
+                                    name="aiAgentId"
+                                    value={values.aiAgentId}
+                                    onChange={handleChange}
+                                    label="Agente IA"
+                                >
+                                    <MenuItem value="">
+                                        <em>Sin agente IA</em>
+                                    </MenuItem>
+                                    {aiAgents.map(agent => (
+                                        <MenuItem key={agent.id} value={agent.id}>
+                                            {agent.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
                         </Grid>
 
                         <Grid item xs={12}>

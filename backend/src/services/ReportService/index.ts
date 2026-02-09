@@ -4,6 +4,11 @@ import Message from "../../models/Message";
 import User from "../../models/User";
 import Queue from "../../models/Queue";
 import Contact from "../../models/Contact";
+import CloseReason from "../../models/CloseReason";
+import ContactFormResponse from "../../models/ContactFormResponse";
+import ContactFormResponseValue from "../../models/ContactFormResponseValue";
+import ContactFormField from "../../models/ContactFormField";
+import ContactForm from "../../models/ContactForm";
 
 interface DateFilter {
     startDate?: string;
@@ -90,9 +95,44 @@ export const GetTicketStats = async (filters: ReportFilters): Promise<TicketStat
         Ticket.count({ where: { ...baseWhere, status: "bot" } }),
     ]);
 
-    // Calculate average response time (time from creation to first agent message)
-    // This is a simplified version - in production, you'd track this more precisely
-    const avgResponseTime = null; // TODO: Implement precise tracking
+    // Calculate average response time (time from ticket creation to first agent reply)
+    let avgResponseTime: number | null = null;
+    try {
+        const ticketsWithMessages = await Ticket.findAll({
+            where: { ...baseWhere, status: "closed" },
+            attributes: ["id", "createdAt"],
+            include: [{
+                model: Message,
+                as: "messages",
+                attributes: ["createdAt"],
+                where: { fromMe: true },
+                required: true,
+                limit: 1,
+                order: [["createdAt", "ASC"]]
+            }],
+            limit: 200 // Sample for performance
+        });
+
+        if (ticketsWithMessages.length > 0) {
+            let totalResponseMs = 0;
+            let validCount = 0;
+            for (const t of ticketsWithMessages) {
+                const msgs = (t as any).messages;
+                if (msgs && msgs.length > 0) {
+                    const diff = new Date(msgs[0].createdAt).getTime() - new Date(t.createdAt).getTime();
+                    if (diff > 0) {
+                        totalResponseMs += diff;
+                        validCount++;
+                    }
+                }
+            }
+            if (validCount > 0) {
+                avgResponseTime = Math.round(totalResponseMs / validCount / 1000); // seconds
+            }
+        }
+    } catch (e) {
+        // Fallback: if messages association not available, leave null
+    }
 
     return {
         total,
@@ -317,6 +357,9 @@ interface TicketDetail {
     botDuration: number; // in seconds
     agentDuration: number; // in seconds
     messageCount: number;
+    closeReasonName: string | null;
+    closeReasonCategory: "positive" | "negative" | null;
+    closeReasonColor: string | null;
 }
 
 interface PaginatedTicketDetails {
@@ -349,7 +392,8 @@ export const GetDetailedTickets = async (
         include: [
             { model: User, as: "user", attributes: ["id", "name"] },
             { model: Contact, as: "contact", attributes: ["id", "name", "number"] },
-            { model: Queue, as: "queue", attributes: ["id", "name", "color"] }
+            { model: Queue, as: "queue", attributes: ["id", "name", "color"] },
+            { model: CloseReason, as: "closeReason", attributes: ["id", "name", "category", "color"] }
         ],
         order: [["createdAt", "DESC"]],
         limit,
@@ -412,7 +456,10 @@ export const GetDetailedTickets = async (
             totalDuration,
             botDuration,
             agentDuration,
-            messageCount: messages.length
+            messageCount: messages.length,
+            closeReasonName: ticket.closeReason?.name || null,
+            closeReasonCategory: ticket.closeReason?.category || null,
+            closeReasonColor: ticket.closeReason?.color || null
         });
     }
 
@@ -425,12 +472,214 @@ export const GetDetailedTickets = async (
     };
 };
 
+interface TypificationStat {
+    reasonId: number | null;
+    reasonName: string;
+    category: "positive" | "negative" | null;
+    color: string;
+    count: number;
+}
+
+export const GetTypificationStats = async (filters: ReportFilters): Promise<TypificationStat[]> => {
+    const dateFilter = buildDateFilter(filters);
+
+    const baseWhere: any = {
+        tenantId: filters.tenantId,
+        status: "closed",
+        ...dateFilter
+    };
+
+    if (filters.userId) baseWhere.userId = filters.userId;
+    if (filters.queueId) baseWhere.queueId = filters.queueId;
+
+    // Get all closed tickets with their close reasons
+    const tickets = await Ticket.findAll({
+        where: baseWhere,
+        include: [
+            { model: CloseReason, as: "closeReason", attributes: ["id", "name", "category", "color"] }
+        ],
+        attributes: ["id", "closeReasonId"],
+        raw: false
+    });
+
+    // Group by close reason
+    const reasonMap = new Map<string, TypificationStat>();
+
+    for (const ticket of tickets) {
+        const key = ticket.closeReasonId ? String(ticket.closeReasonId) : "none";
+        if (!reasonMap.has(key)) {
+            reasonMap.set(key, {
+                reasonId: ticket.closeReasonId || null,
+                reasonName: ticket.closeReason?.name || "Sin tipificación",
+                category: ticket.closeReason?.category || null,
+                color: ticket.closeReason?.color || "#9e9e9e",
+                count: 0
+            });
+        }
+        reasonMap.get(key)!.count++;
+    }
+
+    const result = Array.from(reasonMap.values());
+    result.sort((a, b) => b.count - a.count);
+
+    return result;
+};
+
+interface FormResponseRow {
+    responseId: number;
+    contactName: string;
+    contactNumber: string;
+    contactEmail: string;
+    ticketId: number | null;
+    ticketStatus: string | null;
+    closeReasonName: string | null;
+    closeReasonCategory: string | null;
+    formName: string;
+    submittedAt: Date;
+    submittedByName: string | null;
+    formData: Record<string, string>;
+}
+
+interface PaginatedFormResponses {
+    responses: FormResponseRow[];
+    total: number;
+    page: number;
+    limit: number;
+    totalPages: number;
+    allFieldLabels: string[];
+}
+
+export const GetFormResponsesReport = async (
+    filters: ReportFilters & { page?: number; limit?: number }
+): Promise<PaginatedFormResponses> => {
+    const page = filters.page || 1;
+    const limit = filters.limit || 20;
+    const offset = (page - 1) * limit;
+
+    const responseWhere: any = {
+        tenantId: filters.tenantId
+    };
+
+    // Date filter on response creation
+    if (filters.startDate) {
+        responseWhere.createdAt = {
+            ...responseWhere.createdAt,
+            [Op.gte]: new Date(`${filters.startDate}T00:00:00.000Z`)
+        };
+    }
+    if (filters.endDate) {
+        responseWhere.createdAt = {
+            ...responseWhere.createdAt,
+            [Op.lte]: new Date(`${filters.endDate}T23:59:59.999Z`)
+        };
+    }
+
+    const { count: total, rows: responses } = await ContactFormResponse.findAndCountAll({
+        where: responseWhere,
+        include: [
+            {
+                model: ContactForm,
+                as: "form",
+                attributes: ["id", "name"]
+            },
+            {
+                model: Contact,
+                as: "contact",
+                attributes: ["id", "name", "number", "email"]
+            },
+            {
+                model: Ticket,
+                as: "ticket",
+                attributes: ["id", "status", "closeReasonId"],
+                include: [
+                    {
+                        model: CloseReason,
+                        as: "closeReason",
+                        attributes: ["name", "category"],
+                        required: false
+                    }
+                ],
+                required: false
+            },
+            {
+                model: User,
+                as: "submitter",
+                attributes: ["id", "name"],
+                required: false
+            },
+            {
+                model: ContactFormResponseValue,
+                as: "values",
+                attributes: ["fieldId", "value"],
+                include: [
+                    {
+                        model: ContactFormField,
+                        as: "field",
+                        attributes: ["id", "label", "order"]
+                    }
+                ]
+            }
+        ],
+        order: [["createdAt", "DESC"]],
+        limit,
+        offset,
+        distinct: true
+    });
+
+    // Collect all unique field labels across all responses for column headers
+    const fieldLabelSet = new Set<string>();
+
+    const rows: FormResponseRow[] = responses.map((resp) => {
+        const formData: Record<string, string> = {};
+
+        if (resp.values && resp.values.length > 0) {
+            // Sort by field order
+            const sortedValues = [...resp.values].sort((a, b) => {
+                const orderA = a.field?.order ?? 0;
+                const orderB = b.field?.order ?? 0;
+                return orderA - orderB;
+            });
+
+            for (const val of sortedValues) {
+                const label = val.field?.label || `Campo ${val.fieldId}`;
+                formData[label] = val.value || "";
+                fieldLabelSet.add(label);
+            }
+        }
+
+        return {
+            responseId: resp.id,
+            contactName: resp.contact?.name || "Sin nombre",
+            contactNumber: resp.contact?.number || "",
+            contactEmail: resp.contact?.email || "",
+            ticketId: resp.ticket?.id || null,
+            ticketStatus: resp.ticket?.status || null,
+            closeReasonName: (resp.ticket as any)?.closeReason?.name || null,
+            closeReasonCategory: (resp.ticket as any)?.closeReason?.category || null,
+            formName: resp.form?.name || "Sin formulario",
+            submittedAt: resp.createdAt,
+            submittedByName: resp.submitter?.name || null,
+            formData
+        };
+    });
+
+    return {
+        responses: rows,
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+        allFieldLabels: Array.from(fieldLabelSet)
+    };
+};
+
 export default {
     GetTicketStats,
     GetAgentPerformance,
     GetQueueStats,
     GetDailyStats,
     GetContactStats,
-    GetDetailedTickets
+    GetDetailedTickets,
+    GetTypificationStats,
+    GetFormResponsesReport
 };
-

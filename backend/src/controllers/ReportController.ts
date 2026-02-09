@@ -5,7 +5,9 @@ import {
     GetQueueStats,
     GetDailyStats,
     GetContactStats,
-    GetDetailedTickets
+    GetDetailedTickets,
+    GetTypificationStats,
+    GetFormResponsesReport
 } from "../services/ReportService";
 
 export const ticketStats = async (req: Request, res: Response): Promise<Response> => {
@@ -82,21 +84,29 @@ export const contactStats = async (req: Request, res: Response): Promise<Respons
 
 // Detailed tickets list for conversations table
 export const detailedTickets = async (req: Request, res: Response): Promise<Response> => {
-    const { tenantId } = req.user as any;
-    const { startDate, endDate, userId, queueId, status, page, limit } = req.query;
+    try {
+        const { tenantId } = req.user as any;
+        const { startDate, endDate, userId, queueId, status, page, limit } = req.query;
 
-    const data = await GetDetailedTickets({
-        tenantId,
-        startDate: startDate as string,
-        endDate: endDate as string,
-        userId: userId ? Number(userId) : undefined,
-        queueId: queueId ? Number(queueId) : undefined,
-        status: status as string,
-        page: page ? Number(page) : 1,
-        limit: limit ? Number(limit) : 20
-    });
+        console.log("Fetching detailed tickets with filters:", { startDate, endDate, userId, queueId, status, page, limit });
 
-    return res.json(data);
+        const data = await GetDetailedTickets({
+            tenantId,
+            startDate: startDate as string,
+            endDate: endDate as string,
+            userId: userId ? Number(userId) : undefined,
+            queueId: queueId ? Number(queueId) : undefined,
+            status: status as string,
+            page: page ? Number(page) : 1,
+            limit: limit ? Number(limit) : 20
+        });
+
+        return res.json(data);
+    } catch (err) {
+        console.error("Error fetching detailed tickets:", err);
+        // Return 500 with error message to help debugging on frontend if possible, or just log it
+        return res.status(500).json({ error: "Internal Server Error", message: err.message, stack: err.stack });
+    }
 };
 
 // Combined endpoint for dashboard
@@ -112,13 +122,14 @@ export const dashboardStats = async (req: Request, res: Response): Promise<Respo
         queueId: queueId ? Number(queueId) : undefined
     };
 
-    const [ticketStatsData, agentPerformanceData, queueStatsData, dailyStatsData, contactStatsData] =
+    const [ticketStatsData, agentPerformanceData, queueStatsData, dailyStatsData, contactStatsData, typificationData] =
         await Promise.all([
             GetTicketStats(filters),
             GetAgentPerformance(filters),
             GetQueueStats(filters),
             GetDailyStats(filters),
-            GetContactStats(filters)
+            GetContactStats(filters),
+            GetTypificationStats(filters)
         ]);
 
     return res.json({
@@ -126,7 +137,26 @@ export const dashboardStats = async (req: Request, res: Response): Promise<Respo
         agents: agentPerformanceData,
         queues: queueStatsData,
         daily: dailyStatsData,
-        contacts: contactStatsData
+        contacts: contactStatsData,
+        typifications: typificationData
     });
+};
+
+// Form responses report - client info + form data
+export const formResponses = async (req: Request, res: Response): Promise<Response> => {
+    const { tenantId } = req.user as any;
+    const { startDate, endDate, userId, queueId, page, limit } = req.query;
+
+    const data = await GetFormResponsesReport({
+        tenantId,
+        startDate: startDate as string,
+        endDate: endDate as string,
+        userId: userId ? Number(userId) : undefined,
+        queueId: queueId ? Number(queueId) : undefined,
+        page: page ? Number(page) : 1,
+        limit: limit ? Number(limit) : 20
+    });
+
+    return res.json(data);
 };
 

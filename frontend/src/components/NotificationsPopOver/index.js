@@ -88,7 +88,7 @@ const NotificationsPopOver = () => {
 			// Add existing notifications first
 			prevState.forEach(t => ticketMap.set(t.id, t));
 			// Override with new tickets from API (they have the latest data)
-			tickets.forEach(t => ticketMap.set(t.id, t));
+			(tickets || []).forEach(t => ticketMap.set(t.id, t));
 			return Array.from(ticketMap.values());
 		});
 	}, [tickets]);

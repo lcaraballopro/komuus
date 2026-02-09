@@ -1,8 +1,12 @@
 import WebchatSession from "../../models/WebchatSession";
 import WebchatMessage from "../../models/WebchatMessage";
 import WebchatChannel from "../../models/WebchatChannel";
+import Message from "../../models/Message";
+import Ticket from "../../models/Ticket";
 import AppError from "../../errors/AppError";
 import { getIO } from "../../libs/socket";
+import { logger } from "../../utils/logger";
+import { triggerWebchatN8nWebhook } from "../N8nService/N8nWebhookService";
 
 interface Request {
     sessionToken: string;
@@ -30,6 +34,11 @@ const CreateWebchatMessageService = async ({
         throw new AppError("ERR_WEBCHAT_SESSION_NOT_FOUND", 404);
     }
 
+    if (session.status === "closed") {
+        throw new AppError("ERR_WEBCHAT_SESSION_CLOSED", 410);
+    }
+
+    // Create webchat-specific message
     const message = await WebchatMessage.create({
         sessionId: session.id,
         body,
@@ -41,7 +50,70 @@ const CreateWebchatMessageService = async ({
     // Update session last activity
     await session.update({ lastActivityAt: new Date() });
 
-    // Emit to socket for real-time updates
+    // Sync to main Messages table so it appears in the agent chat UI
+    if (session.ticketId) {
+        try {
+            const msgId = `webchat-${message.id}`;
+            await Message.create({
+                id: msgId,
+                body,
+                fromMe: sender !== "visitor",
+                read: sender !== "visitor",
+                ticketId: session.ticketId,
+                contactId: session.contactId,
+                tenantId: session.channel.tenantId
+            });
+
+            // Update ticket lastMessage and unread count
+            const updateData: any = { lastMessage: body };
+            if (sender === "visitor") {
+                const ticket = await Ticket.findByPk(session.ticketId);
+                if (ticket) {
+                    updateData.unreadMessages = (ticket.unreadMessages || 0) + 1;
+                }
+            }
+            await Ticket.update(updateData, {
+                where: { id: session.ticketId }
+            });
+
+            // Re-fetch the full message with associations (same as CreateMessageService)
+            const fullMessage = await Message.findByPk(msgId, {
+                include: [
+                    "contact",
+                    {
+                        model: Ticket,
+                        as: "ticket",
+                        include: ["contact", "queue"]
+                    }
+                ]
+            });
+
+            if (fullMessage) {
+                const io = getIO();
+                const tenantId = session.channel.tenantId;
+
+                // Emit to tenant room (matches CreateMessageService pattern)
+                io.to(`tenant:${tenantId}`).emit("appMessage", {
+                    action: "create",
+                    message: fullMessage,
+                    ticket: fullMessage.ticket,
+                    contact: fullMessage.ticket?.contact
+                });
+
+                // Also update ticket in inbox list
+                io.to(`tenant:${tenantId}`).emit("ticket", {
+                    action: "update",
+                    ticket: fullMessage.ticket
+                });
+            }
+
+            logger.info(`Webchat: Synced message ${msgId} to ticket ${session.ticketId}`);
+        } catch (err) {
+            logger.error("Webchat: Failed to sync message to Messages table", err);
+        }
+    }
+
+    // Emit to socket for real-time widget updates
     const io = getIO();
 
     if (sender === "visitor") {
@@ -68,6 +140,19 @@ const CreateWebchatMessageService = async ({
                 sender: message.sender,
                 createdAt: message.createdAt
             });
+    }
+
+    // Trigger AI agent webhook for visitor messages (fire-and-forget)
+    if (sender === "visitor") {
+        triggerWebchatN8nWebhook({
+            sessionToken,
+            sessionId: session.id,
+            channelId: session.channelId,
+            message: body,
+            tenantId: session.channel.tenantId,
+            ticketId: session.ticketId || undefined,
+            contactId: session.contactId || undefined
+        }).catch(err => logger.error("Webchat AI webhook error:", err));
     }
 
     return { message };

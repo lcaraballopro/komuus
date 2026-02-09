@@ -35,6 +35,12 @@ const AuthUserService = async ({
     include: ["queues"]
   });
 
+  if (user) {
+    console.log(`[DEBUG] AuthUserService found user: ID ${user.id}, Email ${user.email}, Hash ${user.passwordHash}`);
+  } else {
+    console.log(`[DEBUG] AuthUserService found NO user for email ${email}`);
+  }
+
   if (!user) {
     throw new AppError("ERR_INVALID_CREDENTIALS", 401);
   }

@@ -34,6 +34,13 @@ n8nRoutes.post("/reactivate", isAuthApi, N8nController.reactivate);
 n8nRoutes.get("/bot-state/:chatId", isAuthApi, N8nController.getBotStateHandler);
 n8nRoutes.put("/bot-state/:chatId", isAuthApi, N8nController.setBotStateHandler);
 
+// Reservation management
+n8nRoutes.post("/reservations", isAuthApi, N8nController.createReservation);
+
+// Webchat AI integration
+n8nRoutes.post("/webchat-reply", isAuthApi, N8nController.webchatReply);
+n8nRoutes.post("/webchat-escalate", isAuthApi, N8nController.webchatEscalate);
+
 n8nRoutes.get("/status", isAuthApi, N8nController.status);
 
 export default n8nRoutes;

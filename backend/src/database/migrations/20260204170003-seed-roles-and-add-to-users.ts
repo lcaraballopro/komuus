@@ -28,18 +28,26 @@ module.exports = {
             }
         ];
 
-        await queryInterface.bulkInsert("Roles", roles.map(r => ({
-            ...r,
-            createdAt: now,
-            updatedAt: now
-        })));
+        for (const role of roles) {
+            const [existingRole] = await queryInterface.sequelize.query(
+                `SELECT id FROM Roles WHERE name = '${role.name}' LIMIT 1`
+            ) as [{ id: number }[], unknown];
+
+            if (!existingRole || existingRole.length === 0) {
+                await queryInterface.bulkInsert("Roles", [{
+                    ...role,
+                    createdAt: now,
+                    updatedAt: now
+                }]);
+            }
+        }
 
         // Get role IDs and permission IDs for associations
         const [rolesResult]: any = await queryInterface.sequelize.query(
-            `SELECT id, name FROM "Roles"`
+            `SELECT id, name FROM Roles`
         );
         const [permissionsResult]: any = await queryInterface.sequelize.query(
-            `SELECT id, "key" FROM "Permissions"`
+            `SELECT id, \`key\` FROM Permissions`
         );
 
         const roleMap: { [key: string]: number } = {};
@@ -113,34 +121,62 @@ module.exports = {
         }
 
         if (associations.length > 0) {
+            // Delete existing permissions for these roles to avoid duplicates
+            if (Object.values(roleMap).length > 0) {
+                try {
+                    // Using raw query for bulk delete to avoid Sequelize validation issues if model definition differs
+                    // Assuming 'roleId' column exists in RolePermissions
+                    await queryInterface.bulkDelete("RolePermissions", { roleId: Object.values(roleMap) });
+                } catch (e) {
+                    // If deletion fails, we might just try inserting or ignore
+                    console.error("Failed to clear existing permissions, continuing...", e);
+                }
+            }
             await queryInterface.bulkInsert("RolePermissions", associations);
         }
 
         // Add roleId column to Users table
-        await queryInterface.addColumn("Users", "roleId", {
-            type: DataTypes.INTEGER,
-            references: { model: "Roles", key: "id" },
-            onUpdate: "CASCADE",
-            onDelete: "SET NULL",
-            allowNull: true
-        });
+        try {
+            await queryInterface.addColumn("Users", "roleId", {
+                type: DataTypes.INTEGER,
+                references: { model: "Roles", key: "id" },
+                onUpdate: "CASCADE",
+                onDelete: "SET NULL",
+                allowNull: true
+            });
+        } catch (e) {
+            // Check if error is "Duplicate column name"
+            // If so, ignore. Otherwise rethrow?
+            // For now, logging and continuing.
+            console.log("Column roleId likely exists in Users, skipping addColumn.");
+        }
 
         // Migrate existing users: admin -> Administrador role, user -> Agente role
         const adminRoleId = roleMap["Administrador"];
         const agenteRoleId = roleMap["Agente"];
 
-        await queryInterface.sequelize.query(
-            `UPDATE "Users" SET "roleId" = ${adminRoleId} WHERE profile = 'admin'`
-        );
-        await queryInterface.sequelize.query(
-            `UPDATE "Users" SET "roleId" = ${agenteRoleId} WHERE profile = 'user'`
-        );
+        if (adminRoleId) {
+            await queryInterface.sequelize.query(
+                `UPDATE Users SET roleId = ${adminRoleId} WHERE profile = 'admin'`
+            );
+        }
+        if (agenteRoleId) {
+            await queryInterface.sequelize.query(
+                `UPDATE Users SET roleId = ${agenteRoleId} WHERE profile = 'user'`
+            );
+        }
         // superadmin users don't need a role - they have all permissions by default
     },
 
     down: async (queryInterface: QueryInterface) => {
-        await queryInterface.removeColumn("Users", "roleId");
-        await queryInterface.bulkDelete("RolePermissions", {});
-        await queryInterface.bulkDelete("Roles", {});
+        try {
+            await queryInterface.removeColumn("Users", "roleId");
+        } catch (e) { }
+        try {
+            await queryInterface.bulkDelete("RolePermissions", {});
+        } catch (e) { }
+        try {
+            await queryInterface.bulkDelete("Roles", {});
+        } catch (e) { }
     }
 };

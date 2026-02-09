@@ -36,7 +36,7 @@ module.exports = {
                 defaultValue: "new"
             },
             metadata: {
-                type: DataTypes.JSONB,
+                type: DataTypes.JSON,
                 allowNull: true
             },
             tenantId: {

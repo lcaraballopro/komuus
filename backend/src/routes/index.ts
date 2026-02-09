@@ -22,6 +22,8 @@ import reportRoutes from "./reportRoutes";
 import webchatChannelRoutes from "./webchatChannelRoutes";
 import webchatPublicRoutes from "./webchatPublicRoutes";
 import closeReasonRoutes from "./closeReasonRoutes";
+import reservationRoutes from "./reservationRoutes";
+import telephonyRoutes from "./telephonyRoutes";
 
 const routes = Router();
 
@@ -47,6 +49,8 @@ routes.use(reportRoutes);
 routes.use(webchatChannelRoutes);
 routes.use(webchatPublicRoutes);
 routes.use(closeReasonRoutes);
+routes.use(reservationRoutes);
+routes.use(telephonyRoutes);
 
 export default routes;
 

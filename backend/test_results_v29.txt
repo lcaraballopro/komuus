@@ -1,0 +1,197 @@
+PASS src/__tests__/unit/User/UpdateUserService.spec.ts (9.833 s)
+  ● Console
+
+    console.log
+      Deprecation Warning: faker.random.number is now located in faker.datatype.number
+
+      at Random.number (node_modules/faker/lib/random.js:37:13)
+
+PASS src/__tests__/unit/User/DeleteUserService.spec.ts
+  ● Console
+
+    console.log
+      Deprecation Warning: faker.random.number is now located in faker.datatype.number
+
+      at Random.number (node_modules/faker/lib/random.js:37:13)
+
+PASS src/__tests__/unit/User/ListUserService.spec.ts
+PASS src/__tests__/unit/User/AuthUserService.spec.ts
+  ● Console
+
+    console.log
+      [DEBUG] AuthUserService found user: ID 1, Email Shirley_Harber@gmail.com, Hash $2a$08$tgDmOBo8we6ZGPUn8rds9ucANr6W1ShUmCc02ZFeRSRr.BCgcE3z2
+
+      at src/services/UserServices/AuthUserService.ts:39:13
+
+    console.log
+      [DEBUG] checkPassword: Input '_m8LheQnnk_5wzn' vs Stored '$2a$08$tgDmOBo8we6ZGPUn8rds9ucANr6W1ShUmCc02ZFeRSRr.BCgcE3z2' = true
+
+      at User.<anonymous> (src/models/User.ts:97:13)
+
+    console.log
+      [DEBUG] AuthUserService found NO user for email Clarabelle12@gmail.com
+
+      at src/services/UserServices/AuthUserService.ts:41:13
+
+    console.log
+      [DEBUG] AuthUserService found user: ID 1, Email mail@test.com, Hash $2a$08$gMjU4fTAF71elVpApYaCN.3bU1DKr9oWJXTt4Pkv5JDhQgChf9HMK
+
+      at src/services/UserServices/AuthUserService.ts:39:13
+
+    console.log
+      [DEBUG] checkPassword: Input 'dEa6t9WabJVNvl0' vs Stored '$2a$08$gMjU4fTAF71elVpApYaCN.3bU1DKr9oWJXTt4Pkv5JDhQgChf9HMK' = false
+
+      at User.<anonymous> (src/models/User.ts:97:13)
+
+PASS src/__tests__/unit/User/ShowUserService.spec.ts
+  ● Console
+
+    console.log
+      Deprecation Warning: faker.random.number is now located in faker.datatype.number
+
+      at Random.number (node_modules/faker/lib/random.js:37:13)
+
+PASS src/__tests__/unit/User/CreateUserService.spec.ts
+-------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------
+File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s                                                                
+-------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------
+All files                            |      11 |    25.38 |    4.61 |      11 |                                                                                  
+ services                            |   30.76 |        0 |       0 |   30.76 |                                                                                  
+  WebPushService.ts                  |   30.76 |        0 |       0 |   30.76 | 10-15,25-61,64-65                                                                
+ services/AIAgentService             |       0 |        0 |       0 |       0 |                                                                                  
+  CreateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-29                                                                             
+  DeleteAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-21                                                                             
+  ListAIAgentsService.ts             |       0 |        0 |       0 |       0 | 1-34                                                                             
+  ShowAIAgentService.ts              |       0 |        0 |       0 |       0 | 1-21                                                                             
+  UpdateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-44                                                                             
+ services/AuthServices               |       0 |        0 |       0 |       0 |                                                                                  
+  RefreshTokenService.ts             |       0 |        0 |       0 |       0 | 1-47                                                                             
+ services/BotStateService            |   62.79 |      100 |       0 |   62.79 |                                                                                  
+  BotStateService.ts                 |   62.79 |      100 |       0 |   62.79 | 29-30,36-46,52-54,60-75,81-82,88-92,98-101,107-108,114-116                       
+ services/CloseReasonService         |       0 |        0 |       0 |       0 |                                                                                  
+  CreateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-30                                                                             
+  DeleteCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-22                                                                             
+  ListCloseReasonsService.ts         |       0 |        0 |       0 |       0 | 1-39                                                                             
+  ShowCloseReasonService.ts          |       0 |        0 |       0 |       0 | 1-21                                                                             
+  UpdateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-33                                                                             
+ services/CompanyService             |       0 |        0 |       0 |       0 |                                                                                  
+  CreateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-39                                                                             
+  DeleteCompanyService.ts            |       0 |        0 |       0 |       0 | 1-19                                                                             
+  ListCompaniesService.ts            |       0 |        0 |       0 |       0 | 1-32                                                                             
+  ShowCompanyService.ts              |       0 |        0 |       0 |       0 | 1-14                                                                             
+  UpdateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-52                                                                             
+ services/ContactFormService         |       0 |        0 |       0 |       0 |                                                                                  
+  CreateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-76                                                                             
+  DeleteContactFormService.ts        |       0 |        0 |       0 |       0 | 1-50                                                                             
+  ListContactFormResponsesService.ts |       0 |        0 |       0 |       0 | 1-96                                                                             
+  ListContactFormsService.ts         |       0 |        0 |       0 |       0 | 1-64                                                                             
+  ShowContactFormService.ts          |       0 |        0 |       0 |       0 | 1-33                                                                             
+  SubmitContactFormService.ts        |       0 |        0 |       0 |       0 | 1-95                                                                             
+  UpdateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-119                                                                            
+ services/ContactServices            |   12.02 |        0 |       0 |   12.02 |                                                                                  
+  CreateContactService.ts            |   40.81 |      100 |       0 |   40.81 | 19-47                                                                            
+  CreateOrUpdateContactService.ts    |   33.87 |      100 |       0 |   33.87 | 20-60                                                                            
+  DeleteContactService.ts            |       0 |        0 |       0 |       0 | 1-24                                                                             
+  GetContactService.ts               |       0 |        0 |       0 |       0 | 1-42                                                                             
+  ListContactsService.ts             |       0 |        0 |       0 |       0 | 1-53                                                                             
+  ShowContactService.ts              |       0 |        0 |       0 |       0 | 1-39                                                                             
+  UpdateContactService.ts            |       0 |        0 |       0 |       0 | 1-72                                                                             
+ services/LeadService                |       0 |        0 |       0 |       0 |                                                                                  
+  CreateLeadService.ts               |       0 |        0 |       0 |       0 | 1-91                                                                             
+  FindLeadService.ts                 |       0 |        0 |       0 |       0 | 1-46                                                                             
+  ListLeadsService.ts                |       0 |        0 |       0 |       0 | 1-62                                                                             
+  UpdateLeadService.ts               |       0 |        0 |       0 |       0 | 1-46                                                                             
+ services/MessageServices            |      15 |        0 |       0 |      15 |                                                                                  
+  CreateMessageService.ts            |   23.76 |      100 |       0 |   23.76 | 23-99                                                                            
+  ListMessagesService.ts             |       0 |        0 |       0 |       0 | 1-59                                                                             
+ services/N8nService                 |      20 |        0 |       0 |      20 |                                                                                  
+  N8nEscalateService.ts              |       0 |        0 |       0 |       0 | 1-214                                                                            
+  N8nReplyService.ts                 |       0 |        0 |       0 |       0 | 1-109                                                                            
+  N8nWebhookService.ts               |   39.45 |      100 |       0 |   39.45 | 115-175,181-289,295-312,318-330                                                  
+ services/PermissionServices         |       0 |        0 |       0 |       0 |                                                                                  
+  ListPermissionsService.ts          |       0 |        0 |       0 |       0 | 1-29                                                                             
+  UserHasPermissionService.ts        |       0 |        0 |       0 |       0 | 1-36                                                                             
+ services/QueueService               |       0 |        0 |       0 |       0 |                                                                                  
+  CreateQueueService.ts              |       0 |        0 |       0 |       0 | 1-68                                                                             
+  DeleteQueueService.ts              |       0 |        0 |       0 |       0 | 1-17                                                                             
+  ListQueuesService.ts               |       0 |        0 |       0 |       0 | 1-18                                                                             
+  ShowQueueService.ts                |       0 |        0 |       0 |       0 | 1-24                                                                             
+  UpdateQueueService.ts              |       0 |        0 |       0 |       0 | 1-80                                                                             
+ services/QuickAnswerService         |       0 |        0 |       0 |       0 |                                                                                  
+  CreateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-29                                                                             
+  DeleteQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-21                                                                             
+  ListQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-49                                                                             
+  ShowQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-21                                                                             
+  UpdateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-42                                                                             
+ services/ReportService              |       0 |        0 |       0 |       0 |                                                                                  
+  index.ts                           |       0 |        0 |       0 |       0 | 1-685                                                                            
+ services/ReservationService         |       0 |        0 |       0 |       0 |                                                                                  
+  CreateReservationService.ts        |       0 |        0 |       0 |       0 | 1-45                                                                             
+  DeleteReservationService.ts        |       0 |        0 |       0 |       0 | 1-21                                                                             
+  ListReservationsService.ts         |       0 |        0 |       0 |       0 | 1-63                                                                             
+  ShowReservationService.ts          |       0 |        0 |       0 |       0 | 1-27                                                                             
+  UpdateReservationService.ts        |       0 |        0 |       0 |       0 | 1-44                                                                             
+ services/RoleServices               |       0 |        0 |       0 |       0 |                                                                                  
+  CreateRoleService.ts               |       0 |        0 |       0 |       0 | 1-40                                                                             
+  DeleteRoleService.ts               |       0 |        0 |       0 |       0 | 1-26                                                                             
+  ListRolesService.ts                |       0 |        0 |       0 |       0 | 1-19                                                                             
+  ShowRoleService.ts                 |       0 |        0 |       0 |       0 | 1-23                                                                             
+  UpdateRoleService.ts               |       0 |        0 |       0 |       0 | 1-55                                                                             
+ services/SettingServices            |       0 |        0 |       0 |       0 |                                                                                  
+  ListSettingByValueService.ts       |       0 |        0 |       0 |       0 | 1-22                                                                             
+  ListSettingsService.ts             |       0 |        0 |       0 |       0 | 1-17                                                                             
+  UpdateSettingService.ts            |       0 |        0 |       0 |       0 | 1-28                                                                             
+ services/TelephonyServices          |       0 |        0 |       0 |       0 |                                                                                  
+  ProcessCallHangupService.ts        |       0 |        0 |       0 |       0 | 1-96                                                                             
+  ProcessIncomingCallService.ts      |       0 |        0 |       0 |       0 | 1-117                                                                            
+ services/TicketServices             |   11.83 |        0 |       0 |   11.83 |                                                                                  
+  CreateTicketService.ts             |       0 |        0 |       0 |       0 | 1-49                                                                             
+  DeleteTicketService.ts             |       0 |        0 |       0 |       0 | 1-18                                                                             
+  FindOrCreateTicketService.ts       |   11.88 |      100 |       0 |   11.88 | 11-99                                                                            
+  ListTicketsService.ts              |       0 |        0 |       0 |       0 | 1-161                                                                            
+  ShowTicketService.ts               |   22.72 |      100 |       0 |   22.72 | 14-64                                                                            
+  UpdateTicketService.ts             |   29.46 |      100 |       0 |   29.46 | 32-110                                                                           
+ services/UserServices               |   99.43 |    89.18 |     100 |   99.43 |                                                                                  
+  AuthUserService.ts                 |     100 |      100 |     100 |     100 |                                                                                  
+  CreateUserService.ts               |     100 |    81.81 |     100 |     100 | 42,64                                                                            
+  DeleteUserService.ts               |   94.59 |       80 |     100 |   94.59 | 31-32                                                                            
+  ListUsersService.ts                |     100 |      100 |     100 |     100 |                                                                                  
+  ShowUserService.ts                 |     100 |      100 |     100 |     100 |                                                                                  
+  UpdateUserService.ts               |     100 |    85.71 |     100 |     100 | 63                                                                               
+ services/WbotServices               |    6.15 |        0 |       0 |    6.15 |                                                                                  
+  CheckIsValidContact.ts             |       0 |        0 |       0 |       0 | 1-23                                                                             
+  CheckNumber.ts                     |       0 |        0 |       0 |       0 | 1-13                                                                             
+  DeleteWhatsAppMessage.ts           |       0 |        0 |       0 |       0 | 1-36                                                                             
+  GetProfilePicUrl.ts                |       0 |        0 |       0 |       0 | 1-14                                                                             
+  ImportContactsService.ts           |       0 |        0 |       0 |       0 | 1-41                                                                             
+  SendDirectWhatsAppMessage.ts       |       0 |        0 |       0 |       0 | 1-59                                                                             
+  SendWhatsAppMedia.ts               |       0 |        0 |       0 |       0 | 1-61                                                                             
+  SendWhatsAppMessage.ts             |       0 |        0 |       0 |       0 | 1-47                                                                             
+  StartAllWhatsAppsSessions.ts       |       0 |        0 |       0 |       0 | 1-12                                                                             
+  StartWhatsAppSession.ts            |       0 |        0 |       0 |       0 | 1-26                                                                             
+  wbotMessageListener.ts             |   10.76 |      100 |       0 |   10.76 | 37-53,56-69,72-83,86-167,171-201,204-222,225-279,282-297,300-501,504-532,535-546 
+  wbotMonitor.ts                     |       0 |        0 |       0 |       0 | 1-78                                                                             
+ services/WebchatService             |       0 |        0 |       0 |       0 |                                                                                  
+  CreateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-72                                                                             
+  CreateWebchatMessageService.ts     |       0 |        0 |       0 |       0 | 1-142                                                                            
+  CreateWebchatSessionService.ts     |       0 |        0 |       0 |       0 | 1-105                                                                            
+  DeleteWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-24                                                                             
+  GenerateWidgetScriptService.ts     |       0 |        0 |       0 |       0 | 1-54                                                                             
+  GetWebchatSessionService.ts        |       0 |        0 |       0 |       0 | 1-45                                                                             
+  ListWebchatChannelsService.ts      |       0 |        0 |       0 |       0 | 1-24                                                                             
+  ShowWebchatChannelService.ts       |       0 |        0 |       0 |       0 | 1-30                                                                             
+  UpdateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-84                                                                             
+ services/WhatsappService            |    4.09 |        0 |       0 |    4.09 |                                                                                  
+  AssociateWhatsappQueue.ts          |       0 |        0 |       0 |       0 | 1-12                                                                             
+  CreateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-94                                                                             
+  DeleteWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-24                                                                             
+  ListWhatsAppsService.ts            |       0 |        0 |       0 |       0 | 1-25                                                                             
+  ShowWhatsAppService.ts             |   25.53 |      100 |       0 |   25.53 | 11-45                                                                            
+  UpdateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-91                                                                             
+-------------------------------------|---------|----------|---------|---------|----------------------------------------------------------------------------------
+
+Test Suites: 6 passed, 6 total
+Tests:       13 passed, 13 total
+Snapshots:   0 total
+Time:        20.631 s, estimated 33 s
+Ran all test suites.

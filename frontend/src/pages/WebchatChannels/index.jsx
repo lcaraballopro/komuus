@@ -30,6 +30,7 @@ import WebchatChannelModal from "../../components/WebchatChannelModal";
 import { i18n } from "../../translate/i18n";
 import api from "../../services/api";
 import { toast } from "react-toastify";
+import toastError from "../../errors/toastError";
 
 const useStyles = makeStyles((theme) => ({
     mainPaper: {
@@ -100,7 +101,7 @@ const WebchatChannels = () => {
             const { data } = await api.get("/webchat-channels");
             dispatch({ type: "LOAD_CHANNELS", payload: data });
         } catch (err) {
-            toast.error("Error loading webchat channels");
+            toastError(err);
         }
         setLoading(false);
     }, []);
@@ -134,9 +135,9 @@ const WebchatChannels = () => {
         try {
             await api.delete(`/webchat-channels/${selectedChannel.id}`);
             dispatch({ type: "DELETE_CHANNEL", payload: selectedChannel.id });
-            toast.success("Channel deleted successfully");
+            toast.success(i18n.t("webchatChannels.toasts.deleted"));
         } catch (err) {
-            toast.error("Error deleting channel");
+            toastError(err);
         }
         setConfirmModalOpen(false);
         setSelectedChannel(null);
@@ -148,20 +149,20 @@ const WebchatChannels = () => {
             setEmbedCode(data.embedCode);
             setScriptModalOpen(true);
         } catch (err) {
-            toast.error("Error getting embed code");
+            toastError(err);
         }
     };
 
     const handleCopyScript = () => {
         navigator.clipboard.writeText(embedCode);
-        toast.success("Script copied to clipboard!");
+        toast.success(i18n.t("webchatChannels.toasts.scriptCopied"));
         setScriptModalOpen(false);
     };
 
     return (
         <MainContainer>
             <ConfirmationModal
-                title="Delete Webchat Channel"
+                title={i18n.t("webchatChannels.confirmDeleteTitle")}
                 open={confirmModalOpen}
                 onClose={() => setConfirmModalOpen(false)}
                 onConfirm={handleConfirmDelete}
@@ -191,23 +192,23 @@ const WebchatChannels = () => {
                 }}>
                     <Paper style={{ padding: 24, maxWidth: 600, width: "90%" }}>
                         <Typography variant="h6" gutterBottom>
-                            Embed Code
+                            {i18n.t("webchatChannels.embedCode.title")}
                         </Typography>
                         <Typography variant="body2" color="textSecondary" gutterBottom>
-                            Copy and paste this code into your website's HTML, right before the closing &lt;/body&gt; tag.
+                            {i18n.t("webchatChannels.embedCode.description")}
                         </Typography>
                         <div className={classes.scriptDialog}>
                             {embedCode}
                         </div>
                         <div style={{ display: "flex", gap: 8, marginTop: 16, justifyContent: "flex-end" }}>
-                            <Button onClick={() => setScriptModalOpen(false)}>Cancel</Button>
+                            <Button onClick={() => setScriptModalOpen(false)}>{i18n.t("webchatChannels.embedCode.cancel")}</Button>
                             <Button
                                 variant="contained"
                                 color="primary"
                                 startIcon={<CopyIcon />}
                                 onClick={handleCopyScript}
                             >
-                                Copy Code
+                                {i18n.t("webchatChannels.embedCode.copy")}
                             </Button>
                         </div>
                     </Paper>
@@ -262,13 +263,13 @@ const WebchatChannels = () => {
                                 </TableCell>
                                 <TableCell align="center">
                                     <Chip
-                                        label={channel.isActive ? "Active" : "Inactive"}
+                                        label={channel.isActive ? i18n.t("webchatChannels.status.active") : i18n.t("webchatChannels.status.inactive")}
                                         color={channel.isActive ? "primary" : "default"}
                                         size="small"
                                     />
                                 </TableCell>
                                 <TableCell align="center">
-                                    <Tooltip title="Get Embed Code">
+                                    <Tooltip title={i18n.t("webchatChannels.tooltips.getCode")}>
                                         <IconButton
                                             size="small"
                                             onClick={() => handleGetScript(channel)}
@@ -276,7 +277,7 @@ const WebchatChannels = () => {
                                             <CodeIcon />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Edit">
+                                    <Tooltip title={i18n.t("webchatChannels.tooltips.edit")}>
                                         <IconButton
                                             size="small"
                                             onClick={() => handleEditChannel(channel)}
@@ -284,7 +285,7 @@ const WebchatChannels = () => {
                                             <EditIcon />
                                         </IconButton>
                                     </Tooltip>
-                                    <Tooltip title="Delete">
+                                    <Tooltip title={i18n.t("webchatChannels.tooltips.delete")}>
                                         <IconButton
                                             size="small"
                                             onClick={() => handleDeleteChannel(channel)}

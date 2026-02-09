@@ -2,6 +2,7 @@ import CheckContactOpenTickets from "../../helpers/CheckContactOpenTickets";
 import SetTicketMessagesAsRead from "../../helpers/SetTicketMessagesAsRead";
 import { getIO } from "../../libs/socket";
 import Ticket from "../../models/Ticket";
+import WebchatSession from "../../models/WebchatSession";
 import SendWhatsAppMessage from "../WbotServices/SendWhatsAppMessage";
 import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import ShowTicketService from "./ShowTicketService";
@@ -103,6 +104,25 @@ const UpdateTicketService = async ({
       logger.info(`Bot reactivated for ${chatId} after ticket ${ticket.id} was closed`);
     } catch (err: any) {
       logger.error(`Failed to reactivate bot after closing ticket ${ticket.id}: ${err.message}`);
+    }
+
+    // Close webchat session if this is a webchat ticket
+    if (ticket.channel === "webchat") {
+      try {
+        const webchatSession = await WebchatSession.findOne({
+          where: { ticketId: ticket.id, status: "active" }
+        });
+        if (webchatSession) {
+          await webchatSession.update({ status: "closed" });
+          // Notify the widget so it clears messages and creates a new session
+          io.of("/webchat")
+            .to(`session:${webchatSession.sessionToken}`)
+            .emit("sessionClosed", { reason: "ticket_closed" });
+          logger.info(`Webchat session ${webchatSession.sessionToken} closed with ticket ${ticket.id}`);
+        }
+      } catch (err: any) {
+        logger.error(`Failed to close webchat session for ticket ${ticket.id}: ${err.message}`);
+      }
     }
   }
 

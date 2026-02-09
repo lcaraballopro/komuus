@@ -12,6 +12,7 @@ const rules = {
 			"ticket-options:deleteTicket",
 			"ticket-options:transferWhatsapp",
 			"contacts-page:deleteContact",
+			"reservations:view",
 		],
 	},
 
@@ -25,6 +26,7 @@ const rules = {
 			"ticket-options:transferWhatsapp",
 			"contacts-page:deleteContact",
 			"companies:manage",
+			"reservations:view",
 		],
 	},
 };

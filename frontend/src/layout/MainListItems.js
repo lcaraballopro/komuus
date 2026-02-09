@@ -19,6 +19,7 @@ import BusinessIcon from "@material-ui/icons/Business";
 import DynamicFormIcon from "@material-ui/icons/Assignment";
 import WebIcon from "@material-ui/icons/Web";
 import CategoryIcon from "@material-ui/icons/Category";
+import EventNoteIcon from "@material-ui/icons/EventNote";
 
 import { i18n } from "../translate/i18n";
 import { WhatsAppsContext } from "../context/WhatsApp/WhatsAppsContext";
@@ -113,6 +114,17 @@ const MainListItems = (props) => {
       />
       <Can
         role={user.profile}
+        perform="reservations:view"
+        yes={() => (
+          <ListItemLink
+            to="/reservations"
+            primary={i18n.t("mainDrawer.listItems.reservations")}
+            icon={<EventNoteIcon />}
+          />
+        )}
+      />
+      <Can
+        role={user.profile}
         perform="drawer-admin-items:view"
         yes={() => (
           <>
@@ -135,11 +147,7 @@ const MainListItems = (props) => {
               primary={i18n.t("mainDrawer.listItems.closeReasons")}
               icon={<CategoryIcon />}
             />
-            <ListItemLink
-              to="/webchat-channels"
-              primary={i18n.t("mainDrawer.listItems.webchatChannels")}
-              icon={<WebIcon />}
-            />
+
             <ListItemLink
               to="/settings"
               primary={i18n.t("mainDrawer.listItems.settings")}

@@ -55,8 +55,8 @@ class WebchatChannel extends Model<WebchatChannel> {
     buttonText: string;
 
     // Security - allowed domains for embedding
-    @Default([])
-    @Column(DataType.ARRAY(DataType.STRING))
+    @Default("[]")
+    @Column(DataType.JSON)
     allowedDomains: string[];
 
     // Integration with existing systems

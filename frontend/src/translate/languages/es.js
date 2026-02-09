@@ -117,14 +117,27 @@ const messages = {
           disconnectTitle: "Desconectar",
           disconnectMessage: "Estás seguro? Deberá volver a leer el código QR",
         },
+        tabs: {
+          whatsapp: "WhatsApp",
+          webchat: "Webchat",
+          instagram: "Instagram",
+          facebook: "Facebook",
+          messenger: "Messenger",
+          telephony: "Telefonía",
+        },
+        comingSoon: "Próximamente",
+        comingSoonDesc: "Esta integración estará disponible pronto.",
         buttons: {
-          add: "Agrega WhatsApp",
+          add: "Agregar Cuenta",
+          addWhatsApp: "Agregar WhatsApp",
+          addWebchat: "Nuevo Canal Webchat",
           disconnect: "Desconectar",
           tryAgain: "Inténtalo de nuevo",
           qrcode: "QR CODE",
           newQr: "Nuevo QR CODE",
           connecting: "Conectando",
           config: "Configurar",
+          addTelephony: "Nuevo Canal de Voz",
         },
         toolTips: {
           disconnected: {
@@ -349,6 +362,7 @@ const messages = {
           contactForms: "Formularios",
           webchatChannels: "Webchat",
           closeReasons: "Tipificación",
+          reservations: "Reservas",
           administration: "Administración",
           users: "Usuarios",
           settings: "Configuración",
@@ -781,6 +795,59 @@ const messages = {
           cancel: "Cancelar",
           save: "Guardar",
         },
+        toasts: {
+          deleted: "Canal eliminado correctamente",
+          scriptCopied: "¡Script copiado al portapapeles!",
+        },
+        confirmDeleteTitle: "Eliminar Canal Webchat",
+      },
+      telephony: {
+        title: "Canales de Voz",
+        noChannels: "No hay canales de telefonía configurados.",
+        table: {
+          name: "Nombre",
+          trunk: "Troncal SIP",
+          domain: "Dominio",
+          queue: "Cola",
+          actions: "Acciones",
+        },
+        buttons: {
+          add: "Nuevo Canal",
+        },
+        modal: {
+          titleAdd: "Agregar Canal SIP",
+          titleEdit: "Editar Canal SIP",
+          name: "Nombre (Etiqueta)",
+          trunkUsername: "Usuario Troncal (Auth ID)",
+          trunkPassword: "Contraseña Troncal",
+          trunkDomain: "Dominio / IP PBX",
+          queue: "Cola por defecto",
+          cancel: "Cancelar",
+          save: "Guardar",
+        },
+        toasts: {
+          deleted: "Canal eliminado correctamente",
+          created: "Canal creado correctamente",
+          updated: "Canal actualizado correctamente",
+        },
+        confirmDeleteTitle: "¿Eliminar Canal SIP?",
+        confirmDeleteMessage: "¿Estás seguro? Esta acción eliminará la configuración del troncal.",
+
+        status: {
+          active: "Activo",
+          inactive: "Inactivo",
+        },
+        tooltips: {
+          getCode: "Obtener código",
+          edit: "Editar",
+          delete: "Eliminar",
+        },
+        embedCode: {
+          title: "Código de Integración",
+          description: "Copia y pega este código en el HTML de tu sitio web, justo antes de la etiqueta de cierre </body>.",
+          cancel: "Cancelar",
+          copy: "Copiar Código",
+        },
       },
       closeReasons: {
         title: "Motivos de Cierre",
@@ -825,6 +892,69 @@ const messages = {
           cancel: "Cancelar",
           add: "Crear",
           save: "Guardar",
+        },
+      },
+      reservations: {
+        title: "Reservas",
+        table: {
+          title: "Título",
+          contact: "Contacto",
+          agent: "Agente",
+          date: "Fecha",
+          status: "Estado",
+          actions: "Acciones",
+        },
+        statuses: {
+          pending: "Pendiente",
+          confirmed: "Confirmada",
+          completed: "Completada",
+          cancelled: "Cancelada",
+        },
+        filters: {
+          status: "Estado",
+          all: "Todos",
+        },
+        buttons: {
+          add: "Nueva Reserva",
+        },
+        toasts: {
+          deleted: "Reserva eliminada correctamente",
+        },
+        confirmationModal: {
+          deleteTitle: "¿Eliminar reserva",
+          deleteMessage: "Esta acción no se puede deshacer.",
+        },
+      },
+      reservationModal: {
+        title: {
+          add: "Crear Reserva",
+          edit: "Editar Reserva",
+        },
+        form: {
+          title: "Título",
+          description: "Descripción",
+          startDate: "Fecha inicio",
+          endDate: "Fecha fin",
+          status: "Estado",
+          color: "Color",
+          contact: "Contacto",
+          noContact: "Sin resultados",
+          agent: "Agente responsable",
+          noAgent: "Sin asignar",
+          notes: "Notas",
+        },
+        validation: {
+          required: "Título, fecha de inicio y fecha de fin son obligatorios",
+          dateOrder: "La fecha de fin debe ser posterior a la de inicio",
+        },
+        buttons: {
+          okAdd: "Crear",
+          okEdit: "Guardar",
+          cancel: "Cancelar",
+        },
+        success: {
+          add: "Reserva creada correctamente",
+          edit: "Reserva actualizada correctamente",
         },
       },
       resolveTicketModal: {

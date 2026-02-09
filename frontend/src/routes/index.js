@@ -18,12 +18,14 @@ import Companies from "../pages/Companies/";
 import Roles from "../pages/Roles/";
 import ContactForms from "../pages/ContactForms/";
 import Reports from "../pages/Reports/";
-import WebchatChannels from "../pages/WebchatChannels/";
+
 import CloseReasons from "../pages/CloseReasons/";
+import Reservations from "../pages/Reservations/";
 import Profile from "../pages/Profile/";
 import { AuthProvider } from "../context/Auth/AuthContext";
 import { WhatsAppsProvider } from "../context/WhatsApp/WhatsAppsContext";
 import { ThemeProvider } from "../context/DarkMode";
+// import { TelephonyProvider } from "../context/TelephonyContext";
 import Route from "./Route";
 
 const Routes = () => {
@@ -35,6 +37,7 @@ const Routes = () => {
             <Route exact path="/login" component={Login} />
             <Route exact path="/signup" component={Signup} />
             <WhatsAppsProvider>
+              {/* <TelephonyProvider> */}
               <LoggedInLayout>
                 <Route exact path="/" component={Dashboard} isPrivate />
                 <Route exact path="/tickets/:ticketId?" component={Tickets} isPrivate />
@@ -49,10 +52,12 @@ const Routes = () => {
                 <Route exact path="/roles" component={Roles} isPrivate />
                 <Route exact path="/contact-forms" component={ContactForms} isPrivate />
                 <Route exact path="/reports" component={Reports} isPrivate />
-                <Route exact path="/webchat-channels" component={WebchatChannels} isPrivate />
+
                 <Route exact path="/close-reasons" component={CloseReasons} isPrivate />
+                <Route exact path="/reservations" component={Reservations} isPrivate />
                 <Route exact path="/profile" component={Profile} isPrivate />
               </LoggedInLayout>
+              {/* </TelephonyProvider> */}
             </WhatsAppsProvider>
           </Switch>
           <ToastContainer autoClose={3000} />

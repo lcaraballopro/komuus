@@ -9,6 +9,8 @@ import ShowTicketService from "../services/TicketServices/ShowTicketService";
 import DeleteWhatsAppMessage from "../services/WbotServices/DeleteWhatsAppMessage";
 import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
 import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
+import CreateWebchatMessageService from "../services/WebchatService/CreateWebchatMessageService";
+import WebchatSession from "../models/WebchatSession";
 
 type IndexQuery = {
   pageNumber: string;
@@ -46,6 +48,25 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   const ticket = await ShowTicketService({ id: ticketId, tenantId });
 
   SetTicketMessagesAsRead(ticket);
+
+  // Route through webchat service if this is a webchat ticket
+  if (ticket.channel === "webchat") {
+    const session = await WebchatSession.findOne({
+      where: { ticketId: ticket.id }
+    });
+
+    if (session) {
+      const messageBody = body || (medias && medias.length > 0 ? "[Archivo adjunto]" : "");
+      await CreateWebchatMessageService({
+        sessionToken: session.sessionToken,
+        body: messageBody,
+        sender: "agent",
+        agentId: Number(req.user.id)
+      });
+    }
+
+    return res.send();
+  }
 
   if (medias) {
     await Promise.all(

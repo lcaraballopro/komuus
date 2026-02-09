@@ -13,5 +13,6 @@ reportRoutes.get("/reports/daily", isAuth, isAdmin, ReportController.dailyStats)
 reportRoutes.get("/reports/contacts/stats", isAuth, isAdmin, ReportController.contactStats);
 reportRoutes.get("/reports/dashboard", isAuth, isAdmin, ReportController.dashboardStats);
 reportRoutes.get("/reports/tickets/detailed", isAuth, isAdmin, ReportController.detailedTickets);
+reportRoutes.get("/reports/form-responses", isAuth, isAdmin, ReportController.formResponses);
 
 export default reportRoutes;

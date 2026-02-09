@@ -4,6 +4,7 @@ import {
   CreatedAt,
   UpdatedAt,
   Model,
+  DataType,
   PrimaryKey,
   ForeignKey,
   BelongsTo,
@@ -19,6 +20,7 @@ import User from "./User";
 import Whatsapp from "./Whatsapp";
 import Company from "./Company";
 import CloseReason from "./CloseReason";
+import TelephonyChannel from "./TelephonyChannel";
 
 @Table
 class Ticket extends Model<Ticket> {
@@ -29,6 +31,10 @@ class Ticket extends Model<Ticket> {
 
   @Column({ defaultValue: "pending" })
   status: string;
+
+  @Default("whatsapp")
+  @Column(DataType.STRING)
+  channel: string; // 'whatsapp' | 'webchat'
 
   @Column
   unreadMessages: number;
@@ -73,6 +79,13 @@ class Ticket extends Model<Ticket> {
 
   @BelongsTo(() => Whatsapp)
   whatsapp: Whatsapp;
+
+  @ForeignKey(() => TelephonyChannel)
+  @Column
+  telephonyId: number;
+
+  @BelongsTo(() => TelephonyChannel)
+  telephony: TelephonyChannel;
 
   @ForeignKey(() => Queue)
   @Column

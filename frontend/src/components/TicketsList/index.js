@@ -75,6 +75,7 @@ const useStyles = makeStyles(theme => ({
 const reducer = (state, action) => {
 	if (action.type === "LOAD_TICKETS") {
 		const newTickets = action.payload;
+		if (!Array.isArray(newTickets)) return state;
 
 		newTickets.forEach(ticket => {
 			const ticketIndex = state.findIndex(t => t.id === ticket.id);

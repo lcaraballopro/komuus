@@ -1,4 +1,4 @@
-import React, { useState, useContext, useEffect } from "react";
+import React, { useState, useContext, useEffect, useRef } from "react";
 import { Link as RouterLink, useLocation } from "react-router-dom";
 import {
   makeStyles,
@@ -16,7 +16,12 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Popover,
 } from "@material-ui/core";
+import PhoneIcon from "@material-ui/icons/Phone";
+import PhoneInTalkIcon from "@material-ui/icons/PhoneInTalk";
+import PhoneMissedIcon from "@material-ui/icons/PhoneMissed";
+
 import AccountCircle from "@material-ui/icons/AccountCircle";
 import Brightness4Icon from "@material-ui/icons/Brightness4";
 import DashboardOutlinedIcon from "@material-ui/icons/DashboardOutlined";
@@ -34,6 +39,12 @@ import SecurityIcon from "@material-ui/icons/Security";
 import AssignmentIcon from "@material-ui/icons/Assignment";
 import BarChartIcon from "@material-ui/icons/BarChart";
 import CategoryIcon from "@material-ui/icons/Category";
+import ChatBubbleOutlineIcon from "@material-ui/icons/ChatBubbleOutline";
+import TrendingUpIcon from "@material-ui/icons/TrendingUp";
+import EventNoteIcon from "@material-ui/icons/EventNote";
+import SettingsInputAntennaIcon from "@material-ui/icons/SettingsInputAntenna";
+import BuildIcon from "@material-ui/icons/Build";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 
 import NotificationsPopOver from "../components/NotificationsPopOver";
 import ToastNotificationContainer from "../components/ToastNotification";
@@ -46,6 +57,9 @@ import BackdropLoading from "../components/BackdropLoading";
 import { i18n } from "../translate/i18n";
 import { useThemeContext } from "../context/DarkMode";
 import { Can } from "../components/Can";
+
+// import { TelephonyContext } from "../context/TelephonyContext";
+// import Softphone from "../components/Telephony/Softphone";
 
 const taskbarHeight = 56;
 const mobileTaskbarHeight = 64;
@@ -192,6 +206,77 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.secondary,
     fontSize: 20,
   },
+  // Popover group styles
+  groupButton: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: theme.spacing(1, 1.5),
+    borderRadius: 8,
+    minWidth: 64,
+    cursor: "pointer",
+    transition: "all 0.2s ease",
+    color: theme.palette.text.secondary,
+    "&:hover": {
+      backgroundColor: theme.palette.type === "dark" ? "#2d2d3d" : "#e8e8e8",
+      color: theme.palette.primary.main,
+    },
+  },
+  groupButtonActive: {
+    color: theme.palette.primary.main,
+  },
+  groupButtonOpen: {
+    backgroundColor: theme.palette.type === "dark" ? "#2d2d3d" : "#e8e8e8",
+    color: theme.palette.primary.main,
+  },
+  groupLabelRow: {
+    display: "flex",
+    alignItems: "center",
+    gap: 2,
+  },
+  groupExpandIcon: {
+    fontSize: 14,
+    transition: "transform 0.2s ease",
+  },
+  groupExpandIconOpen: {
+    transform: "rotate(180deg)",
+  },
+  popoverPaper: {
+    borderRadius: 12,
+    minWidth: 200,
+    boxShadow: "0 8px 32px rgba(0,0,0,0.15)",
+    backgroundColor: theme.palette.type === "dark" ? "#1e1e2d" : "#ffffff",
+    border: `1px solid ${theme.palette.type === "dark" ? "#2d2d3d" : "#e0e0e0"}`,
+    padding: theme.spacing(1),
+  },
+  popoverItem: {
+    display: "flex",
+    alignItems: "center",
+    gap: theme.spacing(1.5),
+    padding: theme.spacing(1, 1.5),
+    borderRadius: 8,
+    cursor: "pointer",
+    textDecoration: "none",
+    color: theme.palette.text.primary,
+    transition: "all 0.15s ease",
+    "&:hover": {
+      backgroundColor: theme.palette.type === "dark" ? "#2d2d3d" : "#f5f5f5",
+    },
+  },
+  popoverItemActive: {
+    backgroundColor: theme.palette.type === "dark" ? "#3f51b5" : "#e3f2fd",
+    color: theme.palette.primary.main,
+  },
+  popoverItemIcon: {
+    fontSize: 20,
+    color: "inherit",
+    minWidth: "auto",
+  },
+  popoverItemLabel: {
+    fontSize: 13,
+    fontWeight: 500,
+  },
   // Mobile menu drawer
   mobileMenuDrawer: {
     "& .MuiDrawer-paper": {
@@ -274,6 +359,73 @@ const TaskbarButton = ({ to, icon: Icon, label, active, onClick, badge, hideLabe
   return content;
 };
 
+const TaskbarGroupButton = ({ icon: Icon, label, items, isActive: isActiveFn }) => {
+  const classes = useStyles();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+
+  const hasActiveChild = items.some((item) => isActiveFn(item.to));
+
+  const handleOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  return (
+    <>
+      <div
+        className={`${classes.groupButton} ${hasActiveChild ? classes.groupButtonActive : ""} ${open ? classes.groupButtonOpen : ""}`}
+        onClick={handleOpen}
+      >
+        <Icon className={classes.taskbarIcon} />
+        <div className={classes.groupLabelRow}>
+          <span className={classes.taskbarLabel}>{label}</span>
+          <ExpandMoreIcon className={`${classes.groupExpandIcon} ${open ? classes.groupExpandIconOpen : ""}`} />
+        </div>
+      </div>
+      <Popover
+        open={open}
+        anchorEl={anchorEl}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        PaperProps={{
+          className: classes.popoverPaper,
+        }}
+      >
+        {items.map((item) => (
+          <RouterLink
+            key={item.to}
+            to={item.to}
+            style={{ textDecoration: "none" }}
+            onClick={handleClose}
+          >
+            <div className={`${classes.popoverItem} ${isActiveFn(item.to) ? classes.popoverItemActive : ""}`}>
+              {item.badge ? (
+                <Badge badgeContent={item.badge} color="error">
+                  <item.icon className={classes.popoverItemIcon} />
+                </Badge>
+              ) : (
+                <item.icon className={classes.popoverItemIcon} />
+              )}
+              <span className={classes.popoverItemLabel}>{item.label}</span>
+            </div>
+          </RouterLink>
+        ))}
+      </Popover>
+    </>
+  );
+};
+
 const LoggedInLayout = ({ children }) => {
   const classes = useStyles();
   const theme = useTheme();
@@ -288,6 +440,20 @@ const LoggedInLayout = ({ children }) => {
   const { whatsApps } = useContext(WhatsAppsContext);
   const { darkMode, toggleTheme } = useThemeContext();
   const [connectionWarning, setConnectionWarning] = useState(false);
+
+  // const { status: sipStatus, callStatus: sipCallStatus } = useContext(TelephonyContext);
+  const sipStatus = "disconnected";
+  const sipCallStatus = "idle";
+  const [softphoneAnchorEl, setSoftphoneAnchorEl] = useState(null);
+  const softphoneId = "softphone-popover";
+
+  const handleSoftphoneClick = (event) => {
+    setSoftphoneAnchorEl(event.currentTarget);
+  };
+
+  const handleSoftphoneClose = () => {
+    setSoftphoneAnchorEl(null);
+  };
 
   useEffect(() => {
     const delayDebounceFn = setTimeout(() => {
@@ -337,29 +503,63 @@ const LoggedInLayout = ({ children }) => {
     setMobileMenuOpen(false);
   };
 
-  const navigateTo = (path) => {
-    handleMobileMenuClose();
-  };
+
 
   if (loading) {
     return <BackdropLoading />;
   }
 
-  // Main navigation items (shown in taskbar)
-  const mainNavItems = [
+  // Direct navigation items (always visible as single buttons)
+  const directNavItems = [
     { to: "/", icon: DashboardOutlinedIcon, label: "Dashboard" },
     { to: "/tickets", icon: WhatsAppIcon, label: i18n.t("mainDrawer.listItems.tickets") },
     { to: "/contacts", icon: ContactPhoneOutlinedIcon, label: i18n.t("mainDrawer.listItems.contacts") },
   ];
 
-  // Secondary items (in mobile menu, or taskbar on desktop)
+  // Direct accounts button (replaces old channelsGroup)
+  const accountsItem = { to: "/connections", icon: SyncAltIcon, label: i18n.t("mainDrawer.listItems.connections"), badge: connectionWarning ? "!" : null };
+
+  const managementGroup = {
+    icon: AssignmentIcon,
+    label: "Gestión",
+    items: [
+      { to: "/quickAnswers", icon: QuestionAnswerOutlinedIcon, label: i18n.t("mainDrawer.listItems.quickAnswers") },
+      { to: "/contact-forms", icon: AssignmentIcon, label: i18n.t("mainDrawer.listItems.contactForms") },
+      { to: "/reservations", icon: EventNoteIcon, label: i18n.t("mainDrawer.listItems.reservations") },
+      { to: "/close-reasons", icon: CategoryIcon, label: i18n.t("mainDrawer.listItems.closeReasons") },
+    ],
+  };
+
+  const reportsItem = { to: "/reports", icon: BarChartIcon, label: i18n.t("reports.title") };
+
+  const adminGroup = {
+    icon: BuildIcon,
+    label: "Admin",
+    items: [
+      { to: "/users", icon: PeopleAltOutlinedIcon, label: i18n.t("mainDrawer.listItems.users") },
+      { to: "/queues", icon: AccountTreeOutlinedIcon, label: i18n.t("mainDrawer.listItems.queues") },
+      { to: "/ai-agents", icon: AppsIcon, label: i18n.t("mainDrawer.listItems.aiAgents") },
+      { to: "/settings", icon: SettingsOutlinedIcon, label: i18n.t("mainDrawer.listItems.settings") },
+    ],
+  };
+
+  const systemGroup = {
+    icon: BusinessIcon,
+    label: "Sistema",
+    items: [
+      { to: "/companies", icon: BusinessIcon, label: i18n.t("companies.title") },
+      { to: "/roles", icon: SecurityIcon, label: i18n.t("roles.title") },
+    ],
+  };
+
+  // Flat arrays for mobile drawer (keep original structure)
   const secondaryNavItems = [
     { to: "/connections", icon: SyncAltIcon, label: i18n.t("mainDrawer.listItems.connections"), badge: connectionWarning ? "!" : null },
     { to: "/quickAnswers", icon: QuestionAnswerOutlinedIcon, label: i18n.t("mainDrawer.listItems.quickAnswers") },
     { to: "/contact-forms", icon: AssignmentIcon, label: i18n.t("mainDrawer.listItems.contactForms") },
+    { to: "/reservations", icon: EventNoteIcon, label: i18n.t("mainDrawer.listItems.reservations") },
   ];
 
-  // Admin items
   const adminNavItems = [
     { to: "/users", icon: PeopleAltOutlinedIcon, label: i18n.t("mainDrawer.listItems.users") },
     { to: "/queues", icon: AccountTreeOutlinedIcon, label: i18n.t("mainDrawer.listItems.queues") },
@@ -367,12 +567,6 @@ const LoggedInLayout = ({ children }) => {
     { to: "/ai-agents", icon: AppsIcon, label: i18n.t("mainDrawer.listItems.aiAgents") },
     { to: "/reports", icon: BarChartIcon, label: i18n.t("reports.title") },
     { to: "/settings", icon: SettingsOutlinedIcon, label: i18n.t("mainDrawer.listItems.settings") },
-  ];
-
-  // Superadmin-only items
-  const superadminNavItems = [
-    { to: "/companies", icon: BusinessIcon, label: i18n.t("companies.title") },
-    { to: "/roles", icon: SecurityIcon, label: i18n.t("roles.title") },
   ];
 
   return (
@@ -393,8 +587,8 @@ const LoggedInLayout = ({ children }) => {
       {/* Windows-style Taskbar */}
       <div className={classes.taskbar}>
         <div className={classes.taskbarContent}>
-          {/* Main nav - always visible */}
-          {mainNavItems.map((item) => (
+          {/* Direct nav items - always visible */}
+          {directNavItems.map((item) => (
             <TaskbarButton
               key={item.to}
               to={item.to}
@@ -404,19 +598,33 @@ const LoggedInLayout = ({ children }) => {
             />
           ))}
 
-          {/* Secondary nav - desktop only inline, mobile in menu */}
-          {!isMobile && secondaryNavItems.map((item) => (
-            <TaskbarButton
-              key={item.to}
-              to={item.to}
-              icon={item.icon}
-              label={item.label}
-              active={isActive(item.to)}
-              badge={item.badge}
-            />
-          ))}
+          {/* Desktop: grouped popover menus */}
+          {!isMobile && (
+            <>
+              <div className={classes.divider} />
+              <TaskbarButton
+                to={accountsItem.to}
+                icon={accountsItem.icon}
+                label={accountsItem.label}
+                active={isActive(accountsItem.to)}
+                badge={accountsItem.badge}
+              />
+              <TaskbarGroupButton
+                icon={managementGroup.icon}
+                label={managementGroup.label}
+                items={managementGroup.items}
+                isActive={isActive}
+              />
+              <TaskbarButton
+                to={reportsItem.to}
+                icon={reportsItem.icon}
+                label={reportsItem.label}
+                active={isActive(reportsItem.to)}
+              />
+            </>
+          )}
 
-          {/* Admin items - desktop only inline */}
+          {/* Admin group - desktop only, permission-gated */}
           {!isMobile && (
             <Can
               role={user.profile}
@@ -424,25 +632,21 @@ const LoggedInLayout = ({ children }) => {
               yes={() => (
                 <>
                   <div className={classes.divider} />
-                  {adminNavItems.map((item) => (
-                    <TaskbarButton
-                      key={item.to}
-                      to={item.to}
-                      icon={item.icon}
-                      label={item.label}
-                      active={isActive(item.to)}
+                  <TaskbarGroupButton
+                    icon={adminGroup.icon}
+                    label={adminGroup.label}
+                    items={adminGroup.items}
+                    isActive={isActive}
+                  />
+                  {/* Superadmin-only system group */}
+                  {user.profile === "superadmin" && (
+                    <TaskbarGroupButton
+                      icon={systemGroup.icon}
+                      label={systemGroup.label}
+                      items={systemGroup.items}
+                      isActive={isActive}
                     />
-                  ))}
-                  {/* Superadmin-only items */}
-                  {user.profile === "superadmin" && superadminNavItems.map((item) => (
-                    <TaskbarButton
-                      key={item.to}
-                      to={item.to}
-                      icon={item.icon}
-                      label={item.label}
-                      active={isActive(item.to)}
-                    />
-                  ))}
+                  )}
                 </>
               )}
             />
@@ -476,6 +680,26 @@ const LoggedInLayout = ({ children }) => {
           {user.id && !isMobile && (
             <NotificationsPopOver className={classes.systemIcon} />
           )}
+
+
+          <IconButton
+            edge="end"
+            aria-label="softphone"
+            aria-controls={softphoneId}
+            aria-haspopup="true"
+            onClick={handleSoftphoneClick}
+            color="inherit"
+          >
+            <Badge
+              overlap="circle"
+              badgeContent=" "
+              variant="dot"
+              color={sipStatus === "registered" ? "secondary" : "error"}
+              invisible={sipStatus === "disconnected"}
+            >
+              {sipCallStatus === "connected" ? <PhoneInTalkIcon /> : <PhoneIcon />}
+            </Badge>
+          </IconButton>
 
           <Tooltip title={user.name || "Usuario"}>
             <IconButton
@@ -611,7 +835,23 @@ const LoggedInLayout = ({ children }) => {
           )}
         </List>
       </Drawer>
-    </div>
+      {/* <Popover
+        id={softphoneId}
+        open={Boolean(softphoneAnchorEl)}
+        anchorEl={softphoneAnchorEl}
+        onClose={handleSoftphoneClose}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <Softphone />
+      </Popover> */}
+    </div >
   );
 };
 

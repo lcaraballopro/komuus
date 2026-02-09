@@ -13,7 +13,7 @@ import {
 import WebchatSession from "./WebchatSession";
 import User from "./User";
 
-@Table
+@Table({ updatedAt: false })
 class WebchatMessage extends Model<WebchatMessage> {
     @PrimaryKey
     @AutoIncrement

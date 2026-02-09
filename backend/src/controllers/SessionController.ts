@@ -8,17 +8,25 @@ import { RefreshTokenService } from "../services/AuthServices/RefreshTokenServic
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const { email, password } = req.body;
 
-  const { token, serializedUser, refreshToken } = await AuthUserService({
-    email,
-    password
-  });
+  console.log("Login attempt for:", email);
+  console.log("Password provided (RAW):", `"${password}"`); // Quote to see whitespace
 
-  SendRefreshToken(res, refreshToken);
+  try {
+    const { token, serializedUser, refreshToken } = await AuthUserService({
+      email,
+      password
+    });
 
-  return res.status(200).json({
-    token,
-    user: serializedUser
-  });
+    SendRefreshToken(res, refreshToken);
+
+    return res.status(200).json({
+      token,
+      user: serializedUser
+    });
+  } catch (err) {
+    console.error("Login failed in SessionController:", err);
+    throw err;
+  }
 };
 
 export const update = async (

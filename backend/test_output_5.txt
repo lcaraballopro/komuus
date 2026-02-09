@@ -1,0 +1,550 @@
+
+> komu-backend@1.0.0 pretest
+> NODE_ENV=test sequelize db:migrate && NODE_ENV=test sequelize db:seed:all
+
+
+[4mSequelize CLI [Node: 24.13.0, CLI: 5.5.1, ORM: 5.22.5][24m
+
+Loaded configuration file "dist/config/database.js".
+(node:988375) [DEP0176] DeprecationWarning: fs.R_OK is deprecated, use fs.constants.R_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+== 20200717133438-create-users: migrating =======
+== 20200717133438-create-users: migrated (0.010s)
+
+== 20200717144403-create-contacts: migrating =======
+== 20200717144403-create-contacts: migrated (0.004s)
+
+== 20200717145643-create-tickets: migrating =======
+== 20200717145643-create-tickets: migrated (0.005s)
+
+== 20200717151645-create-messages: migrating =======
+== 20200717151645-create-messages: migrated (0.006s)
+
+== 20200717170223-create-whatsapps: migrating =======
+== 20200717170223-create-whatsapps: migrated (0.004s)
+
+== 20200723200315-create-contacts-custom-fields: migrating =======
+== 20200723200315-create-contacts-custom-fields: migrated (0.005s)
+
+== 20200723202116-add-email-field-to-contacts: migrating =======
+== 20200723202116-add-email-field-to-contacts: migrated (0.004s)
+
+== 20200730153237-remove-user-association-from-messages: migrating =======
+== 20200730153237-remove-user-association-from-messages: migrated (0.013s)
+
+== 20200730153545-add-fromMe-to-messages: migrating =======
+== 20200730153545-add-fromMe-to-messages: migrated (0.006s)
+
+== 20200813114236-change-ticket-lastMessage-column-type: migrating =======
+== 20200813114236-change-ticket-lastMessage-column-type: migrated (0.013s)
+
+== 20200901235509-add-profile-column-to-users: migrating =======
+== 20200901235509-add-profile-column-to-users: migrated (0.004s)
+
+== 20200903215941-create-settings: migrating =======
+== 20200903215941-create-settings: migrated (0.005s)
+
+== 20200904220257-add-name-to-whatsapp: migrating =======
+== 20200904220257-add-name-to-whatsapp: migrated (0.006s)
+
+== 20200906122228-add-name-default-field-to-whatsapp: migrating =======
+== 20200906122228-add-name-default-field-to-whatsapp: migrated (0.004s)
+
+== 20200906155658-add-whatsapp-field-to-tickets: migrating =======
+== 20200906155658-add-whatsapp-field-to-tickets: migrated (0.007s)
+
+== 20200919124112-update-default-column-name-on-whatsappp: migrating =======
+== 20200919124112-update-default-column-name-on-whatsappp: migrated (0.006s)
+
+== 20200927220708-add-isDeleted-column-to-messages: migrating =======
+== 20200927220708-add-isDeleted-column-to-messages: migrated (0.004s)
+
+== 20200929145451-add-user-tokenVersion-column: migrating =======
+== 20200929145451-add-user-tokenVersion-column: migrated (0.004s)
+
+== 20200930162323-add-isGroup-column-to-tickets: migrating =======
+== 20200930162323-add-isGroup-column-to-tickets: migrated (0.005s)
+
+== 20200930194808-add-isGroup-column-to-contacts: migrating =======
+== 20200930194808-add-isGroup-column-to-contacts: migrated (0.005s)
+
+== 20201004150008-add-contactId-column-to-messages: migrating =======
+== 20201004150008-add-contactId-column-to-messages: migrated (0.007s)
+
+== 20201004155719-add-vcardContactId-column-to-messages: migrating =======
+== 20201004155719-add-vcardContactId-column-to-messages: migrated (0.008s)
+
+== 20201004955719-remove-vcardContactId-column-to-messages: migrating =======
+== 20201004955719-remove-vcardContactId-column-to-messages: migrated (0.012s)
+
+== 20201026215410-add-retries-to-whatsapps: migrating =======
+== 20201026215410-add-retries-to-whatsapps: migrated (0.004s)
+
+== 20201028124427-add-quoted-msg-to-messages: migrating =======
+== 20201028124427-add-quoted-msg-to-messages: migrated (0.006s)
+
+== 20210108001431-add-unreadMessages-to-tickets: migrating =======
+== 20210108001431-add-unreadMessages-to-tickets: migrated (0.005s)
+
+== 20210108164404-create-queues: migrating =======
+== 20210108164404-create-queues: migrated (0.004s)
+
+== 20210108164504-add-queueId-to-tickets: migrating =======
+== 20210108164504-add-queueId-to-tickets: migrated (0.006s)
+
+== 20210108174594-associate-whatsapp-queue: migrating =======
+== 20210108174594-associate-whatsapp-queue: migrated (0.003s)
+
+== 20210108204708-associate-users-queue: migrating =======
+== 20210108204708-associate-users-queue: migrated (0.004s)
+
+== 20210109192513-add-greetingMessage-to-whatsapp: migrating =======
+== 20210109192513-add-greetingMessage-to-whatsapp: migrated (0.004s)
+
+== 20210818102605-create-quickAnswers: migrating =======
+== 20210818102605-create-quickAnswers: migrated (0.004s)
+
+== 20211016014719-add-farewellMessage-to-whatsapp: migrating =======
+== 20211016014719-add-farewellMessage-to-whatsapp: migrated (0.004s)
+
+== 20220223095932-add-whatsapp-to-user: migrating =======
+== 20220223095932-add-whatsapp-to-user: migrated (0.007s)
+
+== 20260204130000-create-ai-agents: migrating =======
+== 20260204130000-create-ai-agents: migrated (0.005s)
+
+== 20260204130001-add-aiAgentId-to-whatsapp: migrating =======
+== 20260204130001-add-aiAgentId-to-whatsapp: migrated (0.006s)
+
+== 20260204140000-create-companies: migrating =======
+== 20260204140000-create-companies: migrated (0.004s)
+
+== 20260204140001-add-tenantId-to-all-tables: migrating =======
+== 20260204140001-add-tenantId-to-all-tables: migrated (0.058s)
+
+== 20260204140002-seed-default-company: migrating =======
+== 20260204140002-seed-default-company: migrated (0.012s)
+
+== 20260204160000-create-leads-table: migrating =======
+== 20260204160000-create-leads-table: migrated (0.016s)
+
+== 20260204170000-create-roles: migrating =======
+== 20260204170000-create-roles: migrated (0.004s)
+
+== 20260204170001-create-permissions: migrating =======
+== 20260204170001-create-permissions: migrated (0.009s)
+
+== 20260204170002-create-role-permissions: migrating =======
+== 20260204170002-create-role-permissions: migrated (0.005s)
+
+== 20260204170003-seed-roles-and-add-to-users: migrating =======
+== 20260204170003-seed-roles-and-add-to-users: migrated (0.020s)
+
+== 20260204180000-create-push-subscriptions: migrating =======
+== 20260204180000-create-push-subscriptions: migrated (0.004s)
+
+== 20260205100000-create-contact-forms: migrating =======
+== 20260205100000-create-contact-forms: migrated (0.032s)
+
+== 20260206100000-create-webchat-tables: migrating =======
+== 20260206100000-create-webchat-tables: migrated (0.022s)
+
+== 20260206130000-create-close-reasons: migrating =======
+== 20260206130000-create-close-reasons: migrated (0.026s)
+
+== 20260206133200-add-whatsappid-to-closereasons-contactforms: migrating =======
+== 20260206133200-add-whatsappid-to-closereasons-contactforms: migrated (0.015s)
+
+== 20260207030000-create-reservations: migrating =======
+== 20260207030000-create-reservations: migrated (0.005s)
+
+== 20260207040000-add-reservation-permissions: migrating =======
+== 20260207040000-add-reservation-permissions: migrated (0.010s)
+
+== 20260207150000-add-webchat-permissions: migrating =======
+== 20260207150000-add-webchat-permissions: migrated (0.004s)
+
+== 20260208050000-add-channel-to-tickets: migrating =======
+== 20260208050000-add-channel-to-tickets: migrated (0.007s)
+
+== 20260208050001-seed-default-webchat-channel: migrating =======
+== 20260208050001-seed-default-webchat-channel: migrated (0.004s)
+
+== 20260208120000-add-allowCompanySignup-to-settings: migrating =======
+== 20260208120000-add-allowCompanySignup-to-settings: migrated (0.003s)
+
+== 20260208170000-create-telephony-channel: migrating =======
+== 20260208170000-create-telephony-channel: migrated (0.010s)
+
+
+[4mSequelize CLI [Node: 24.13.0, CLI: 5.5.1, ORM: 5.22.5][24m
+
+Loaded configuration file "dist/config/database.js".
+(node:988401) [DEP0176] DeprecationWarning: fs.R_OK is deprecated, use fs.constants.R_OK instead
+(Use `node --trace-deprecation ...` to show where the warning was created)
+== 20200904070004-create-default-settings: migrating =======
+== 20200904070004-create-default-settings: migrated (0.005s)
+
+== 20200904070004-create-default-users: migrating =======
+== 20200904070004-create-default-users: migrated (0.001s)
+
+== 20200904070006-create-apiToken-settings: migrating =======
+== 20200904070006-create-apiToken-settings: migrated (0.001s)
+
+
+> komu-backend@1.0.0 test
+> NODE_ENV=test jest
+
+FAIL src/__tests__/unit/User/ListUserService.spec.ts
+  ● User › should be able to list users
+
+    SequelizeDatabaseError: Lock wait timeout exceeded; try restarting transaction
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should be able to list users
+
+    SequelizeDatabaseError: Lock wait timeout exceeded; try restarting transaction
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+FAIL src/__tests__/unit/User/ShowUserService.spec.ts
+  ● Console
+
+    console.log
+      Deprecation Warning: faker.random.number is now located in faker.datatype.number
+
+      at Random.number (node_modules/faker/lib/random.js:37:13)
+
+  ● User › should be able to find a user
+
+    SequelizeForeignKeyConstraintError: Cannot add or update a child row: a foreign key constraint fails (`whaticket_test`.`Users`, CONSTRAINT `Users_tenantId_foreign_idx` FOREIGN KEY (`tenantId`) REFERENCES `Companies` (`id`) ON DELETE SET NULL ON UPDATE CASCADE)
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:233:16)
+      at Execute.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Execute.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should be able to find a user
+
+    SequelizeDatabaseError: Lock wait timeout exceeded; try restarting transaction
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should not be able to find a inexisting user
+
+    SequelizeDatabaseError: Lock wait timeout exceeded; try restarting transaction
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+-------------------------------------|---------|----------|---------|---------|-------------------
+File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------------------|---------|----------|---------|---------|-------------------
+All files                            |    2.34 |     7.56 |    2.75 |    2.34 |                   
+ services                            |       0 |        0 |       0 |       0 |                   
+  WebPushService.ts                  |       0 |        0 |       0 |       0 | 1-65              
+ services/AIAgentService             |       0 |        0 |       0 |       0 |                   
+  CreateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-29              
+  DeleteAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-21              
+  ListAIAgentsService.ts             |       0 |        0 |       0 |       0 | 1-34              
+  ShowAIAgentService.ts              |       0 |        0 |       0 |       0 | 1-21              
+  UpdateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-44              
+ services/AuthServices               |       0 |        0 |       0 |       0 |                   
+  RefreshTokenService.ts             |       0 |        0 |       0 |       0 | 1-47              
+ services/BotStateService            |       0 |        0 |       0 |       0 |                   
+  BotStateService.ts                 |       0 |        0 |       0 |       0 | 1-129             
+ services/CloseReasonService         |       0 |        0 |       0 |       0 |                   
+  CreateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-30              
+  DeleteCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-22              
+  ListCloseReasonsService.ts         |       0 |        0 |       0 |       0 | 1-39              
+  ShowCloseReasonService.ts          |       0 |        0 |       0 |       0 | 1-21              
+  UpdateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-33              
+ services/CompanyService             |       0 |        0 |       0 |       0 |                   
+  CreateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-39              
+  DeleteCompanyService.ts            |       0 |        0 |       0 |       0 | 1-19              
+  ListCompaniesService.ts            |       0 |        0 |       0 |       0 | 1-32              
+  ShowCompanyService.ts              |       0 |        0 |       0 |       0 | 1-14              
+  UpdateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-52              
+ services/ContactFormService         |       0 |        0 |       0 |       0 |                   
+  CreateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-76              
+  DeleteContactFormService.ts        |       0 |        0 |       0 |       0 | 1-50              
+  ListContactFormResponsesService.ts |       0 |        0 |       0 |       0 | 1-96              
+  ListContactFormsService.ts         |       0 |        0 |       0 |       0 | 1-64              
+  ShowContactFormService.ts          |       0 |        0 |       0 |       0 | 1-33              
+  SubmitContactFormService.ts        |       0 |        0 |       0 |       0 | 1-95              
+  UpdateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-119             
+ services/ContactServices            |       0 |        0 |       0 |       0 |                   
+  CreateContactService.ts            |       0 |        0 |       0 |       0 | 1-49              
+  CreateOrUpdateContactService.ts    |       0 |        0 |       0 |       0 | 1-62              
+  DeleteContactService.ts            |       0 |        0 |       0 |       0 | 1-24              
+  GetContactService.ts               |       0 |        0 |       0 |       0 | 1-42              
+  ListContactsService.ts             |       0 |        0 |       0 |       0 | 1-53              
+  ShowContactService.ts              |       0 |        0 |       0 |       0 | 1-39              
+  UpdateContactService.ts            |       0 |        0 |       0 |       0 | 1-72              
+ services/LeadService                |       0 |        0 |       0 |       0 |                   
+  CreateLeadService.ts               |       0 |        0 |       0 |       0 | 1-91              
+  FindLeadService.ts                 |       0 |        0 |       0 |       0 | 1-46              
+  ListLeadsService.ts                |       0 |        0 |       0 |       0 | 1-62              
+  UpdateLeadService.ts               |       0 |        0 |       0 |       0 | 1-46              
+ services/MessageServices            |       0 |        0 |       0 |       0 |                   
+  CreateMessageService.ts            |       0 |        0 |       0 |       0 | 1-101             
+  ListMessagesService.ts             |       0 |        0 |       0 |       0 | 1-59              
+ services/N8nService                 |       0 |        0 |       0 |       0 |                   
+  N8nEscalateService.ts              |       0 |        0 |       0 |       0 | 1-214             
+  N8nReplyService.ts                 |       0 |        0 |       0 |       0 | 1-109             
+  N8nWebhookService.ts               |       0 |        0 |       0 |       0 | 1-332             
+ services/PermissionServices         |       0 |        0 |       0 |       0 |                   
+  ListPermissionsService.ts          |       0 |        0 |       0 |       0 | 1-29              
+  UserHasPermissionService.ts        |       0 |        0 |       0 |       0 | 1-36              
+ services/QueueService               |       0 |        0 |       0 |       0 |                   
+  CreateQueueService.ts              |       0 |        0 |       0 |       0 | 1-68              
+  DeleteQueueService.ts              |       0 |        0 |       0 |       0 | 1-17              
+  ListQueuesService.ts               |       0 |        0 |       0 |       0 | 1-18              
+  ShowQueueService.ts                |       0 |        0 |       0 |       0 | 1-24              
+  UpdateQueueService.ts              |       0 |        0 |       0 |       0 | 1-80              
+ services/QuickAnswerService         |       0 |        0 |       0 |       0 |                   
+  CreateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-29              
+  DeleteQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-21              
+  ListQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-49              
+  ShowQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-21              
+  UpdateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-42              
+ services/ReportService              |       0 |        0 |       0 |       0 |                   
+  index.ts                           |       0 |        0 |       0 |       0 | 1-685             
+ services/ReservationService         |       0 |        0 |       0 |       0 |                   
+  CreateReservationService.ts        |       0 |        0 |       0 |       0 | 1-45              
+  DeleteReservationService.ts        |       0 |        0 |       0 |       0 | 1-21              
+  ListReservationsService.ts         |       0 |        0 |       0 |       0 | 1-63              
+  ShowReservationService.ts          |       0 |        0 |       0 |       0 | 1-27              
+  UpdateReservationService.ts        |       0 |        0 |       0 |       0 | 1-44              
+ services/RoleServices               |       0 |        0 |       0 |       0 |                   
+  CreateRoleService.ts               |       0 |        0 |       0 |       0 | 1-40              
+  DeleteRoleService.ts               |       0 |        0 |       0 |       0 | 1-26              
+  ListRolesService.ts                |       0 |        0 |       0 |       0 | 1-19              
+  ShowRoleService.ts                 |       0 |        0 |       0 |       0 | 1-23              
+  UpdateRoleService.ts               |       0 |        0 |       0 |       0 | 1-55              
+ services/SettingServices            |       0 |        0 |       0 |       0 |                   
+  ListSettingByValueService.ts       |       0 |        0 |       0 |       0 | 1-22              
+  ListSettingsService.ts             |       0 |        0 |       0 |       0 | 1-17              
+  UpdateSettingService.ts            |       0 |        0 |       0 |       0 | 1-28              
+ services/TelephonyServices          |       0 |        0 |       0 |       0 |                   
+  ProcessCallHangupService.ts        |       0 |        0 |       0 |       0 | 1-96              
+  ProcessIncomingCallService.ts      |       0 |        0 |       0 |       0 | 1-117             
+ services/TicketServices             |       0 |        0 |       0 |       0 |                   
+  CreateTicketService.ts             |       0 |        0 |       0 |       0 | 1-49              
+  DeleteTicketService.ts             |       0 |        0 |       0 |       0 | 1-18              
+  FindOrCreateTicketService.ts       |       0 |        0 |       0 |       0 | 1-101             
+  ListTicketsService.ts              |       0 |        0 |       0 |       0 | 1-161             
+  ShowTicketService.ts               |       0 |        0 |       0 |       0 | 1-66              
+  UpdateTicketService.ts             |       0 |        0 |       0 |       0 | 1-112             
+ services/UserServices               |   47.02 |    52.94 |   42.85 |   47.02 |                   
+  AuthUserService.ts                 |       0 |        0 |       0 |       0 | 1-64              
+  CreateUserService.ts               |    97.4 |     62.5 |     100 |    97.4 | 55-56             
+  DeleteUserService.ts               |       0 |        0 |       0 |       0 | 1-37              
+  ListUsersService.ts                |     100 |      100 |     100 |     100 |                   
+  ShowUserService.ts                 |    73.8 |       50 |      50 |    73.8 | 1-6,38-42         
+  UpdateUserService.ts               |       0 |        0 |       0 |       0 | 1-73              
+ services/WbotServices               |       0 |        0 |       0 |       0 |                   
+  CheckIsValidContact.ts             |       0 |        0 |       0 |       0 | 1-23              
+  CheckNumber.ts                     |       0 |        0 |       0 |       0 | 1-13              
+  DeleteWhatsAppMessage.ts           |       0 |        0 |       0 |       0 | 1-36              
+  GetProfilePicUrl.ts                |       0 |        0 |       0 |       0 | 1-14              
+  ImportContactsService.ts           |       0 |        0 |       0 |       0 | 1-41              
+  SendDirectWhatsAppMessage.ts       |       0 |        0 |       0 |       0 | 1-59              
+  SendWhatsAppMedia.ts               |       0 |        0 |       0 |       0 | 1-61              
+  SendWhatsAppMessage.ts             |       0 |        0 |       0 |       0 | 1-47              
+  StartAllWhatsAppsSessions.ts       |       0 |        0 |       0 |       0 | 1-12              
+  StartWhatsAppSession.ts            |       0 |        0 |       0 |       0 | 1-26              
+  wbotMessageListener.ts             |       0 |        0 |       0 |       0 | 1-548             
+  wbotMonitor.ts                     |       0 |        0 |       0 |       0 | 1-78              
+ services/WebchatService             |       0 |        0 |       0 |       0 |                   
+  CreateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-72              
+  CreateWebchatMessageService.ts     |       0 |        0 |       0 |       0 | 1-142             
+  CreateWebchatSessionService.ts     |       0 |        0 |       0 |       0 | 1-105             
+  DeleteWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-24              
+  GenerateWidgetScriptService.ts     |       0 |        0 |       0 |       0 | 1-54              
+  GetWebchatSessionService.ts        |       0 |        0 |       0 |       0 | 1-45              
+  ListWebchatChannelsService.ts      |       0 |        0 |       0 |       0 | 1-24              
+  ShowWebchatChannelService.ts       |       0 |        0 |       0 |       0 | 1-30              
+  UpdateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-84              
+ services/WhatsappService            |       0 |        0 |       0 |       0 |                   
+  AssociateWhatsappQueue.ts          |       0 |        0 |       0 |       0 | 1-12              
+  CreateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-94              
+  DeleteWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-24              
+  ListWhatsAppsService.ts            |       0 |        0 |       0 |       0 | 1-25              
+  ShowWhatsAppService.ts             |       0 |        0 |       0 |       0 | 1-47              
+  UpdateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-91              
+-------------------------------------|---------|----------|---------|---------|-------------------
+-------------------------------------|---------|----------|---------|---------|-------------------
+File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------------------|---------|----------|---------|---------|-------------------
+All files                            |    2.34 |     7.56 |    2.75 |    2.34 |                   
+ services                            |       0 |        0 |       0 |       0 |                   
+  WebPushService.ts                  |       0 |        0 |       0 |       0 | 1-65              
+ services/AIAgentService             |       0 |        0 |       0 |       0 |                   
+  CreateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-29              
+  DeleteAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-21              
+  ListAIAgentsService.ts             |       0 |        0 |       0 |       0 | 1-34              
+  ShowAIAgentService.ts              |       0 |        0 |       0 |       0 | 1-21              
+  UpdateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-44              
+ services/AuthServices               |       0 |        0 |       0 |       0 |                   
+  RefreshTokenService.ts             |       0 |        0 |       0 |       0 | 1-47              
+ services/BotStateService            |       0 |        0 |       0 |       0 |                   
+  BotStateService.ts                 |       0 |        0 |       0 |       0 | 1-129             
+ services/CloseReasonService         |       0 |        0 |       0 |       0 |                   
+  CreateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-30              
+  DeleteCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-22              
+  ListCloseReasonsService.ts         |       0 |        0 |       0 |       0 | 1-39              
+  ShowCloseReasonService.ts          |       0 |        0 |       0 |       0 | 1-21              
+  UpdateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-33              
+ services/CompanyService             |       0 |        0 |       0 |       0 |                   
+  CreateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-39              
+  DeleteCompanyService.ts            |       0 |        0 |       0 |       0 | 1-19              
+  ListCompaniesService.ts            |       0 |        0 |       0 |       0 | 1-32              
+  ShowCompanyService.ts              |       0 |        0 |       0 |       0 | 1-14              
+  UpdateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-52              
+ services/ContactFormService         |       0 |        0 |       0 |       0 |                   
+  CreateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-76              
+  DeleteContactFormService.ts        |       0 |        0 |       0 |       0 | 1-50              
+  ListContactFormResponsesService.ts |       0 |        0 |       0 |       0 | 1-96              
+  ListContactFormsService.ts         |       0 |        0 |       0 |       0 | 1-64              
+  ShowContactFormService.ts          |       0 |        0 |       0 |       0 | 1-33              
+  SubmitContactFormService.ts        |       0 |        0 |       0 |       0 | 1-95              
+  UpdateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-119             
+ services/ContactServices            |       0 |        0 |       0 |       0 |                   
+  CreateContactService.ts            |       0 |        0 |       0 |       0 | 1-49              
+  CreateOrUpdateContactService.ts    |       0 |        0 |       0 |       0 | 1-62              
+  DeleteContactService.ts            |       0 |        0 |       0 |       0 | 1-24              
+  GetContactService.ts               |       0 |        0 |       0 |       0 | 1-42              
+  ListContactsService.ts             |       0 |        0 |       0 |       0 | 1-53              
+  ShowContactService.ts              |       0 |        0 |       0 |       0 | 1-39              
+  UpdateContactService.ts            |       0 |        0 |       0 |       0 | 1-72              
+ services/LeadService                |       0 |        0 |       0 |       0 |                   
+  CreateLeadService.ts               |       0 |        0 |       0 |       0 | 1-91              
+  FindLeadService.ts                 |       0 |        0 |       0 |       0 | 1-46              
+  ListLeadsService.ts                |       0 |        0 |       0 |       0 | 1-62              
+  UpdateLeadService.ts               |       0 |        0 |       0 |       0 | 1-46              
+ services/MessageServices            |       0 |        0 |       0 |       0 |                   
+  CreateMessageService.ts            |       0 |        0 |       0 |       0 | 1-101             
+  ListMessagesService.ts             |       0 |        0 |       0 |       0 | 1-59              
+ services/N8nService                 |       0 |        0 |       0 |       0 |                   
+  N8nEscalateService.ts              |       0 |        0 |       0 |       0 | 1-214             
+  N8nReplyService.ts                 |       0 |        0 |       0 |       0 | 1-109             
+  N8nWebhookService.ts               |       0 |        0 |       0 |       0 | 1-332             
+ services/PermissionServices         |       0 |        0 |       0 |       0 |                   
+  ListPermissionsService.ts          |       0 |        0 |       0 |       0 | 1-29              
+  UserHasPermissionService.ts        |       0 |        0 |       0 |       0 | 1-36              
+ services/QueueService               |       0 |        0 |       0 |       0 |                   
+  CreateQueueService.ts              |       0 |        0 |       0 |       0 | 1-68              
+  DeleteQueueService.ts              |       0 |        0 |       0 |       0 | 1-17              
+  ListQueuesService.ts               |       0 |        0 |       0 |       0 | 1-18              
+  ShowQueueService.ts                |       0 |        0 |       0 |       0 | 1-24              
+  UpdateQueueService.ts              |       0 |        0 |       0 |       0 | 1-80              
+ services/QuickAnswerService         |       0 |        0 |       0 |       0 |                   
+  CreateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-29              
+  DeleteQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-21              
+  ListQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-49              
+  ShowQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-21              
+  UpdateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-42              
+ services/ReportService              |       0 |        0 |       0 |       0 |                   
+  index.ts                           |       0 |        0 |       0 |       0 | 1-685             
+ services/ReservationService         |       0 |        0 |       0 |       0 |                   
+  CreateReservationService.ts        |       0 |        0 |       0 |       0 | 1-45              
+  DeleteReservationService.ts        |       0 |        0 |       0 |       0 | 1-21              
+  ListReservationsService.ts         |       0 |        0 |       0 |       0 | 1-63              
+  ShowReservationService.ts          |       0 |        0 |       0 |       0 | 1-27              
+  UpdateReservationService.ts        |       0 |        0 |       0 |       0 | 1-44              
+ services/RoleServices               |       0 |        0 |       0 |       0 |                   
+  CreateRoleService.ts               |       0 |        0 |       0 |       0 | 1-40              
+  DeleteRoleService.ts               |       0 |        0 |       0 |       0 | 1-26              
+  ListRolesService.ts                |       0 |        0 |       0 |       0 | 1-19              
+  ShowRoleService.ts                 |       0 |        0 |       0 |       0 | 1-23              
+  UpdateRoleService.ts               |       0 |        0 |       0 |       0 | 1-55              
+ services/SettingServices            |       0 |        0 |       0 |       0 |                   
+  ListSettingByValueService.ts       |       0 |        0 |       0 |       0 | 1-22              
+  ListSettingsService.ts             |       0 |        0 |       0 |       0 | 1-17              
+  UpdateSettingService.ts            |       0 |        0 |       0 |       0 | 1-28              
+ services/TelephonyServices          |       0 |        0 |       0 |       0 |                   
+  ProcessCallHangupService.ts        |       0 |        0 |       0 |       0 | 1-96              
+  ProcessIncomingCallService.ts      |       0 |        0 |       0 |       0 | 1-117             
+ services/TicketServices             |       0 |        0 |       0 |       0 |                   
+  CreateTicketService.ts             |       0 |        0 |       0 |       0 | 1-49              
+  DeleteTicketService.ts             |       0 |        0 |       0 |       0 | 1-18              
+  FindOrCreateTicketService.ts       |       0 |        0 |       0 |       0 | 1-101             
+  ListTicketsService.ts              |       0 |        0 |       0 |       0 | 1-161             
+  ShowTicketService.ts               |       0 |        0 |       0 |       0 | 1-66              
+  UpdateTicketService.ts             |       0 |        0 |       0 |       0 | 1-112             
+ services/UserServices               |   47.02 |    52.94 |   42.85 |   47.02 |                   
+  AuthUserService.ts                 |       0 |        0 |       0 |       0 | 1-64              
+  CreateUserService.ts               |    97.4 |     62.5 |     100 |    97.4 | 55-56             
+  DeleteUserService.ts               |       0 |        0 |       0 |       0 | 1-37              
+  ListUsersService.ts                |     100 |      100 |     100 |     100 |                   
+  ShowUserService.ts                 |    73.8 |       50 |      50 |    73.8 | 1-6,38-42         
+  UpdateUserService.ts               |       0 |        0 |       0 |       0 | 1-73              
+ services/WbotServices               |       0 |        0 |       0 |       0 |                   
+  CheckIsValidContact.ts             |       0 |        0 |       0 |       0 | 1-23              
+  CheckNumber.ts                     |       0 |        0 |       0 |       0 | 1-13              
+  DeleteWhatsAppMessage.ts           |       0 |        0 |       0 |       0 | 1-36              
+  GetProfilePicUrl.ts                |       0 |        0 |       0 |       0 | 1-14              
+  ImportContactsService.ts           |       0 |        0 |       0 |       0 | 1-41              
+  SendDirectWhatsAppMessage.ts       |       0 |        0 |       0 |       0 | 1-59              
+  SendWhatsAppMedia.ts               |       0 |        0 |       0 |       0 | 1-61              
+  SendWhatsAppMessage.ts             |       0 |        0 |       0 |       0 | 1-47              
+  StartAllWhatsAppsSessions.ts       |       0 |        0 |       0 |       0 | 1-12              
+  StartWhatsAppSession.ts            |       0 |        0 |       0 |       0 | 1-26              
+  wbotMessageListener.ts             |       0 |        0 |       0 |       0 | 1-548             
+  wbotMonitor.ts                     |       0 |        0 |       0 |       0 | 1-78              
+ services/WebchatService             |       0 |        0 |       0 |       0 |                   
+  CreateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-72              
+  CreateWebchatMessageService.ts     |       0 |        0 |       0 |       0 | 1-142             
+  CreateWebchatSessionService.ts     |       0 |        0 |       0 |       0 | 1-105             
+  DeleteWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-24              
+  GenerateWidgetScriptService.ts     |       0 |        0 |       0 |       0 | 1-54              
+  GetWebchatSessionService.ts        |       0 |        0 |       0 |       0 | 1-45              
+  ListWebchatChannelsService.ts      |       0 |        0 |       0 |       0 | 1-24              
+  ShowWebchatChannelService.ts       |       0 |        0 |       0 |       0 | 1-30              
+  UpdateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-84              
+ services/WhatsappService            |       0 |        0 |       0 |       0 |                   
+  AssociateWhatsappQueue.ts          |       0 |        0 |       0 |       0 | 1-12              
+  CreateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-94              
+  DeleteWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-24              
+  ListWhatsAppsService.ts            |       0 |        0 |       0 |       0 | 1-25              
+  ShowWhatsAppService.ts             |       0 |        0 |       0 |       0 | 1-47              
+  UpdateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-91              
+-------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 2 failed, 2 of 6 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        4.624 s, estimated 10 s
+Ran all test suites.
+Test Suites: 2 failed, 2 of 6 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        4.624 s, estimated 10 s
+Ran all test suites.

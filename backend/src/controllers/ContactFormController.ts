@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { getIO } from "../libs/socket";
+import AppError from "../errors/AppError";
 
 import ListContactFormsService from "../services/ContactFormService/ListContactFormsService";
 import CreateContactFormService from "../services/ContactFormService/CreateContactFormService";
@@ -36,25 +37,30 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-    const { tenantId } = req.user;
-    const { name, description, isActive, fields, whatsappId } = req.body;
+    try {
+        const { tenantId } = req.user;
+        const { name, description, isActive, fields, whatsappId } = req.body;
 
-    const contactForm = await CreateContactFormService({
-        name,
-        description,
-        isActive,
-        fields,
-        tenantId,
-        whatsappId
-    });
+        const contactForm = await CreateContactFormService({
+            name,
+            description,
+            isActive,
+            fields,
+            tenantId,
+            whatsappId
+        });
 
-    const io = getIO();
-    io.to(`tenant:${tenantId}`).emit("contactForm", {
-        action: "create",
-        contactForm
-    });
+        const io = getIO();
+        io.to(`tenant:${tenantId}`).emit("contactForm", {
+            action: "create",
+            contactForm
+        });
 
-    return res.status(201).json(contactForm);
+        return res.status(201).json(contactForm);
+    } catch (err) {
+        console.error("Error creating contact form:", err);
+        throw new AppError(err.message);
+    }
 };
 
 export const show = async (req: Request, res: Response): Promise<Response> => {

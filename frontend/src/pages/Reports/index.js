@@ -46,6 +46,8 @@ import CheckCircleIcon from "@material-ui/icons/CheckCircle";
 import HourglassEmptyIcon from "@material-ui/icons/HourglassEmpty";
 import ChatIcon from "@material-ui/icons/Chat";
 import VisibilityIcon from "@material-ui/icons/Visibility";
+import LabelIcon from "@material-ui/icons/Label";
+import DescriptionIcon from "@material-ui/icons/Description";
 
 import MainContainer from "../../components/MainContainer";
 import MainHeader from "../../components/MainHeader";
@@ -213,12 +215,17 @@ const Reports = () => {
         queueId: "",
     });
 
-    const { data, loading, refresh, detailedTickets, detailedLoading, fetchDetailedTickets } = useReports(filters);
+    const { data, loading, refresh, detailedTickets, detailedLoading, fetchDetailedTickets, formResponses, formResponsesLoading, fetchFormResponses } = useReports(filters);
 
     // Fetch detailed tickets when filters change or on mount
     useEffect(() => {
         fetchDetailedTickets(1, 10);
     }, [fetchDetailedTickets]);
+
+    // Fetch form responses when filters change or on mount
+    useEffect(() => {
+        fetchFormResponses(1, 10);
+    }, [fetchFormResponses]);
 
     const handlePageChange = (event, newPage) => {
         fetchDetailedTickets(newPage + 1, detailedTickets.limit);
@@ -226,6 +233,15 @@ const Reports = () => {
 
     const handleRowsPerPageChange = (event) => {
         fetchDetailedTickets(1, parseInt(event.target.value, 10));
+    };
+
+    // Form responses pagination
+    const handleFormPageChange = (event, newPage) => {
+        fetchFormResponses(newPage + 1, formResponses.limit);
+    };
+
+    const handleFormRowsPerPageChange = (event) => {
+        fetchFormResponses(1, parseInt(event.target.value, 10));
     };
 
     // Format duration in seconds to readable format
@@ -268,11 +284,63 @@ const Reports = () => {
             const queueSheet = XLSX.utils.json_to_sheet(data.queues);
             const dailySheet = XLSX.utils.json_to_sheet(data.daily);
 
+            // Detailed conversations with typification
+            const conversationsData = detailedTickets.tickets.map(t => ({
+                "ID": t.protocol,
+                "Contacto": t.contactName,
+                "Número": t.contactNumber,
+                "Agente": t.agentName || "-",
+                "Cola": t.queueName || "-",
+                "Estado": t.status,
+                "Tipificación": t.closeReasonName || "Sin tipificación",
+                "Categoría": t.closeReasonCategory === "positive" ? "Positiva" : t.closeReasonCategory === "negative" ? "Negativa" : "-",
+                "Inicio": new Date(t.createdAt).toLocaleString("es"),
+                "Fin": t.closedAt ? new Date(t.closedAt).toLocaleString("es") : "-",
+                "T. Bot": formatDuration(t.botDuration),
+                "T. Agente": formatDuration(t.agentDuration),
+                "T. Total": formatDuration(t.totalDuration),
+            }));
+            const conversationsSheet = XLSX.utils.json_to_sheet(conversationsData);
+
+            // Typification stats
+            const typificationData = (data.typifications || []).map(t => ({
+                "Tipificación": t.reasonName,
+                "Categoría": t.category === "positive" ? "Positiva" : t.category === "negative" ? "Negativa" : "-",
+                "Cantidad": t.count
+            }));
+            const typificationSheet = XLSX.utils.json_to_sheet(typificationData);
+
             const workbook = XLSX.utils.book_new();
             XLSX.utils.book_append_sheet(workbook, ticketSheet, "Resumen Tickets");
             XLSX.utils.book_append_sheet(workbook, agentSheet, "Agentes");
             XLSX.utils.book_append_sheet(workbook, queueSheet, "Colas");
             XLSX.utils.book_append_sheet(workbook, dailySheet, "Diario");
+            XLSX.utils.book_append_sheet(workbook, conversationsSheet, "Conversaciones");
+            XLSX.utils.book_append_sheet(workbook, typificationSheet, "Tipificaciones");
+
+            // Form responses sheet
+            if (formResponses.responses.length > 0) {
+                const formExportData = formResponses.responses.map(r => {
+                    const row = {
+                        "Contacto": r.contactName,
+                        "Número": r.contactNumber,
+                        "Email": r.contactEmail,
+                        "Ticket #": r.ticketId ? `#${r.ticketId}` : "-",
+                        "Tipificación": r.closeReasonName || "-",
+                        "Categoría": r.closeReasonCategory === "positive" ? "Positiva" : r.closeReasonCategory === "negative" ? "Negativa" : "-",
+                        "Formulario": r.formName,
+                        "Fecha": new Date(r.submittedAt).toLocaleString("es"),
+                        "Registrado por": r.submittedByName || "-",
+                    };
+                    // Add dynamic form fields
+                    formResponses.allFieldLabels.forEach(label => {
+                        row[label] = r.formData?.[label] || "";
+                    });
+                    return row;
+                });
+                const formSheet = XLSX.utils.json_to_sheet(formExportData);
+                XLSX.utils.book_append_sheet(workbook, formSheet, "Formularios");
+            }
 
             XLSX.writeFile(workbook, `reporte_${filters.startDate}_${filters.endDate}.xlsx`);
         } catch (err) {
@@ -285,7 +353,7 @@ const Reports = () => {
             const { default: jsPDF } = await import("jspdf");
             const { default: autoTable } = await import("jspdf-autotable");
 
-            const doc = new jsPDF();
+            const doc = new jsPDF({ orientation: "landscape" });
 
             doc.setFontSize(18);
             doc.text("Reporte de Tickets", 14, 22);
@@ -308,6 +376,63 @@ const Reports = () => {
                 head: [["Agente", "Total", "Cerrados", "Abiertos"]],
                 body: data.agents.map(a => [a.userName, a.totalTickets, a.closedTickets, a.openTickets]),
             });
+
+            // Detailed Conversations with Typification
+            doc.addPage();
+            doc.setFontSize(14);
+            doc.text("Detalle de Conversaciones", 14, 22);
+            autoTable(doc, {
+                startY: 26,
+                head: [["ID", "Contacto", "Agente", "Estado", "Tipificación", "Categoría", "Inicio", "T. Bot", "T. Agente"]],
+                body: detailedTickets.tickets.map(t => [
+                    t.protocol,
+                    t.contactName,
+                    t.agentName || "-",
+                    t.status,
+                    t.closeReasonName || "-",
+                    t.closeReasonCategory === "positive" ? "Positiva" : t.closeReasonCategory === "negative" ? "Negativa" : "-",
+                    new Date(t.createdAt).toLocaleString("es", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+                    formatDuration(t.botDuration),
+                    formatDuration(t.agentDuration),
+                ]),
+                styles: { fontSize: 8 },
+            });
+
+            // Form Responses Table
+            if (formResponses.responses.length > 0) {
+                doc.addPage();
+                doc.setFontSize(14);
+                doc.text("Reporte de Formularios", 14, 22);
+                const formHead = ["Contacto", "Número", "Tipificación", "Formulario", "Fecha", ...formResponses.allFieldLabels];
+                const formBody = formResponses.responses.map(r => [
+                    r.contactName,
+                    r.contactNumber,
+                    r.closeReasonName || "-",
+                    r.formName,
+                    new Date(r.submittedAt).toLocaleString("es", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" }),
+                    ...formResponses.allFieldLabels.map(label => r.formData?.[label] || "")
+                ]);
+                autoTable(doc, {
+                    startY: 26,
+                    head: [formHead],
+                    body: formBody,
+                    styles: { fontSize: 7 },
+                });
+            }
+
+            // Typification Distribution
+            if (data.typifications && data.typifications.length > 0) {
+                doc.text("Distribución por Tipificación", 14, doc.lastAutoTable.finalY + 14);
+                autoTable(doc, {
+                    startY: doc.lastAutoTable.finalY + 18,
+                    head: [["Tipificación", "Categoría", "Cantidad"]],
+                    body: data.typifications.map(t => [
+                        t.reasonName,
+                        t.category === "positive" ? "Positiva" : t.category === "negative" ? "Negativa" : "-",
+                        t.count
+                    ]),
+                });
+            }
 
             doc.save(`reporte_${filters.startDate}_${filters.endDate}.pdf`);
         } catch (err) {
@@ -672,6 +797,7 @@ const Reports = () => {
                                                 <TableCell>T. Agente</TableCell>
                                                 {!isMobile && <TableCell>Total</TableCell>}
                                                 <TableCell>Estado</TableCell>
+                                                {!isMobile && <TableCell>Tipificación</TableCell>}
                                                 <TableCell align="center">Ver</TableCell>
                                             </TableRow>
                                         </TableHead>
@@ -737,6 +863,24 @@ const Reports = () => {
                                                     <TableCell>{formatDuration(ticket.agentDuration)}</TableCell>
                                                     {!isMobile && <TableCell>{formatDuration(ticket.totalDuration)}</TableCell>}
                                                     <TableCell>{getStatusChip(ticket.status)}</TableCell>
+                                                    {!isMobile && (
+                                                        <TableCell>
+                                                            {ticket.closeReasonName ? (
+                                                                <Chip
+                                                                    size="small"
+                                                                    label={ticket.closeReasonName}
+                                                                    style={{
+                                                                        backgroundColor: ticket.closeReasonColor || "#9e9e9e",
+                                                                        color: "#fff",
+                                                                        fontWeight: 500,
+                                                                        fontSize: "0.7rem"
+                                                                    }}
+                                                                />
+                                                            ) : (
+                                                                <Typography variant="caption" color="textSecondary">-</Typography>
+                                                            )}
+                                                        </TableCell>
+                                                    )}
                                                     <TableCell align="center">
                                                         <IconButton
                                                             size="small"
@@ -767,6 +911,207 @@ const Reports = () => {
                                     onPageChange={handlePageChange}
                                     rowsPerPage={detailedTickets.limit}
                                     onRowsPerPageChange={handleRowsPerPageChange}
+                                    rowsPerPageOptions={[5, 10, 20, 50]}
+                                    labelRowsPerPage={isMobile ? "" : "Filas:"}
+                                    labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}
+                                />
+                            </Paper>
+                        </Grid>
+                    </Grid>
+
+                    {/* Typification Distribution Chart */}
+                    {data.typifications && data.typifications.length > 0 && (
+                        <Grid container spacing={isMobile ? 1 : 2} style={{ marginTop: 16 }}>
+                            <Grid item xs={12} md={6}>
+                                <Paper className={classes.chartPaper}>
+                                    <Typography variant="h6" className={classes.chartTitle}>
+                                        <LabelIcon style={{ verticalAlign: "middle", marginRight: 8, fontSize: 20 }} />
+                                        Distribución por Tipificación
+                                    </Typography>
+                                    <ResponsiveContainer width="100%" height={isMobile ? 220 : 300}>
+                                        <PieChart>
+                                            <Pie
+                                                data={data.typifications.map(t => ({ name: t.reasonName, value: t.count, fill: t.color }))}
+                                                cx="50%"
+                                                cy="50%"
+                                                innerRadius={50}
+                                                outerRadius={90}
+                                                paddingAngle={2}
+                                                dataKey="value"
+                                                label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                                            >
+                                                {data.typifications.map((entry, index) => (
+                                                    <Cell key={`typ-${index}`} fill={entry.color || COLORS[index % COLORS.length]} />
+                                                ))}
+                                            </Pie>
+                                            <Tooltip />
+                                            <Legend />
+                                        </PieChart>
+                                    </ResponsiveContainer>
+                                </Paper>
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Paper className={classes.tablePaper}>
+                                    <Typography variant="h6" style={{ padding: 16 }}>
+                                        Detalle por Tipificación
+                                    </Typography>
+                                    <TableContainer>
+                                        <Table size="small">
+                                            <TableHead className={classes.tableHeader}>
+                                                <TableRow>
+                                                    <TableCell>Tipificación</TableCell>
+                                                    <TableCell>Categoría</TableCell>
+                                                    <TableCell align="right">Cantidad</TableCell>
+                                                </TableRow>
+                                            </TableHead>
+                                            <TableBody>
+                                                {data.typifications.map((typ, idx) => (
+                                                    <TableRow key={idx}>
+                                                        <TableCell>
+                                                            <Box display="flex" alignItems="center">
+                                                                <Box
+                                                                    style={{
+                                                                        width: 12,
+                                                                        height: 12,
+                                                                        borderRadius: "50%",
+                                                                        backgroundColor: typ.color || "#9e9e9e",
+                                                                        marginRight: 8,
+                                                                    }}
+                                                                />
+                                                                {typ.reasonName}
+                                                            </Box>
+                                                        </TableCell>
+                                                        <TableCell>
+                                                            <Chip
+                                                                size="small"
+                                                                label={typ.category === "positive" ? "Positiva" : typ.category === "negative" ? "Negativa" : "-"}
+                                                                style={{
+                                                                    backgroundColor: typ.category === "positive" ? "#4caf50" : typ.category === "negative" ? "#f44336" : "#9e9e9e",
+                                                                    color: "#fff",
+                                                                    fontSize: "0.7rem"
+                                                                }}
+                                                            />
+                                                        </TableCell>
+                                                        <TableCell align="right">{typ.count}</TableCell>
+                                                    </TableRow>
+                                                ))}
+                                            </TableBody>
+                                        </Table>
+                                    </TableContainer>
+                                </Paper>
+                            </Grid>
+                        </Grid>
+                    )}
+
+                    {/* Form Responses Table */}
+                    <Grid container spacing={isMobile ? 1 : 2} style={{ marginTop: 16 }}>
+                        <Grid item xs={12}>
+                            <Paper className={classes.tablePaper}>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" padding={2}>
+                                    <Typography variant="h6" className={classes.chartTitle} style={{ marginBottom: 0 }}>
+                                        <DescriptionIcon style={{ verticalAlign: "middle", marginRight: 8, fontSize: 20 }} />
+                                        Reporte de Formularios
+                                    </Typography>
+                                    {formResponsesLoading && <CircularProgress size={24} />}
+                                </Box>
+                                <TableContainer style={{ maxHeight: isMobile ? 400 : 500, overflow: "auto" }}>
+                                    <Table size="small" stickyHeader>
+                                        <TableHead className={classes.tableHeader}>
+                                            <TableRow>
+                                                <TableCell>Contacto</TableCell>
+                                                <TableCell>Número</TableCell>
+                                                {!isMobile && <TableCell>Email</TableCell>}
+                                                <TableCell>Ticket</TableCell>
+                                                <TableCell>Tipificación</TableCell>
+                                                <TableCell>Formulario</TableCell>
+                                                {!isMobile && <TableCell>Fecha</TableCell>}
+                                                {!isMobile && <TableCell>Registrado por</TableCell>}
+                                                {formResponses.allFieldLabels.map((label) => (
+                                                    <TableCell key={label}>{label}</TableCell>
+                                                ))}
+                                            </TableRow>
+                                        </TableHead>
+                                        <TableBody>
+                                            {formResponses.responses.map((resp) => (
+                                                <TableRow key={resp.responseId} hover>
+                                                    <TableCell>
+                                                        <Typography variant="body2" noWrap style={{ maxWidth: isMobile ? 100 : 150 }}>
+                                                            {resp.contactName}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    <TableCell>{resp.contactNumber}</TableCell>
+                                                    {!isMobile && <TableCell>{resp.contactEmail || "-"}</TableCell>}
+                                                    <TableCell>
+                                                        {resp.ticketId ? (
+                                                            <Chip
+                                                                size="small"
+                                                                label={`#${resp.ticketId}`}
+                                                                color="primary"
+                                                                variant="outlined"
+                                                                onClick={() => handleViewTicket(resp.ticketId)}
+                                                                style={{ cursor: "pointer" }}
+                                                            />
+                                                        ) : "-"}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        {resp.closeReasonName ? (
+                                                            <Chip
+                                                                size="small"
+                                                                label={resp.closeReasonName}
+                                                                style={{
+                                                                    backgroundColor: resp.closeReasonCategory === "positive" ? "#4caf50" : resp.closeReasonCategory === "negative" ? "#f44336" : "#9e9e9e",
+                                                                    color: "#fff",
+                                                                    fontSize: "0.7rem"
+                                                                }}
+                                                            />
+                                                        ) : (
+                                                            <Typography variant="caption" color="textSecondary">-</Typography>
+                                                        )}
+                                                    </TableCell>
+                                                    <TableCell>
+                                                        <Typography variant="body2" noWrap style={{ maxWidth: 120 }}>
+                                                            {resp.formName}
+                                                        </Typography>
+                                                    </TableCell>
+                                                    {!isMobile && (
+                                                        <TableCell>
+                                                            {new Date(resp.submittedAt).toLocaleString("es", {
+                                                                month: "short",
+                                                                day: "numeric",
+                                                                hour: "2-digit",
+                                                                minute: "2-digit"
+                                                            })}
+                                                        </TableCell>
+                                                    )}
+                                                    {!isMobile && <TableCell>{resp.submittedByName || "-"}</TableCell>}
+                                                    {formResponses.allFieldLabels.map((label) => (
+                                                        <TableCell key={label}>
+                                                            <Typography variant="body2" noWrap style={{ maxWidth: 150 }}>
+                                                                {resp.formData?.[label] || "-"}
+                                                            </Typography>
+                                                        </TableCell>
+                                                    ))}
+                                                </TableRow>
+                                            ))}
+                                            {formResponses.responses.length === 0 && !formResponsesLoading && (
+                                                <TableRow>
+                                                    <TableCell colSpan={8 + formResponses.allFieldLabels.length} align="center">
+                                                        <Typography variant="body2" color="textSecondary">
+                                                            No hay formularios completados en este período
+                                                        </Typography>
+                                                    </TableCell>
+                                                </TableRow>
+                                            )}
+                                        </TableBody>
+                                    </Table>
+                                </TableContainer>
+                                <TablePagination
+                                    component="div"
+                                    count={formResponses.total}
+                                    page={formResponses.page - 1}
+                                    onPageChange={handleFormPageChange}
+                                    rowsPerPage={formResponses.limit}
+                                    onRowsPerPageChange={handleFormRowsPerPageChange}
                                     rowsPerPageOptions={[5, 10, 20, 50]}
                                     labelRowsPerPage={isMobile ? "" : "Filas:"}
                                     labelDisplayedRows={({ from, to, count }) => `${from}-${to} de ${count}`}

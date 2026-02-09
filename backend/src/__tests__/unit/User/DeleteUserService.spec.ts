@@ -1,3 +1,5 @@
+jest.mock("../../../helpers/UpdateDeletedUserOpenTicketsStatus");
+
 import faker from "faker";
 import AppError from "../../../errors/AppError";
 import CreateUserService from "../../../services/UserServices/CreateUserService";
@@ -9,6 +11,12 @@ const TENANT_ID = 1;
 describe("User", () => {
   beforeEach(async () => {
     await truncate();
+    const Company = require("../../../models/Company").default;
+    await Company.create({
+      id: TENANT_ID,
+      name: "Test Company",
+      slug: "test-company"
+    });
   });
 
   afterEach(async () => {

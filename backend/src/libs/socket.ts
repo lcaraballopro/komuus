@@ -19,7 +19,11 @@ interface TokenPayload {
 export const initIO = (httpServer: Server): SocketIO => {
   io = new SocketIO(httpServer, {
     cors: {
-      origin: process.env.FRONTEND_URL
+      origin: (origin, callback) => {
+        // Allow connections from frontend and any external site (webchat widget)
+        callback(null, true);
+      },
+      credentials: true
     }
   });
 
@@ -65,6 +69,23 @@ export const initIO = (httpServer: Server): SocketIO => {
 
     return socket;
   });
+  // Register /webchat namespace for embedded widget visitors (no auth required)
+  const webchatNs = io.of("/webchat");
+  webchatNs.on("connection", (socket) => {
+    logger.info("Webchat visitor connected");
+
+    socket.on("joinSession", (sessionToken: string) => {
+      if (sessionToken) {
+        socket.join(`session:${sessionToken}`);
+        logger.info(`Webchat visitor joined session: ${sessionToken}`);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      logger.info("Webchat visitor disconnected");
+    });
+  });
+
   return io;
 };
 

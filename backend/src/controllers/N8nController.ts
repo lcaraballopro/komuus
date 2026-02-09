@@ -6,6 +6,8 @@ import { Request, Response } from "express";
 import { handleN8nReply } from "../services/N8nService/N8nReplyService";
 import { handleN8nEscalate, handleN8nReactivate } from "../services/N8nService/N8nEscalateService";
 import { testAgentConnection } from "../services/N8nService/N8nWebhookService";
+import { handleWebchatN8nReply } from "../services/N8nService/WebchatN8nReplyService";
+import { handleWebchatN8nEscalate } from "../services/N8nService/WebchatN8nEscalateService";
 import {
     getBotState,
     setBotActive,
@@ -214,5 +216,85 @@ export const health = async (req: Request, res: Response): Promise<Response> => 
         status: "ok",
         timestamp: new Date().toISOString()
     });
+};
+
+/**
+ * POST /api/n8n/reservations
+ * 
+ * Create a reservation from n8n (AI Agent)
+ * Body: { ticketId: number, title: string, startDate: string, endDate: string, description?: string, notes?: string }
+ */
+export const createReservation = async (req: Request, res: Response): Promise<Response> => {
+    const { ticketId, title, startDate, endDate, description, notes } = req.body;
+
+    if (!ticketId || !title || !startDate || !endDate) {
+        return res.status(400).json({ error: "Missing required fields: ticketId, title, startDate, endDate" });
+    }
+
+    try {
+        // Find ticket to get context (tenantId, contactId)
+        const Ticket = (await import("../models/Ticket")).default;
+        const ticket = await Ticket.findByPk(ticketId);
+
+        if (!ticket) {
+            return res.status(404).json({ error: "Ticket not found" });
+        }
+
+        const CreateReservationService = (await import("../services/ReservationService/CreateReservationService")).default;
+
+        const reservation = await CreateReservationService({
+            title,
+            description,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            status: "pending",
+            notes: notes || `Created via AI Agent (Ticket #${ticketId})`,
+            contactId: ticket.contactId,
+            userId: ticket.userId, // Assign to current ticket owner
+            ticketId: ticket.id,
+            tenantId: ticket.tenantId
+        });
+
+        return res.status(201).json(reservation);
+    } catch (error: any) {
+        console.error(error);
+        return res.status(500).json({ error: error.message || "Failed to create reservation" });
+    }
+};
+
+/**
+ * POST /api/n8n/webchat-reply
+ *
+ * Send a reply to a webchat visitor from n8n
+ * Body: { sessionToken: string, message: string }
+ */
+export const webchatReply = async (req: Request, res: Response): Promise<Response> => {
+    const { sessionToken, message } = req.body;
+
+    const result = await handleWebchatN8nReply({ sessionToken, message });
+
+    if (result.success) {
+        return res.status(200).json(result);
+    } else {
+        return res.status(400).json(result);
+    }
+};
+
+/**
+ * POST /api/n8n/webchat-escalate
+ *
+ * Transfer a webchat conversation to a human agent queue
+ * Body: { sessionToken: string, queueId?: number, reason?: string, aiSummary?: string }
+ */
+export const webchatEscalate = async (req: Request, res: Response): Promise<Response> => {
+    const { sessionToken, queueId, reason, aiSummary } = req.body;
+
+    const result = await handleWebchatN8nEscalate({ sessionToken, queueId, reason, aiSummary });
+
+    if (result.success) {
+        return res.status(200).json(result);
+    } else {
+        return res.status(400).json(result);
+    }
 };
 

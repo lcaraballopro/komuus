@@ -3,50 +3,56 @@ import { QueryInterface } from "sequelize";
 module.exports = {
     up: async (queryInterface: QueryInterface) => {
         // Create default company
-        await queryInterface.bulkInsert("Companies", [{
-            name: "Default Company",
-            slug: "default",
-            plan: "enterprise",
-            isActive: true,
-            maxUsers: 100,
-            maxWhatsapps: 50,
-            createdAt: new Date(),
-            updatedAt: new Date()
-        }]);
+        const [existingCompany] = await queryInterface.sequelize.query(
+            `SELECT id FROM Companies WHERE slug = 'default' LIMIT 1`
+        ) as [{ id: number }[], unknown];
+
+        if (!existingCompany || existingCompany.length === 0) {
+            await queryInterface.bulkInsert("Companies", [{
+                name: "Default Company",
+                slug: "default",
+                plan: "enterprise",
+                isActive: true,
+                maxUsers: 100,
+                maxWhatsapps: 50,
+                createdAt: new Date(),
+                updatedAt: new Date()
+            }]);
+        }
 
         // Get the default company ID
-        const [companies] = await queryInterface.sequelize.query(
-            `SELECT id FROM "Companies" WHERE slug = 'default' LIMIT 1`
+        const [defaultCompany] = await queryInterface.sequelize.query(
+            `SELECT id FROM Companies WHERE slug = 'default' LIMIT 1`
         ) as [{ id: number }[], unknown];
-        const defaultTenantId = companies[0]?.id || 1;
+        const defaultTenantId = defaultCompany[0]?.id || 1;
 
         // Update all existing records to belong to default company
         await queryInterface.sequelize.query(
-            `UPDATE "Users" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Users SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "Contacts" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Contacts SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "Tickets" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Tickets SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "Messages" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Messages SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "Whatsapps" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Whatsapps SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "Queues" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Queues SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "QuickAnswers" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE QuickAnswers SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "Settings" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE Settings SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
         await queryInterface.sequelize.query(
-            `UPDATE "AIAgents" SET "tenantId" = ${defaultTenantId} WHERE "tenantId" IS NULL`
+            `UPDATE AIAgents SET tenantId = ${defaultTenantId} WHERE tenantId IS NULL`
         );
     },
 

@@ -5,19 +5,14 @@ import {
   UpdatedAt,
   Model,
   PrimaryKey,
-  AutoIncrement,
   ForeignKey,
   BelongsTo
 } from "sequelize-typescript";
 import Company from "./Company";
 
-@Table
+@Table({ tableName: "Settings" })
 class Setting extends Model<Setting> {
   @PrimaryKey
-  @AutoIncrement
-  @Column
-  id: number;
-
   @Column
   key: string;
 

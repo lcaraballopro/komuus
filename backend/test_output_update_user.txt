@@ -1,0 +1,284 @@
+  console.log
+    Deprecation Warning: faker.random.number is now located in faker.datatype.number
+
+      at Random.number (node_modules/faker/lib/random.js:37:13)
+
+FAIL src/__tests__/unit/User/UpdateUserService.spec.ts
+  User
+    ✕ should be able to find a user (158 ms)
+    ✕ should not be able to updated a inexisting user (79 ms)
+    ✕ should not be able to updated an user with invalid data (47 ms)
+
+  ● User › should be able to find a user
+
+    SequelizeDatabaseError: Table 'whaticket_test.Reservations' doesn't exist
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should be able to find a user
+
+    Failed: AppError {
+      "message": "Table 'whaticket_test.Users' doesn't exist",
+      "statusCode": 400,
+    }
+
+      26 |   });
+      27 | 
+    > 28 |   it("should be able to find a user", async () => {
+         |   ^
+      29 |     const newUser = await CreateUserService({
+      30 |       name: faker.name.findName(),
+      31 |       email: faker.internet.email(),
+
+      at Env.it (node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:95:24)
+      at Suite.<anonymous> (src/__tests__/unit/User/UpdateUserService.spec.ts:28:3)
+      at Object.<anonymous> (src/__tests__/unit/User/UpdateUserService.spec.ts:9:1)
+
+  ● User › should be able to find a user
+
+    SequelizeDatabaseError: Table 'whaticket_test.Reservations' doesn't exist
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should not be able to updated a inexisting user
+
+    SequelizeDatabaseError: Table 'whaticket_test.Reservations' doesn't exist
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should not be able to updated a inexisting user
+
+    expect(received).rejects.toBeInstanceOf(expected)
+
+    Expected constructor: AppError
+    Received constructor: DatabaseError
+
+      54 |     };
+      55 | 
+    > 56 |     expect(UpdateUserService({ userId, userData, tenantId: TENANT_ID })).rejects.toBeInstanceOf(
+         |                                                                                  ^
+      57 |       AppError
+      58 |     );
+      59 |   });
+
+      at Object.toBeInstanceOf (node_modules/expect/build/index.js:241:20)
+      at src/__tests__/unit/User/UpdateUserService.spec.ts:56:82
+      at src/__tests__/unit/User/UpdateUserService.spec.ts:8:71
+      at Object.<anonymous>.__awaiter (src/__tests__/unit/User/UpdateUserService.spec.ts:4:12)
+      at Object.<anonymous> (src/__tests__/unit/User/UpdateUserService.spec.ts:49:68)
+
+  ● User › should not be able to updated an user with invalid data
+
+    SequelizeDatabaseError: Table 'whaticket_test.Reservations' doesn't exist
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should not be able to updated an user with invalid data
+
+    SequelizeDatabaseError: Table 'whaticket_test.Reservations' doesn't exist
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+  ● User › should not be able to updated an user with invalid data
+
+    Failed: AppError {
+      "message": "Table 'whaticket_test.Users' doesn't exist",
+      "statusCode": 400,
+    }
+
+      59 |   });
+      60 | 
+    > 61 |   it("should not be able to updated an user with invalid data", async () => {
+         |   ^
+      62 |     const newUser = await CreateUserService({
+      63 |       name: faker.name.findName(),
+      64 |       email: faker.internet.email(),
+
+      at Env.it (node_modules/jest-jasmine2/build/jasmineAsyncInstall.js:95:24)
+      at Suite.<anonymous> (src/__tests__/unit/User/UpdateUserService.spec.ts:61:3)
+      at Object.<anonymous> (src/__tests__/unit/User/UpdateUserService.spec.ts:9:1)
+
+  ● User › should not be able to updated an user with invalid data
+
+    SequelizeDatabaseError: Table 'whaticket_test.Reservations' doesn't exist
+
+      at Query.formatError (node_modules/sequelize/lib/dialects/mysql/query.js:244:16)
+      at Query.handler [as onResult] (node_modules/sequelize/lib/dialects/mysql/query.js:51:23)
+      at Query.execute (node_modules/mysql2/lib/commands/command.js:36:14)
+      at Connection.handlePacket (node_modules/mysql2/lib/connection.js:456:32)
+      at PacketParser.onPacket (node_modules/mysql2/lib/connection.js:85:12)
+      at PacketParser.executeStart (node_modules/mysql2/lib/packet_parser.js:75:16)
+      at Socket.<anonymous> (node_modules/mysql2/lib/connection.js:92:25)
+
+-------------------------------------|---------|----------|---------|---------|-------------------
+File                                 | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s 
+-------------------------------------|---------|----------|---------|---------|-------------------
+All files                            |    1.89 |      6.5 |    2.77 |    1.89 |                   
+ services                            |       0 |        0 |       0 |       0 |                   
+  WebPushService.ts                  |       0 |        0 |       0 |       0 | 1-65              
+ services/AIAgentService             |       0 |        0 |       0 |       0 |                   
+  CreateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-29              
+  DeleteAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-21              
+  ListAIAgentsService.ts             |       0 |        0 |       0 |       0 | 1-34              
+  ShowAIAgentService.ts              |       0 |        0 |       0 |       0 | 1-21              
+  UpdateAIAgentService.ts            |       0 |        0 |       0 |       0 | 1-44              
+ services/AuthServices               |       0 |        0 |       0 |       0 |                   
+  RefreshTokenService.ts             |       0 |        0 |       0 |       0 | 1-47              
+ services/BotStateService            |       0 |        0 |       0 |       0 |                   
+  BotStateService.ts                 |       0 |        0 |       0 |       0 | 1-129             
+ services/CloseReasonService         |       0 |        0 |       0 |       0 |                   
+  CreateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-30              
+  DeleteCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-22              
+  ListCloseReasonsService.ts         |       0 |        0 |       0 |       0 | 1-39              
+  ShowCloseReasonService.ts          |       0 |        0 |       0 |       0 | 1-21              
+  UpdateCloseReasonService.ts        |       0 |        0 |       0 |       0 | 1-33              
+ services/CompanyService             |       0 |        0 |       0 |       0 |                   
+  CreateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-39              
+  DeleteCompanyService.ts            |       0 |        0 |       0 |       0 | 1-19              
+  ListCompaniesService.ts            |       0 |        0 |       0 |       0 | 1-32              
+  ShowCompanyService.ts              |       0 |        0 |       0 |       0 | 1-14              
+  UpdateCompanyService.ts            |       0 |        0 |       0 |       0 | 1-52              
+ services/ContactFormService         |       0 |        0 |       0 |       0 |                   
+  CreateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-76              
+  DeleteContactFormService.ts        |       0 |        0 |       0 |       0 | 1-50              
+  ListContactFormResponsesService.ts |       0 |        0 |       0 |       0 | 1-96              
+  ListContactFormsService.ts         |       0 |        0 |       0 |       0 | 1-64              
+  ShowContactFormService.ts          |       0 |        0 |       0 |       0 | 1-33              
+  SubmitContactFormService.ts        |       0 |        0 |       0 |       0 | 1-95              
+  UpdateContactFormService.ts        |       0 |        0 |       0 |       0 | 1-119             
+ services/ContactServices            |       0 |        0 |       0 |       0 |                   
+  CreateContactService.ts            |       0 |        0 |       0 |       0 | 1-49              
+  CreateOrUpdateContactService.ts    |       0 |        0 |       0 |       0 | 1-62              
+  DeleteContactService.ts            |       0 |        0 |       0 |       0 | 1-24              
+  GetContactService.ts               |       0 |        0 |       0 |       0 | 1-42              
+  ListContactsService.ts             |       0 |        0 |       0 |       0 | 1-53              
+  ShowContactService.ts              |       0 |        0 |       0 |       0 | 1-39              
+  UpdateContactService.ts            |       0 |        0 |       0 |       0 | 1-72              
+ services/LeadService                |       0 |        0 |       0 |       0 |                   
+  CreateLeadService.ts               |       0 |        0 |       0 |       0 | 1-91              
+  FindLeadService.ts                 |       0 |        0 |       0 |       0 | 1-46              
+  ListLeadsService.ts                |       0 |        0 |       0 |       0 | 1-62              
+  UpdateLeadService.ts               |       0 |        0 |       0 |       0 | 1-46              
+ services/MessageServices            |       0 |        0 |       0 |       0 |                   
+  CreateMessageService.ts            |       0 |        0 |       0 |       0 | 1-101             
+  ListMessagesService.ts             |       0 |        0 |       0 |       0 | 1-59              
+ services/N8nService                 |       0 |        0 |       0 |       0 |                   
+  N8nEscalateService.ts              |       0 |        0 |       0 |       0 | 1-214             
+  N8nReplyService.ts                 |       0 |        0 |       0 |       0 | 1-109             
+  N8nWebhookService.ts               |       0 |        0 |       0 |       0 | 1-332             
+ services/PermissionServices         |       0 |        0 |       0 |       0 |                   
+  ListPermissionsService.ts          |       0 |        0 |       0 |       0 | 1-29              
+  UserHasPermissionService.ts        |       0 |        0 |       0 |       0 | 1-36              
+ services/QueueService               |       0 |        0 |       0 |       0 |                   
+  CreateQueueService.ts              |       0 |        0 |       0 |       0 | 1-68              
+  DeleteQueueService.ts              |       0 |        0 |       0 |       0 | 1-17              
+  ListQueuesService.ts               |       0 |        0 |       0 |       0 | 1-18              
+  ShowQueueService.ts                |       0 |        0 |       0 |       0 | 1-24              
+  UpdateQueueService.ts              |       0 |        0 |       0 |       0 | 1-80              
+ services/QuickAnswerService         |       0 |        0 |       0 |       0 |                   
+  CreateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-29              
+  DeleteQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-21              
+  ListQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-49              
+  ShowQuickAnswerService.ts          |       0 |        0 |       0 |       0 | 1-21              
+  UpdateQuickAnswerService.ts        |       0 |        0 |       0 |       0 | 1-42              
+ services/ReportService              |       0 |        0 |       0 |       0 |                   
+  index.ts                           |       0 |        0 |       0 |       0 | 1-685             
+ services/ReservationService         |       0 |        0 |       0 |       0 |                   
+  CreateReservationService.ts        |       0 |        0 |       0 |       0 | 1-45              
+  DeleteReservationService.ts        |       0 |        0 |       0 |       0 | 1-21              
+  ListReservationsService.ts         |       0 |        0 |       0 |       0 | 1-63              
+  ShowReservationService.ts          |       0 |        0 |       0 |       0 | 1-27              
+  UpdateReservationService.ts        |       0 |        0 |       0 |       0 | 1-44              
+ services/RoleServices               |       0 |        0 |       0 |       0 |                   
+  CreateRoleService.ts               |       0 |        0 |       0 |       0 | 1-40              
+  DeleteRoleService.ts               |       0 |        0 |       0 |       0 | 1-26              
+  ListRolesService.ts                |       0 |        0 |       0 |       0 | 1-19              
+  ShowRoleService.ts                 |       0 |        0 |       0 |       0 | 1-23              
+  UpdateRoleService.ts               |       0 |        0 |       0 |       0 | 1-55              
+ services/SettingServices            |       0 |        0 |       0 |       0 |                   
+  ListSettingByValueService.ts       |       0 |        0 |       0 |       0 | 1-22              
+  ListSettingsService.ts             |       0 |        0 |       0 |       0 | 1-17              
+  UpdateSettingService.ts            |       0 |        0 |       0 |       0 | 1-28              
+ services/TelephonyServices          |       0 |        0 |       0 |       0 |                   
+  ProcessCallHangupService.ts        |       0 |        0 |       0 |       0 | 1-96              
+  ProcessIncomingCallService.ts      |       0 |        0 |       0 |       0 | 1-117             
+ services/TicketServices             |       0 |        0 |       0 |       0 |                   
+  CreateTicketService.ts             |       0 |        0 |       0 |       0 | 1-49              
+  DeleteTicketService.ts             |       0 |        0 |       0 |       0 | 1-18              
+  FindOrCreateTicketService.ts       |       0 |        0 |       0 |       0 | 1-101             
+  ListTicketsService.ts              |       0 |        0 |       0 |       0 | 1-161             
+  ShowTicketService.ts               |       0 |        0 |       0 |       0 | 1-66              
+  UpdateTicketService.ts             |       0 |        0 |       0 |       0 | 1-112             
+ services/UserServices               |   37.96 |    38.09 |      50 |   37.96 |                   
+  AuthUserService.ts                 |       0 |        0 |       0 |       0 | 1-64              
+  CreateUserService.ts               |   79.22 |       40 |     100 |   79.22 | 46-47,57-63,69-75 
+  DeleteUserService.ts               |       0 |        0 |       0 |       0 | 1-37              
+  ListUsersService.ts                |       0 |        0 |       0 |       0 | 1-60              
+  ShowUserService.ts                 |   83.33 |    66.66 |     100 |   83.33 | 34-40             
+  UpdateUserService.ts               |   52.05 |       40 |     100 |   52.05 | 35-62,65-71       
+ services/WbotServices               |       0 |        0 |       0 |       0 |                   
+  CheckIsValidContact.ts             |       0 |        0 |       0 |       0 | 1-23              
+  CheckNumber.ts                     |       0 |        0 |       0 |       0 | 1-13              
+  DeleteWhatsAppMessage.ts           |       0 |        0 |       0 |       0 | 1-36              
+  GetProfilePicUrl.ts                |       0 |        0 |       0 |       0 | 1-14              
+  ImportContactsService.ts           |       0 |        0 |       0 |       0 | 1-41              
+  SendDirectWhatsAppMessage.ts       |       0 |        0 |       0 |       0 | 1-59              
+  SendWhatsAppMedia.ts               |       0 |        0 |       0 |       0 | 1-61              
+  SendWhatsAppMessage.ts             |       0 |        0 |       0 |       0 | 1-47              
+  StartAllWhatsAppsSessions.ts       |       0 |        0 |       0 |       0 | 1-12              
+  StartWhatsAppSession.ts            |       0 |        0 |       0 |       0 | 1-26              
+  wbotMessageListener.ts             |       0 |        0 |       0 |       0 | 1-548             
+  wbotMonitor.ts                     |       0 |        0 |       0 |       0 | 1-78              
+ services/WebchatService             |       0 |        0 |       0 |       0 |                   
+  CreateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-72              
+  CreateWebchatMessageService.ts     |       0 |        0 |       0 |       0 | 1-142             
+  CreateWebchatSessionService.ts     |       0 |        0 |       0 |       0 | 1-105             
+  DeleteWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-24              
+  GenerateWidgetScriptService.ts     |       0 |        0 |       0 |       0 | 1-54              
+  GetWebchatSessionService.ts        |       0 |        0 |       0 |       0 | 1-45              
+  ListWebchatChannelsService.ts      |       0 |        0 |       0 |       0 | 1-24              
+  ShowWebchatChannelService.ts       |       0 |        0 |       0 |       0 | 1-30              
+  UpdateWebchatChannelService.ts     |       0 |        0 |       0 |       0 | 1-84              
+ services/WhatsappService            |       0 |        0 |       0 |       0 |                   
+  AssociateWhatsappQueue.ts          |       0 |        0 |       0 |       0 | 1-12              
+  CreateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-94              
+  DeleteWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-24              
+  ListWhatsAppsService.ts            |       0 |        0 |       0 |       0 | 1-25              
+  ShowWhatsAppService.ts             |       0 |        0 |       0 |       0 | 1-47              
+  UpdateWhatsAppService.ts           |       0 |        0 |       0 |       0 | 1-91              
+-------------------------------------|---------|----------|---------|---------|-------------------
+Test Suites: 1 failed, 1 total
+Tests:       3 failed, 3 total
+Snapshots:   0 total
+Time:        3.988 s
+Ran all test suites matching /src\/__tests__\/unit\/User\/UpdateUserService.spec.ts/i.

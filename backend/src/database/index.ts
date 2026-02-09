@@ -25,6 +25,8 @@ import WebchatChannel from "../models/WebchatChannel";
 import WebchatSession from "../models/WebchatSession";
 import WebchatMessage from "../models/WebchatMessage";
 import CloseReason from "../models/CloseReason";
+import Reservation from "../models/Reservation";
+import TelephonyChannel from "../models/TelephonyChannel";
 
 // eslint-disable-next-line
 const dbConfig = require("../config/database");
@@ -58,7 +60,9 @@ const models = [
   WebchatChannel,
   WebchatSession,
   WebchatMessage,
-  CloseReason
+  CloseReason,
+  Reservation,
+  TelephonyChannel
 ];
 
 sequelize.addModels(models);

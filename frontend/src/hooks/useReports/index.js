@@ -9,7 +9,8 @@ const useReports = (filters = {}) => {
         agents: [],
         queues: [],
         daily: [],
-        contacts: { total: 0, newThisPeriod: 0 }
+        contacts: { total: 0, newThisPeriod: 0 },
+        typifications: []
     });
 
     // Detailed tickets state
@@ -21,6 +22,17 @@ const useReports = (filters = {}) => {
         totalPages: 0
     });
     const [detailedLoading, setDetailedLoading] = useState(false);
+
+    // Form responses state
+    const [formResponses, setFormResponses] = useState({
+        responses: [],
+        total: 0,
+        page: 1,
+        limit: 10,
+        totalPages: 0,
+        allFieldLabels: []
+    });
+    const [formResponsesLoading, setFormResponsesLoading] = useState(false);
 
     const fetchReports = useCallback(async () => {
         setLoading(true);
@@ -58,6 +70,25 @@ const useReports = (filters = {}) => {
         }
     }, [JSON.stringify(filters)]);
 
+    const fetchFormResponses = useCallback(async (page = 1, limit = 10) => {
+        setFormResponsesLoading(true);
+        try {
+            const params = new URLSearchParams();
+            Object.entries(filters).forEach(([key, value]) => {
+                if (value) params.append(key, String(value));
+            });
+            params.append("page", String(page));
+            params.append("limit", String(limit));
+
+            const { data: formData } = await api.get(`/reports/form-responses?${params.toString()}`);
+            setFormResponses(formData);
+        } catch (err) {
+            toastError(err);
+        } finally {
+            setFormResponsesLoading(false);
+        }
+    }, [JSON.stringify(filters)]);
+
     useEffect(() => {
         fetchReports();
     }, [fetchReports]);
@@ -65,6 +96,7 @@ const useReports = (filters = {}) => {
     const refresh = () => {
         fetchReports();
         fetchDetailedTickets(detailedTickets.page, detailedTickets.limit);
+        fetchFormResponses(formResponses.page, formResponses.limit);
     };
 
     return {
@@ -73,7 +105,10 @@ const useReports = (filters = {}) => {
         refresh,
         detailedTickets,
         detailedLoading,
-        fetchDetailedTickets
+        fetchDetailedTickets,
+        formResponses,
+        formResponsesLoading,
+        fetchFormResponses
     };
 };
 

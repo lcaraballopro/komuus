@@ -62,6 +62,8 @@ const moduleTranslations = {
     reports: "Reportes",
     campaigns: "Campañas",
     aiAgents: "Agentes IA",
+    webchat: "Webchat",
+    reservations: "Reservas",
 };
 
 const RoleModal = ({ open, onClose, roleId }) => {

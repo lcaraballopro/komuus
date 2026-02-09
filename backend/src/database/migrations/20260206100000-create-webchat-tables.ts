@@ -40,7 +40,7 @@ module.exports = {
             },
             allowedDomains: {
                 defaultValue: [],
-                type: DataTypes.ARRAY(DataTypes.STRING)
+                type: DataTypes.JSON
             },
             aiAgentId: {
                 type: DataTypes.INTEGER,

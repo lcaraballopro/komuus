@@ -330,4 +330,133 @@ const testAgentConnection = async (agentId: number): Promise<{ success: boolean;
     }
 };
 
-export { triggerN8nWebhook, testAgentConnection, getAgentWebhookUrl, WebhookPayload, TriggerOptions };
+// =============================================
+// WEBCHAT AI AGENT WEBHOOK
+// =============================================
+
+import WebchatChannel from "../../models/WebchatChannel";
+import WebchatSession from "../../models/WebchatSession";
+import WebchatMessage from "../../models/WebchatMessage";
+
+interface WebchatTriggerOptions {
+    sessionToken: string;
+    sessionId: number;
+    channelId: number;
+    message: string;
+    tenantId: number;
+    ticketId?: number;
+    contactId?: number;
+}
+
+/**
+ * Trigger webhook to n8n when a webchat visitor sends a message.
+ * Uses the AI Agent linked to the WebchatChannel.
+ */
+const triggerWebchatN8nWebhook = async (options: WebchatTriggerOptions): Promise<boolean> => {
+    // Fetch channel with AI agent
+    const channel = await WebchatChannel.findByPk(options.channelId, {
+        include: [
+            { model: AIAgent, as: "aiAgent" },
+            { model: Company, as: "company" }
+        ]
+    });
+
+    if (!channel?.aiAgent || !channel.aiAgent.isActive) {
+        logger.debug(`No active AI Agent for webchat channel ${options.channelId}`);
+        return false;
+    }
+
+    // Check bot state using webchat-specific key
+    const botChatId = `webchat-${options.sessionToken}`;
+    const botActive = await isBotActive(botChatId);
+    if (!botActive) {
+        logger.debug(`Bot inactive for webchat session ${options.sessionToken}`);
+        return false;
+    }
+
+    // Fetch related entities
+    const [ticket, contact, session] = await Promise.all([
+        options.ticketId ? Ticket.findByPk(options.ticketId, {
+            include: [{ model: Queue, as: "queue" }, { model: User, as: "user" }]
+        }) : null,
+        options.contactId ? Contact.findByPk(options.contactId) : null,
+        WebchatSession.findByPk(options.sessionId)
+    ]);
+
+    const totalMessages = await WebchatMessage.count({
+        where: { sessionId: options.sessionId }
+    });
+
+    const agent = channel.aiAgent;
+    const company = channel.company;
+
+    // Build webchat-specific payload
+    const payload = {
+        sessionToken: options.sessionToken,
+        message: options.message,
+        messageType: "text",
+        timestamp: new Date().toISOString(),
+
+        ticket: {
+            id: ticket?.id || options.ticketId || 0,
+            status: ticket?.status || "bot",
+            unreadMessages: ticket?.unreadMessages || 0,
+            lastMessage: options.message,
+            createdAt: ticket?.createdAt?.toISOString() || new Date().toISOString(),
+            updatedAt: ticket?.updatedAt?.toISOString() || new Date().toISOString(),
+            isFirstMessage: totalMessages <= 1
+        },
+
+        contact: {
+            id: contact?.id || 0,
+            name: contact?.name || session?.visitorName || "Visitante Web",
+            email: contact?.email || session?.visitorEmail || null,
+            phone: session?.visitorPhone || null
+        },
+
+        queue: {
+            id: ticket?.queue?.id || null,
+            name: ticket?.queue?.name || null,
+            color: ticket?.queue?.color || null
+        },
+
+        tenant: {
+            id: company?.id || options.tenantId,
+            name: company?.name || "Default"
+        },
+
+        aiAgent: {
+            id: agent.id,
+            name: agent.name
+        },
+
+        meta: {
+            totalContactMessages: totalMessages,
+            platform: "webchat",
+            referrerUrl: session?.referrerUrl || null,
+            ipAddress: session?.ipAddress || null
+        }
+    };
+
+    try {
+        const headers: Record<string, string> = { "Content-Type": "application/json" };
+        if (agent.apiToken) headers["Authorization"] = `Bearer ${agent.apiToken}`;
+
+        const response = await axios.post(agent.webhookUrl, payload, { headers, timeout: 10000 });
+        logger.info(`Webchat n8n webhook for session ${options.sessionToken}: ${response.status}`);
+        return true;
+    } catch (error: any) {
+        logger.error(`Webchat n8n webhook error: ${error.message}`);
+        return false;
+    }
+};
+
+export {
+    triggerN8nWebhook,
+    triggerWebchatN8nWebhook,
+    testAgentConnection,
+    getAgentWebhookUrl,
+    WebhookPayload,
+    TriggerOptions,
+    WebchatTriggerOptions
+};

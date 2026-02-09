@@ -73,7 +73,7 @@ module.exports = {
                 allowNull: true
             },
             options: {
-                type: DataTypes.JSONB,
+                type: DataTypes.JSON,
                 allowNull: true
                 // For select fields: ["Option 1", "Option 2", ...]
             },
