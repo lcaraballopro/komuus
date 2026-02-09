@@ -1,5 +1,5 @@
 import React, { useState, useContext, useEffect, useCallback } from "react";
-import { useHistory } from "react-router-dom";
+import { useHistory, Link as RouterLink } from "react-router-dom";
 import {
     makeStyles,
     IconButton,
@@ -17,6 +17,8 @@ import {
     Typography,
     useMediaQuery,
     useTheme,
+    Menu,
+    MenuItem,
 } from "@material-ui/core";
 import SearchIcon from "@material-ui/icons/Search";
 import AddIcon from "@material-ui/icons/Add";
@@ -32,6 +34,7 @@ import { WhatsAppsContext } from "../../context/WhatsApp/WhatsAppsContext";
 import { i18n } from "../../translate/i18n";
 import NewTicketModal from "../NewTicketModal";
 import ContactModal from "../ContactModal";
+import NotificationsPopOver from "../NotificationsPopOver";
 
 // Logo from public folder (Vite resolves this at build time)
 const logo = "/lgokomu.png";
@@ -236,13 +239,15 @@ const TopToolbar = ({ onSwipeDown }) => {
     const history = useHistory();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-    const { user } = useContext(AuthContext);
+    const { user, handleLogout } = useContext(AuthContext);
     const { whatsApps } = useContext(WhatsAppsContext);
 
     const [searchOpen, setSearchOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const [newTicketModalOpen, setNewTicketModalOpen] = useState(false);
     const [contactModalOpen, setContactModalOpen] = useState(false);
+    const [userMenuAnchor, setUserMenuAnchor] = useState(null);
+    const userMenuOpen = Boolean(userMenuAnchor);
 
     // WhatsApp connection status
     const connectedCount = whatsApps.filter(w => w.status === "CONNECTED").length;
@@ -303,9 +308,44 @@ const TopToolbar = ({ onSwipeDown }) => {
     return (
         <>
             <div className={classes.toolbar}>
-                {/* Logo only - simplified toolbar */}
+                {/* Logo */}
                 <div className={classes.leftSection}>
                     <img src={logo} alt="Komu" className={classes.logo} />
+                </div>
+
+                {/* Right section - notifications + user profile */}
+                <div className={classes.rightSection}>
+                    {user.id && (
+                        <NotificationsPopOver />
+                    )}
+                    <Tooltip title={user.name || "Usuario"}>
+                        <Avatar
+                            className={classes.avatar}
+                            onClick={(e) => setUserMenuAnchor(e.currentTarget)}
+                        >
+                            {getInitials(user.name)}
+                        </Avatar>
+                    </Tooltip>
+                    <Menu
+                        id="topbar-user-menu"
+                        anchorEl={userMenuAnchor}
+                        getContentAnchorEl={null}
+                        anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                        transformOrigin={{ vertical: "top", horizontal: "right" }}
+                        open={userMenuOpen}
+                        onClose={() => setUserMenuAnchor(null)}
+                    >
+                        <MenuItem
+                            component={RouterLink}
+                            to="/profile"
+                            onClick={() => setUserMenuAnchor(null)}
+                        >
+                            {i18n.t("mainDrawer.appBar.user.profile")}
+                        </MenuItem>
+                        <MenuItem onClick={() => { setUserMenuAnchor(null); handleLogout(); }}>
+                            {i18n.t("mainDrawer.appBar.user.logout")}
+                        </MenuItem>
+                    </Menu>
                 </div>
             </div>
 

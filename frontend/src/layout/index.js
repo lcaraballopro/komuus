@@ -677,10 +677,6 @@ const LoggedInLayout = ({ children }) => {
             />
           </div>
 
-          {user.id && !isMobile && (
-            <NotificationsPopOver className={classes.systemIcon} />
-          )}
-
 
           <IconButton
             edge="end"
@@ -701,44 +697,6 @@ const LoggedInLayout = ({ children }) => {
             </Badge>
           </IconButton>
 
-          <Tooltip title={user.name || "Usuario"}>
-            <IconButton
-              aria-label="account of current user"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleMenu}
-              className={classes.systemIcon}
-              size="small"
-            >
-              <AccountCircle />
-            </IconButton>
-          </Tooltip>
-          <Menu
-            id="menu-appbar"
-            anchorEl={anchorEl}
-            getContentAnchorEl={null}
-            anchorOrigin={{
-              vertical: "top",
-              horizontal: "right",
-            }}
-            transformOrigin={{
-              vertical: "bottom",
-              horizontal: "right",
-            }}
-            open={menuOpen}
-            onClose={handleCloseMenu}
-          >
-            <MenuItem
-              component={RouterLink}
-              to="/profile"
-              onClick={handleCloseMenu}
-            >
-              {i18n.t("mainDrawer.appBar.user.profile")}
-            </MenuItem>
-            <MenuItem onClick={handleClickLogout}>
-              {i18n.t("mainDrawer.appBar.user.logout")}
-            </MenuItem>
-          </Menu>
         </div>
       </div>
 

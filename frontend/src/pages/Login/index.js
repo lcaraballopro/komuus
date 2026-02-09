@@ -1,4 +1,4 @@
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useMemo } from "react";
 
 import {
   Button,
@@ -18,22 +18,58 @@ import { i18n } from "../../translate/i18n";
 
 import { AuthContext } from "../../context/Auth/AuthContext";
 
+// Background images for the login page — one is randomly selected on each load
+const backgroundImages = [
+  "/felipe-salgado-omk7zrFOT-4-unsplash.jpg",
+  "/fernanda-fierro-XV4XUU7gWlk-unsplash (1).jpg",
+  "/luis-desiro-sVui3lJZCJE-unsplash.jpg",
+  "/milo-miloezger-ZLLwL9bKlnk-unsplash.jpg",
+  "/alejandro-ortiz-19aBHDuqJIY-unsplash.jpg",
+];
+
 const useStyles = makeStyles((theme) => ({
   root: {
     minHeight: "100vh",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f5f7fa",
-    backgroundImage: "radial-gradient(ellipse at 50% 50%, rgba(97, 87, 255, 0.08) 0%, transparent 60%)",
+    position: "relative",
+    overflow: "hidden",
+  },
+  backgroundImage: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    zIndex: 0,
+    animation: "$fadeIn 1s ease-out",
+  },
+  overlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    background: "linear-gradient(135deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.35) 50%, rgba(0, 0, 0, 0.55) 100%)",
+    zIndex: 1,
   },
   card: {
+    position: "relative",
+    zIndex: 2,
     width: "100%",
-    maxWidth: 400,
+    maxWidth: 420,
     padding: theme.spacing(5),
-    backgroundColor: "#fff",
-    borderRadius: 16,
-    boxShadow: "0 4px 24px rgba(0, 0, 0, 0.08)",
+    backgroundColor: "rgba(255, 255, 255, 0.12)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderRadius: 20,
+    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
+    animation: "$slideUp 0.6s ease-out",
   },
   logoContainer: {
     display: "flex",
@@ -42,23 +78,23 @@ const useStyles = makeStyles((theme) => ({
     marginBottom: theme.spacing(3),
   },
   logo: {
-    height: 40,
+    height: 44,
     marginRight: theme.spacing(1),
-    filter: "invert(1) brightness(0.2)",
-  },
-  logoText: {
-    fontWeight: 600,
-    fontSize: "1.25rem",
-    color: "#3f51b5",
+    filter: "brightness(0) invert(1)",
+    transition: "transform 0.3s ease",
+    "&:hover": {
+      transform: "scale(1.05)",
+    },
   },
   title: {
     fontWeight: 700,
     fontSize: "1.75rem",
-    color: "#1a1a2e",
-    marginBottom: theme.spacing(1),
+    color: "#fff",
+    marginBottom: theme.spacing(0.5),
+    textShadow: "0 2px 4px rgba(0,0,0,0.2)",
   },
   subtitle: {
-    color: "#666",
+    color: "rgba(255, 255, 255, 0.75)",
     fontSize: "0.875rem",
     marginBottom: theme.spacing(3),
   },
@@ -68,51 +104,81 @@ const useStyles = makeStyles((theme) => ({
   label: {
     fontWeight: 500,
     fontSize: "0.875rem",
-    color: "#333",
+    color: "rgba(255, 255, 255, 0.85)",
     marginBottom: theme.spacing(0.5),
     display: "block",
   },
   textField: {
     marginBottom: theme.spacing(2.5),
     "& .MuiOutlinedInput-root": {
-      borderRadius: 8,
-      backgroundColor: "#fafafa",
-      transition: "all 0.2s ease",
+      borderRadius: 10,
+      backgroundColor: "rgba(255, 255, 255, 0.12)",
+      backdropFilter: "blur(8px)",
+      transition: "all 0.3s ease",
       "&:hover": {
-        backgroundColor: "#f5f5f5",
+        backgroundColor: "rgba(255, 255, 255, 0.18)",
       },
       "&.Mui-focused": {
-        backgroundColor: "#fff",
+        backgroundColor: "rgba(255, 255, 255, 0.22)",
         "& fieldset": {
-          borderColor: "#3f51b5",
+          borderColor: "rgba(255, 255, 255, 0.5)",
           borderWidth: 2,
         },
+      },
+      "& fieldset": {
+        borderColor: "rgba(255, 255, 255, 0.2)",
       },
     },
     "& .MuiOutlinedInput-input": {
       padding: "14px 16px",
+      color: "#fff",
+      "&::placeholder": {
+        color: "rgba(255, 255, 255, 0.5)",
+        opacity: 1,
+      },
+    },
+    "& .MuiInputAdornment-root .MuiIconButton-root": {
+      color: "rgba(255, 255, 255, 0.6)",
     },
   },
   submit: {
     marginTop: theme.spacing(1),
     padding: theme.spacing(1.5),
-    borderRadius: 8,
+    borderRadius: 10,
     textTransform: "none",
     fontSize: "1rem",
     fontWeight: 600,
     boxShadow: "none",
-    background: "linear-gradient(135deg, #3f51b5 0%, #5c6bc0 100%)",
-    transition: "all 0.2s ease",
+    background: "linear-gradient(135deg, rgba(255,255,255,0.25) 0%, rgba(255,255,255,0.1) 100%)",
+    border: "1px solid rgba(255,255,255,0.3)",
+    color: "#fff",
+    backdropFilter: "blur(8px)",
+    transition: "all 0.3s ease",
     "&:hover": {
-      boxShadow: "0 4px 12px rgba(63, 81, 181, 0.4)",
+      background: "linear-gradient(135deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.18) 100%)",
+      boxShadow: "0 4px 16px rgba(0, 0, 0, 0.3)",
       transform: "translateY(-1px)",
     },
   },
   copyright: {
     marginTop: theme.spacing(4),
     textAlign: "center",
-    color: "#999",
+    color: "rgba(255, 255, 255, 0.5)",
     fontSize: "0.75rem",
+  },
+  "@keyframes fadeIn": {
+    from: { opacity: 0 },
+    to: { opacity: 1 },
+  },
+  "@keyframes slideUp": {
+    from: {
+      opacity: 0,
+      transform: "translateY(30px)",
+    },
+    to: {
+      opacity: 1,
+      transform: "translateY(0)",
+    },
   },
 }));
 
@@ -123,6 +189,12 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { handleLogin } = useContext(AuthContext);
+
+  // Select a random background image once per component mount
+  const randomBg = useMemo(() => {
+    const idx = Math.floor(Math.random() * backgroundImages.length);
+    return backgroundImages[idx];
+  }, []);
 
   const handleChangeInput = (e) => {
     setUser({ ...user, [e.target.name]: e.target.value });
@@ -136,6 +208,11 @@ const Login = () => {
   return (
     <div className={classes.root}>
       <CssBaseline />
+      <div
+        className={classes.backgroundImage}
+        style={{ backgroundImage: `url("${randomBg}")` }}
+      />
+      <div className={classes.overlay} />
       <Box className={classes.card}>
         <div className={classes.logoContainer}>
           <img
@@ -222,3 +299,4 @@ const Login = () => {
 };
 
 export default Login;
+

@@ -204,6 +204,12 @@ const TicketsList = (props) => {
 			}
 		});
 
+		// On reconnect, re-fetch tickets to recover any missed events
+		socket.on("reconnect", () => {
+			dispatch({ type: "RESET" });
+			setPageNumber(1);
+		});
+
 		socket.on("ticket", data => {
 			console.log("🎫 Ticket event received:", data.action, data.ticket?.id, data.ticket?.status, {
 				shouldUpdate: data.ticket ? shouldUpdateTicket(data.ticket) : "no ticket",

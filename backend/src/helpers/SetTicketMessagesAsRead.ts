@@ -17,15 +17,18 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
 
   await ticket.update({ unreadMessages: 0 });
 
-  try {
-    const wbot = await GetTicketWbot(ticket);
-    await wbot.sendSeen(
-      `${ticket.contact.number}@${ticket.isGroup ? "g" : "c"}.us`
-    );
-  } catch (err) {
-    logger.warn(
-      `Could not mark messages as read. Maybe whatsapp session disconnected? Err: ${err}`
-    );
+  // Only send WhatsApp "seen" status for WhatsApp-based tickets
+  if (ticket.channel !== "webchat" && ticket.whatsappId) {
+    try {
+      const wbot = await GetTicketWbot(ticket);
+      await wbot.sendSeen(
+        `${ticket.contact.number}@${ticket.isGroup ? "g" : "c"}.us`
+      );
+    } catch (err) {
+      logger.warn(
+        `Could not mark messages as read. Maybe whatsapp session disconnected? Err: ${err}`
+      );
+    }
   }
 
   const io = getIO();
